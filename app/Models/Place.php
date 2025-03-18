@@ -7,12 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 
 class Place extends Model
 {
+    /** @use HasFactory<\Database\Factories\PlaceFactory> */
     use HasFactory;
 
-    protected $fillable = ['nombre', 'direccion', 'latitud', 'longitud', 'descripcion'];
+    protected $fillable = [
+        'name',
+        'address',
+        'latitude',
+        'longitude',
+        'description'
+    ];
 
     public function tags()
     {
         return $this->belongsToMany(Tag::class, 'place_tags');
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function checkpoints()
+    {
+        return $this->hasMany(Checkpoint::class);
     }
 }
