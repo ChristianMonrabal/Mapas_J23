@@ -15,22 +15,29 @@ class AuthController extends Controller
     }
 
     public function signin(Request $request)
-    {
-        if (empty($request->email) || empty($request->password)) {
-            return back()->withErrors(['error' => 'Todos los campos son obligatorios.'])->withInput();
-        }
-    
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
-    
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return redirect()->route('index');
-        }
-    
-        return back()->withErrors(['error' => 'Credenciales incorrectas.'])->withInput();
+{
+    if (empty($request->email) || empty($request->password)) {
+        return back()->withErrors(['error' => 'Todos los campos son obligatorios.'])->withInput();
     }
+
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+    ]);
+
+    if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        $user = Auth::user();
+
+        if ($user->role_id == 2) {
+            return redirect()->route('admin');
+        }
+        
+        return redirect()->route('index');
+    }
+
+    return back()->withErrors(['error' => 'Credenciales incorrectas.'])->withInput();
+}
+
     
 
     public function showSignupForm()
