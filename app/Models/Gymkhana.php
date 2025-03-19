@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Gymkhana extends Model
 {
+    /** @use HasFactory<\Database\Factories\GymkhanaFactory> */
     use HasFactory;
 
-    protected $fillable = ['nombre', 'descripcion'];
+    protected $fillable = [
+        'name',
+        'description'
+    ];
 
     public function checkpoints()
     {

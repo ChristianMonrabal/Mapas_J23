@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#map {
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.map-overlay {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin: 0 0 10px 0;
+}
+
+@media (max-width: 768px) {
+    .map-overlay {
+        margin: 5px;
+        padding: 8px;
+    }
+}
