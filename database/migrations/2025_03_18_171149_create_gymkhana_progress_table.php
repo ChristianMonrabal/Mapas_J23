@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('gymkhana_progress', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('group_users_id');
+            $table->foreign('group_users_id')->references('id')->on('group_users');
             $table->unsignedBigInteger('checkpoint_id');
             $table->foreign('checkpoint_id')->references('id')->on('checkpoints');
             $table->boolean('completed')->default(false);
