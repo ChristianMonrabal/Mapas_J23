@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Pol Marc',
             'email' => 'polmarc@gmail.com',
+            'email_verified_at' => $now,
             'password' => bcrypt('qweQWE123'),
             'role_id' => 1,
             'created_at' => $now,
@@ -28,6 +29,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Marc',
             'email' => 'marc@gmail.com',
+            'email_verified_at' => $now,
             'password' => bcrypt('qweQWE123'),
             'role_id' => 1,
             'created_at' => $now,
@@ -37,6 +39,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Christian',
             'email' => 'christian@gmail.com',
+            'email_verified_at' => $now,
             'password' => bcrypt('qweQWE123'),
             'role_id' => 2,
             'created_at' => $now,
@@ -46,6 +49,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Daniel',
             'email' => 'daniel@gmail.com',
+            'email_verified_at' => $now,
             'password' => bcrypt('qweQWE123'),
             'role_id' => 2,
             'created_at' => $now,
