@@ -1,11 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
-    createTagForm = document.getElementById("tagForm");
-    editTagForm = document.getElementById("editTagForm");
-    createTagModal = new bootstrap.Modal(document.getElementById("tagModal"));
-    editTagModal = new bootstrap.Modal(document.getElementById("editTagModal"));
-    tagsTableBody = document.getElementById("tagsTableBody");
-    toggleTagsButton = document.getElementById("toggleTags");
-    tagsTableContainer = document.getElementById("tagsTableContainer");
+    const createTagForm = document.getElementById("tagForm");
+    const editTagForm = document.getElementById("editTagForm");
+    const createTagModal = new bootstrap.Modal(document.getElementById("tagModal"));
+    const editTagModal = new bootstrap.Modal(document.getElementById("editTagModal"));
+    const tagsTableBody = document.getElementById("tagsTableBody");
+    const toggleTagsButton = document.getElementById("toggleTags");
+    const tagsTableContainer = document.getElementById("tagsTableContainer");
+    const placesTableContainer = document.getElementById("placesTableContainer");
+    const usersTableContainer = document.getElementById("usersTableContainer");
+
+    tagsTableContainer.style.display = "none";
+    placesTableContainer.style.display = "none";
+    usersTableContainer.style.display = "none";
 
     function loadTags() {
         fetch("/tags/list")
@@ -30,15 +36,15 @@ document.addEventListener("DOMContentLoaded", function () {
     
                     document.querySelectorAll(".edit-btn").forEach(button => {
                         button.addEventListener("click", function() {
-                            tagId = this.getAttribute("data-id");
-                            tagName = this.getAttribute("data-name");
+                            const tagId = this.getAttribute("data-id");
+                            const tagName = this.getAttribute("data-name");
                             openEditModal(tagId, tagName);
                         });
                     });
     
                     document.querySelectorAll(".delete-btn").forEach(button => {
                         button.addEventListener("click", function() {
-                            tagId = this.getAttribute("data-id");
+                            const tagId = this.getAttribute("data-id");
                             deleteTag(tagId);
                         });
                     });
@@ -58,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     createTagForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        let formData = new FormData(this);
+        const formData = new FormData(this);
         fetch("/tags", {
             method: "POST",
             body: formData,
@@ -85,10 +91,10 @@ document.addEventListener("DOMContentLoaded", function () {
     editTagForm.addEventListener("submit", function (event) {
         event.preventDefault();
     
-        tagId = document.getElementById("editTagId").value;
-        tagName = document.getElementById("editTagName").value;
+        const tagId = document.getElementById("editTagId").value;
+        const tagName = document.getElementById("editTagName").value;
     
-        data = {
+        const data = {
             id: tagId,
             name: tagName
         };
@@ -149,6 +155,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     toggleTagsButton.addEventListener("click", function() {
+        placesTableContainer.style.display = "none";
+        usersTableContainer.style.display = "none";
+
         if (tagsTableContainer.style.display === "none") {
             tagsTableContainer.style.display = "block";
             loadTags();

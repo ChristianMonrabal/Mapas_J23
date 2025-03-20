@@ -1,11 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
-    createPlaceForm = document.getElementById("placeForm");
-    editPlaceForm = document.getElementById("editPlaceForm");
-    createPlaceModal = new bootstrap.Modal(document.getElementById("placeModal"));
-    editPlaceModal = new bootstrap.Modal(document.getElementById("editPlaceModal"));
-    placesTableBody = document.getElementById("placesTableBody");
-    togglePlacesButton = document.getElementById("placesButton");
-    placesTableContainer = document.getElementById("placesTableContainer");
+    const createPlaceForm = document.getElementById("placeForm");
+    const editPlaceForm = document.getElementById("editPlaceForm");
+    const createPlaceModal = new bootstrap.Modal(document.getElementById("placeModal"));
+    const editPlaceModal = new bootstrap.Modal(document.getElementById("editPlaceModal"));
+    const placesTableBody = document.getElementById("placesTableBody");
+    const togglePlacesButton = document.getElementById("placesButton");
+    const placesTableContainer = document.getElementById("placesTableContainer");
+    const tagsTableContainer = document.getElementById("tagsTableContainer");
+    const usersTableContainer = document.getElementById("usersTableContainer");
+
+    tagsTableContainer.style.display = "none";
+    placesTableContainer.style.display = "none";
+    usersTableContainer.style.display = "none";
 
     function loadPlaces() {
         fetch("/places/list")
@@ -34,19 +40,19 @@ document.addEventListener("DOMContentLoaded", function () {
     
                     document.querySelectorAll(".edit-btn").forEach(button => {
                         button.addEventListener("click", function() {
-                            placeId = this.getAttribute("data-id");
-                            placeName = this.getAttribute("data-name");
-                            placeAddress = this.getAttribute("data-address");
-                            placeLatitude = this.getAttribute("data-latitude");
-                            placeLongitude = this.getAttribute("data-longitude");
-                            placeDescription = this.getAttribute("data-description");
+                            const placeId = this.getAttribute("data-id");
+                            const placeName = this.getAttribute("data-name");
+                            const placeAddress = this.getAttribute("data-address");
+                            const placeLatitude = this.getAttribute("data-latitude");
+                            const placeLongitude = this.getAttribute("data-longitude");
+                            const placeDescription = this.getAttribute("data-description");
                             openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription);
                         });
                     });
     
                     document.querySelectorAll(".delete-btn").forEach(button => {
                         button.addEventListener("click", function() {
-                            placeId = this.getAttribute("data-id");
+                            const placeId = this.getAttribute("data-id");
                             deletePlace(placeId);
                         });
                     });
@@ -54,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error("Error al cargar los places:", error));
     }
+
     setInterval(loadPlaces, 5000);
     
     function openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription) {
@@ -69,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     createPlaceForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        let formData = new FormData(this);
+        const formData = new FormData(this);
         fetch("/places", {
             method: "POST",
             body: formData,
@@ -96,14 +103,14 @@ document.addEventListener("DOMContentLoaded", function () {
     editPlaceForm.addEventListener("submit", function (event) {
         event.preventDefault();
     
-        placeId = document.getElementById("editPlaceId").value;
-        placeName = document.getElementById("editPlaceName").value;
-        placeAddress = document.getElementById("editPlaceAddress").value;
-        placeLatitude = document.getElementById("editPlaceLatitude").value;
-        placeLongitude = document.getElementById("editPlaceLongitude").value;
-        placeDescription = document.getElementById("editPlaceDescription").value;
+        const placeId = document.getElementById("editPlaceId").value;
+        const placeName = document.getElementById("editPlaceName").value;
+        const placeAddress = document.getElementById("editPlaceAddress").value;
+        const placeLatitude = document.getElementById("editPlaceLatitude").value;
+        const placeLongitude = document.getElementById("editPlaceLongitude").value;
+        const placeDescription = document.getElementById("editPlaceDescription").value;
     
-        data = {
+        const data = {
             id: placeId,
             name: placeName,
             address: placeAddress,
@@ -168,6 +175,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     togglePlacesButton.addEventListener("click", function() {
+        tagsTableContainer.style.display = "none";
+        usersTableContainer.style.display = "none";
+
         if (placesTableContainer.style.display === "none") {
             placesTableContainer.style.display = "block";
             loadPlaces();

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\UserController;
 use App\Models\Tag;
 
 Route::get('signin', [AuthController::class, 'showSigninForm'])->name('auth.signin');
@@ -21,6 +22,11 @@ Route::get('/places/list', [PlaceController::class, 'index']);
 Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
+
+Route::get('/users/list', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
+Route::put('/users/{id}', [UserController::class, 'update']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 Route::get('/tags/list', function () {
     $tags = Tag::all();
