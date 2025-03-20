@@ -30,7 +30,6 @@ class UserSeeder extends Seeder
             'email' => 'marc@gmail.com',
             'password' => bcrypt('qweQWE123'),
             'role_id' => 1,
-            'profile_image' => '',
             'created_at' => $now,
             'updated_at' => $now,
         ]);

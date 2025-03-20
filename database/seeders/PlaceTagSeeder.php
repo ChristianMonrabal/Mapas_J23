@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Place;
 use App\Models\PlaceTag;
+use App\Models\Tag;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -14,104 +16,62 @@ class PlaceTagSeeder extends Seeder
      */
     public function run(): void
     {
-        $now = Carbon::now();
+        // Alonso's Cafe
+        $alonsoCafe = Place::where('name', "Alonso's Cafe")->first();
+        $tag1 = Tag::where('name', 'Bar')->first();
+        $alonsoCafe->tags()->attach([$tag1->id]);
 
-        PlaceTag::create([
-            'place_id' => 1,
-            'tag_id' => 2,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $ermitaBellvtg = Place::where('name', "Ermita Sta Mª de Bellvitge")->first();
+        $tag2 = Tag::where('name', 'Capilla')->first();
+        $ermitaBellvtg->tags()->attach([$tag2->id]);
 
-        PlaceTag::create([
-            'place_id' => 2,
-            'tag_id' => 13,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $parqueBellvtg = Place::where('name', "Parque de Bellvitge")->first();
+        $tag3 = Tag::where('name', 'Parque')->first();
+        $parqueBellvtg->tags()->attach([$tag3->id]);
 
-        PlaceTag::create([
-            'place_id' => 3,
-            'tag_id' => 4,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $centreCultural = Place::where('name', "Centre Cultural Bellvitge-Gornal")->first();
+        $tag4 = Tag::where('name', 'Centro Cultural')->first();
+        $centreCultural->tags()->attach([$tag4->id]);
 
-        PlaceTag::create([
-            'place_id' => 4,
-            'tag_id' => 6,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $pistaBaloncesto = Place::where('name', "Pista de futsal")->first();
+        $tag4 = Tag::where('name', 'Cancha de baloncesto')->first();
+        $pistaBaloncesto->tags()->attach([$tag4->id]);
 
-        PlaceTag::create([
-            'place_id' => 5,
-            'tag_id' => 12,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $centroOcio = Place::where('name', "Pirulo Bellvitge")->first();
+        $tag5 = Tag::where('name', 'Centro de ocio')->first();
+        $centroOcio->tags()->attach([$tag5->id]);
 
-        PlaceTag::create([
-            'place_id' => 6,
-            'tag_id' => 5,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $petanca = Place::where('name', "Petanca de Bellvitge")->first();
+        $tag6 = Tag::where('name', 'Parque')->first();
+        $petanca->tags()->attach([$tag6->id]);
 
-        PlaceTag::create([
-            'place_id' => 7,
-            'tag_id' => 4,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $xurreria = Place::where('name', "Xurreria La Confiança")->first();
+        $tag7 = Tag::where('name', 'Churrería')->first();
+        $xurreria->tags()->attach([$tag7->id]);
 
-        PlaceTag::create([
-            'place_id' => 8,
-            'tag_id' => 11,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $trenBellvtg = Place::where('name', "Estación de tren Bellvitge")->first();
+        $tag8 = Tag::where('name', 'Estación de tren')->first();
+        $trenBellvtg->tags()->attach([$tag8->id]);
 
-        PlaceTag::create([
-            'place_id' => 9,
-            'tag_id' => 10,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $polideportivoBellvtg = Place::where('name', "Polideportivo Municipal Bellvitge Sergio Manzano")->first();
+        $tag9 = Tag::where('name', 'Polideportivo')->first();
+        $polideportivoBellvtg->tags()->attach([$tag9->id]);
 
-        PlaceTag::create([
-            'place_id' => 10,
-            'tag_id' => 9,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $caprabo = Place::where('name', "Caprabo")->first();
+        $tag10 = Tag::where('name', 'Supermercado')->first();
+        $caprabo->tags()->attach([$tag10->id]);
 
-        PlaceTag::create([
-            'place_id' => 11,
-            'tag_id' => 8,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $tabacs = Place::where('name', "Tabacs Exp. nº 21")->first();
+        $tag11 = Tag::where('name', 'Estanco')->first();
+        $tabacs->tags()->attach([$tag11->id]);
 
-        PlaceTag::create([
-            'place_id' => 12,
-            'tag_id' => 7,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $hospital = Place::where('name', "Consultas Externas Hospital de Bellvitge")->first();
+        $tag12 = Tag::where('name', 'Hospital')->first();
+        $hospital->tags()->attach([$tag12->id]);
 
-        PlaceTag::create([
-            'place_id' => 13,
-            'tag_id' => 3,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
-
-        PlaceTag::create([
-            'place_id' => 14,
-            'tag_id' => 14,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        $pitas = Place::where('name', "BELLVITGE PITA KEBAB")->first();
+        $tag12 = Tag::where('name', 'Kebab')->first();
+        $pitas->tags()->attach([$tag12->id]);
+        
     }
 }

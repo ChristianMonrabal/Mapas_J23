@@ -39,7 +39,7 @@ CREATE TABLE places (
 ) ENGINE=InnoDB;
 
 -- Tabla de grupos
-CREATE TABLE grupos (
+CREATE TABLE groups (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -95,16 +95,16 @@ CREATE TABLE group_users (
     group_id INT NOT NULL,
     user_id INT NOT NULL,
     PRIMARY KEY (group_id, user_id),
-    FOREIGN KEY (group_id) REFERENCES grupos(id),
+    FOREIGN KEY (group_id) REFERENCES groups(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 -- Tabla de progreso en la gimcana
 CREATE TABLE gymkhana_progress (
-    user_id INT NOT NULL,
+    group_users_id INT NOT NULL,
     checkpoint_id INT NOT NULL,
     completado BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (user_id, checkpoint_id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    PRIMARY KEY (group_users_id, checkpoint_id),
+    FOREIGN KEY (user_id) REFERENCES group_users(id),
     FOREIGN KEY (checkpoint_id) REFERENCES checkpoints(id)
 ) ENGINE=InnoDB;
