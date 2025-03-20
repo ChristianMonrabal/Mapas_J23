@@ -1,5 +1,5 @@
-CREATE DATABASE tourism_app;
-USE tourism_app;
+CREATE DATABASE mapas_j23;
+USE mapas_j23;
 
 -- Tabla de roles
 CREATE TABLE roles (
@@ -8,6 +8,13 @@ CREATE TABLE roles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+-- INSERTS ROLES
+INSERT INTO roles (name, created_at, updated_at) 
+VALUES ('user', NOW(), NOW());
+
+INSERT INTO roles (name, created_at, updated_at) 
+VALUES ('admin', NOW(), NOW());
 
 -- Tabla de gimcanas
 CREATE TABLE gymkhanas (
@@ -57,6 +64,13 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id)
 ) ENGINE=InnoDB;
+
+-- INSERTS USERS
+INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+VALUES ('user', 'user@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 1, NOW(), NOW());
+
+INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+VALUES ('admin', 'admin@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 2, NOW(), NOW());
 
 
 -- Relación entre lugares e etiquetas
