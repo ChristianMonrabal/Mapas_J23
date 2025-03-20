@@ -9,26 +9,64 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         input.classList.remove("is-invalid");
 
+        // Validar campos vacíos
         if (!value) {
             showError(input, "Este campo es obligatorio.");
             return false;
         }
 
-        if (fieldName === "latitude" || fieldName === "longitude") {
-            if (isNaN(value)) {
-                showError(input, "Este campo debe ser un número.");
-                return false;
-            }
-        }
+        // Validar campos específicos
+        switch (fieldName) {
+            case "name":
+                if (value.length > 255) {
+                    showError(input, "El nombre no puede tener más de 255 caracteres.");
+                    return false;
+                }
+                break;
 
-        if (fieldName === "name" && value.length > 20) {
-            showError(input, "El nombre no puede tener más de 20 caracteres.");
-            return false;
+            case "email":
+                if (!validateEmail(value)) {
+                    showError(input, "El email no es válido.");
+                    return false;
+                }
+                break;
+
+            case "password":
+                if (value.length < 8) {
+                    showError(input, "La contraseña debe tener al menos 8 caracteres.");
+                    return false;
+                }
+                break;
+
+            case "role_id":
+                if (value !== "1" && value !== "2") {
+                    showError(input, "Selecciona un rol válido.");
+                    return false;
+                }
+                break;
+
+            case "latitude":
+            case "longitude":
+                if (isNaN(value)) {
+                    showError(input, "Este campo debe ser un número.");
+                    return false;
+                }
+                break;
+
+            default:
+                break;
         }
 
         return true;
     }
 
+    // Función para validar el formato del email
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    // Función para mostrar errores debajo de los campos
     function showError(input, message) {
         const errorMessage = document.createElement("p");
         errorMessage.className = "error-message text-danger mt-1";
@@ -38,8 +76,9 @@ document.addEventListener("DOMContentLoaded", function () {
         input.parentNode.appendChild(errorMessage);
     }
 
+    // Añadir validación onblur a todos los campos de los formularios
     function addOnBlurValidation(form) {
-        const inputs = form.querySelectorAll("input, textarea");
+        const inputs = form.querySelectorAll("input, textarea, select");
         inputs.forEach(input => {
             input.addEventListener("blur", function () {
                 validateField(input);
@@ -47,6 +86,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Añadir validación onblur a los formularios de usuarios
+    const userForm = document.getElementById("userForm");
+    if (userForm) {
+        addOnBlurValidation(userForm);
+    }
+
+    const editUserForm = document.getElementById("editUserForm");
+    if (editUserForm) {
+        addOnBlurValidation(editUserForm);
+    }
+
+    // Añadir validación onblur a los formularios de tags
     const tagForm = document.getElementById("tagForm");
     if (tagForm) {
         addOnBlurValidation(tagForm);
@@ -57,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addOnBlurValidation(editTagForm);
     }
 
+    // Añadir validación onblur a los formularios de places
     const placeForm = document.getElementById("placeForm");
     if (placeForm) {
         addOnBlurValidation(placeForm);
