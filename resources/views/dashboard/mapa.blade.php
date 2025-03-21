@@ -30,6 +30,21 @@
     <!-- Aquí puedes añadir el contenido del sidebar -->
 </div>
 
+<!-- Panel inferior para detalles del lugar -->
+<div id="place-details" class="bottom-panel">
+    <div class="panel-header">
+        <h2 id="place-name"></h2>
+        <button class="close-panel-btn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="panel-content">
+        <p id="place-address"></p>
+        <p id="place-description"></p>
+        <div id="place-tags" class="tags-container"></div>
+    </div>
+</div>
+
 <div id="map"></div>
 
 @endsection

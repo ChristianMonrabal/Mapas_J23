@@ -58,4 +58,20 @@ class PlaceController extends Controller
         $place->delete();
         return response()->json(['message' => 'Place deleted successfully']);
     }
+
+    public function show($id)
+    {
+        try {
+            $place = Place::with('tags')->findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'place' => $place
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al cargar el lugar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

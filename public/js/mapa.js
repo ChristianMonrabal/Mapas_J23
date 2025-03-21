@@ -3,71 +3,53 @@ var map = L.map('map', {
     zoomControl: false
 });
 
+// Variable global para el marcador del usuario
+var userMarker = null;
+var watchId = null;
+
 // Agregar capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// Ejemplo: Agregar un marcador en Madrid
-var popupContent = 'Madrid';
-L.marker([40.416775, -3.703790])
-    .addTo(map)
-    .bindPopup(popupContent)
-    .openPopup()
-    .on('contextmenu', function() {
-        alert('Has presionado ' + popupContent);
-    });
+// Función para actualizar la posición del marcador
+function updateUserLocation(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
 
-// Función para cargar los lugares
-function loadPlaces() {
-    const loading = document.getElementById('loading');
-    loading.style.display = 'block';
+    // Si el marcador existe, elimínalo primero
+    if (userMarker) {
+        map.removeLayer(userMarker);
+    }
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    fetch('/places/list', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            }
+    // Crear un nuevo marcador
+    userMarker = L.marker([latitude, longitude], {
+        icon: L.divIcon({
+            className: 'user-location-marker',
+            html: '<i class="fas fa-circle"></i>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Limpiar marcadores existentes si es necesario
-                map.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                        map.removeLayer(layer);
-                    }
-                });
+    }).addTo(map);
 
-                // Agregar nuevos marcadores
-                data.places.forEach(place => {
-                    const marker = L.marker([place.latitude, place.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                        <strong>${place.name}</strong><br>
-                        ${place.address}<br>
-                        ${place.description}
-                    `);
-
-                    marker.on('contextmenu', function() {
-                        alert('Has seleccionado: ' + place.name);
-                    });
-                });
-            } else {
-                console.error('Error al cargar los lugares:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error en la petición:', error);
-        })
-        .finally(() => {
-            loading.style.display = 'none';
-        });
+    userMarker.bindPopup('Estás aquí');
 }
 
-// Función para obtener la ubicación y cargar lugares
+// Función para iniciar el seguimiento de ubicación
+function startLocationTracking() {
+    if ("geolocation" in navigator) {
+        watchId = navigator.geolocation.watchPosition(
+            updateUserLocation,
+            function(error) {
+                console.error("Error en el seguimiento:", error);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    }
+}
+
+// Función para obtener la ubicación inicial y cargar lugares
 function initializeMapAndLoadPlaces() {
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
@@ -82,24 +64,19 @@ function initializeMapAndLoadPlaces() {
                 // Centrar el mapa en la ubicación del usuario
                 map.setView([latitude, longitude], 16);
 
-                // Agregar marcador de la ubicación del usuario
-                const userMarker = L.marker([latitude, longitude], {
-                    icon: L.divIcon({
-                        className: 'user-location-marker',
-                        html: '<i class="fas fa-dot-circle"></i>',
-                        iconSize: [20, 20]
-                    })
-                }).addTo(map);
+                // Crear el marcador inicial
+                updateUserLocation(position);
 
-                userMarker.bindPopup('Tu ubicación actual').openPopup();
+                // Iniciar el seguimiento de ubicación
+                startLocationTracking();
 
                 // Cargar los lugares después de centrar el mapa
                 loadPlaces();
+                loading.style.display = 'none';
             },
             function(error) {
                 console.error("Error obteniendo ubicación:", error);
                 loading.innerHTML = 'Error al obtener tu ubicación';
-                // Si falla la geolocalización, centrar en España y cargar lugares
                 map.setView([40.416775, -3.703790], 16);
                 loadPlaces();
                 setTimeout(() => {
@@ -113,7 +90,6 @@ function initializeMapAndLoadPlaces() {
         );
     } else {
         loading.innerHTML = 'Tu navegador no soporta geolocalización';
-        // Si no hay soporte de geolocalización, centrar en España y cargar lugares
         map.setView([40.416775, -3.703790], 16);
         loadPlaces();
         setTimeout(() => {
@@ -121,6 +97,13 @@ function initializeMapAndLoadPlaces() {
         }, 3000);
     }
 }
+
+// Limpiar el seguimiento cuando se cierra la página
+window.addEventListener('beforeunload', function() {
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+    }
+});
 
 // Inicializar el mapa cuando se carga el DOM
 document.addEventListener('DOMContentLoaded', function() {
@@ -143,10 +126,13 @@ L.Control.LocationButton = L.Control.extend({
     onAdd: function(map) {
         const button = L.DomUtil.create('button', 'location-button');
         button.innerHTML = '<i class="fas fa-location-arrow"></i>';
-        button.title = 'Obtener mi ubicación';
+        button.title = 'Centrar en mi ubicación';
 
         button.onclick = function() {
-            initializeMapAndLoadPlaces();
+            if (userMarker) {
+                const userLatLng = userMarker.getLatLng();
+                map.setView(userLatLng, 16);
+            }
         };
 
         return button;
@@ -156,45 +142,85 @@ L.Control.LocationButton = L.Control.extend({
 // Agregar el control al mapa
 new L.Control.LocationButton({ position: 'bottomright' }).addTo(map);
 
-// Estilos para el botón y el marcador
-const style = document.createElement('style');
-style.textContent = `
-    .location-button {
-        background: white;
-        border: 2px solid rgba(0,0,0,0.2);
-        border-radius: 4px;
-        padding: 5px 8px;
-        cursor: pointer;
-        box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    }
+// Función para cargar los lugares
+function loadPlaces() {
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
 
-    .location-button:hover {
-        background: #f4f4f4;
-    }
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    .user-location-marker {
-        color: #2196F3;
-        font-size: 20px;
-        text-shadow: 2px 2px 3px rgba(0,0,0,0.3);
-    }
+    fetch('/places/list', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                data.places.forEach(place => {
+                    const marker = L.marker([place.latitude, place.longitude])
+                        .addTo(map)
+                        .bindPopup(`<strong>${place.name}</strong>`);
 
-    .user-location-marker i {
-        animation: pulse 2s infinite;
-    }
+                    marker.on('click', function() {
+                        showPlaceDetails(place.id);
+                    });
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error))
+        .finally(() => {
+            loading.style.display = 'none';
+        });
+}
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.2);
-            opacity: 0.8;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
+function showPlaceDetails(placeId) {
+    fetch(`/places/${placeId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panel = document.getElementById('place-details');
+                const tagsContainer = document.getElementById('place-tags');
+
+                // Actualizar información básica
+                document.getElementById('place-name').textContent = data.place.name;
+                document.getElementById('place-address').textContent = data.place.address;
+                document.getElementById('place-description').textContent = data.place.description;
+
+                // Limpiar y actualizar tags
+                tagsContainer.innerHTML = '';
+                if (data.place.tags && data.place.tags.length > 0) {
+                    data.place.tags.forEach(tag => {
+                        const tagElement = document.createElement('span');
+                        tagElement.className = 'tag';
+                        tagElement.textContent = tag.name;
+                        tagsContainer.appendChild(tagElement);
+                    });
+                }
+
+                panel.classList.add('active');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Agregar manejador para cerrar el panel
+document.querySelector('.close-panel-btn').addEventListener('click', function() {
+    document.getElementById('place-details').classList.remove('active');
+});
+
+document.getElementById('map').addEventListener('click', function() {
+    const place_details = document.getElementById('place-details');
+    if (place_details.classList.contains('active')) {
+        place_details.classList.remove('active');
     }
-`;
-document.head.appendChild(style);
+});
