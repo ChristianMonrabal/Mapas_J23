@@ -9,8 +9,18 @@ class PlaceController extends Controller
 {
     public function index()
     {
-        $places = Place::all();
-        return response()->json(['places' => $places]);
+        try {
+            $places = Place::all();
+            return response()->json([
+                'success' => true,
+                'places' => $places
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al cargar los lugares: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
