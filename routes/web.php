@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
@@ -27,6 +28,12 @@ Route::get('/users/list', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::put('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+
+//groups
+Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+
+
 
 Route::get('/tags/list', function () {
     $tags = Tag::all();
