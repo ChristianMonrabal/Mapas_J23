@@ -48,7 +48,6 @@ h1 {
     background-color: white;
     transition: left 0.3s ease;
     z-index: 999;
-    padding: 20px;
 }
 
 .sidebar.active {
@@ -87,4 +86,22 @@ h1 {
 .search-bar .mic-icon {
     padding: 0 16px;
     color: #5f6368;
+}
+
+.sidebar-content {
+    height: 12%;
+    background-color: #ffffff;
+    border-bottom: 1px solid rgb(220, 220, 220);
+}
+
+.sidebar-content>div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.sidebar-content img {
+    height: 50px;
+    width: 50px;
 }

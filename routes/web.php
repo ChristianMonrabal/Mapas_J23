@@ -20,3 +20,10 @@ Route::get('/admin', function () {
 Route::get('/', function () {
     return view('index');
 })->name('index');
+
+Route::get('/dashboard/mapa', function () {
+    if (Auth::check() && Auth::user()->role_id == 1) {
+        return view('dashboard.mapa');
+    }
+    return redirect()->route('index');
+})->name('dashboard.mapa');

@@ -16,7 +16,12 @@
 </div>
 
 <div class="sidebar" id="sidebar">
-<button class="btn btn-primary">Hola</button>
+    <div class="sidebar-content">
+        <div>
+            <h1>OnlyMaps</h1>
+            <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
+        </div>
+    </div>
     <!-- Aquí puedes añadir el contenido del sidebar -->
 </div>
 
