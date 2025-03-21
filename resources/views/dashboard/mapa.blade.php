@@ -15,8 +15,18 @@
     <input type="text" id="searchInput" placeholder="Busca un sitio">
 </div>
 
+<!-- Agregar indicador de carga -->
+<div id="loading" class="loading-indicator" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
+</div>
+
 <div class="sidebar" id="sidebar">
-<button class="btn btn-primary">Hola</button>
+    <div class="sidebar-content">
+        <div>
+            <h1>OnlyMaps</h1>
+            <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
+        </div>
+    </div>
     <!-- Aquí puedes añadir el contenido del sidebar -->
 </div>
 

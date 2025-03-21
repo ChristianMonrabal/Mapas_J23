@@ -15,30 +15,30 @@ class AuthController extends Controller
     }
 
     public function signin(Request $request)
-{
-    if (empty($request->email) || empty($request->password)) {
-        return back()->withErrors(['error' => 'Todos los campos son obligatorios.'])->withInput();
-    }
-
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|min:6',
-    ]);
-
-    if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-        $user = Auth::user();
-
-        if ($user->role_id == 2) {
-            return redirect()->route('admin');
+    {
+        if (empty($request->email) || empty($request->password)) {
+            return back()->withErrors(['error' => 'Todos los campos son obligatorios.'])->withInput();
         }
-        
-        return redirect()->route('index');
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ]);
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+
+            if ($user->role_id == 2) {
+                return redirect()->route('admin');
+            } elseif ($user->role_id == 1) {
+                return redirect()->route('dashboard.mapa');
+            }
+            
+            return redirect()->route('index');
+        }
+
+        return back()->withErrors(['error' => 'Credenciales incorrectas.'])->withInput();
     }
-
-    return back()->withErrors(['error' => 'Credenciales incorrectas.'])->withInput();
-}
-
-    
 
     public function showSignupForm()
     {
