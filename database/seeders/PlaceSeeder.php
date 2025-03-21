@@ -24,7 +24,6 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.107504796086143,
             'description' => "Bar de tapas y Café",
             'img' => "alonsos.jpg",
-            'img' => "alonsos.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -35,7 +34,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.34740916452,
             'longitude' => 2.109722696085165,
             'description' => "Bar de tapas y Café",
-            'img' => "emita.jpg",
+            'img' => "ermita.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
