@@ -32,8 +32,7 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 //groups
 Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
-Route::post('groups', [GroupController::class, 'store'])->name('groups.store');
-Route::post('groups/{id}/join', [GroupController::class, 'join'])->name('groups.join');
+
 
 
 Route::get('/tags/list', function () {

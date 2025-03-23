@@ -27,31 +27,51 @@
                 </div>
             </div>
 
-            <!-- Sección para Unirse a un Grupo -->
-            <div class="card">
+            <!-- Sección visual de Agregar Grupo (Solo Visual) -->
+            <div class="card mb-4">
                 <div class="card-header text-center">
-                    Unirse a un Grupo
+                    Agregar Grupo
                 </div>
                 <div class="card-body">
-                    @if($groups->count())
-                        <ul class="list-group">
-                            @foreach($groups as $group)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ $group->nombre }}
-                                    <form action="{{ route('groups.join', $group->id) }}" method="POST" class="mb-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Unirse</button>
-                                    </form>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="mb-0 text-center">No hay grupos disponibles.</p>
-                    @endif
+                    <p class="text-center">Esta sección es solo visual. Aquí se mostrará el formulario para agregar un grupo en el futuro.</p>
+                    <div class="text-center">
+                        <button class="btn btn-secondary" disabled>Agregar Grupo</button>
+                    </div>
                 </div>
             </div>
 
+            <!-- Botón para abrir el Modal de Unirse a un Grupo -->
+            <div class="text-center">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
+                    Unirse a un Grupo
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal de Unirse a un Grupo -->
+<div class="modal fade" id="joinGroupModal" tabindex="-1" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="joinGroupModalLabel">Unirse a un Grupo</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Contenedor que se llenará mediante fetch -->
+        <div id="groupsList">
+            <p class="text-center">Cargando grupos...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/groups.js') }}"></script>
 @endsection
