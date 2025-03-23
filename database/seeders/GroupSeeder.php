@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Group;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GroupSeeder extends Seeder
@@ -17,28 +16,39 @@ class GroupSeeder extends Seeder
         $now = Carbon::now();
 
         Group::create([
-            'name' => 'Group 1',
+            'name'     => 'Group 1',
+            'codigo'     => 'GRP1',
+            'creador'    => 1, // ID de un usuario existente
+            'miembros'   => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
         Group::create([
-            'name' => 'Group 2',
+            'name'     => 'Group 2',
+            'codigo'     => 'GRP2',
+            'creador'    => 1,
+            'miembros'   => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
         Group::create([
-            'name' => 'Group 3',
+            'name'     => 'Group 3',
+            'codigo'     => 'GRP3',
+            'creador'    => 2, // Otro usuario
+            'miembros'   => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
         Group::create([
-            'name' => 'Group 4',
+            'name'     => 'Group 4',
+            'codigo'     => 'GRP4',
+            'creador'    => 2,
+            'miembros'   => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
-
     }
 }

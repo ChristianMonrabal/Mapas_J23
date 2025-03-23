@@ -49,9 +49,14 @@ CREATE TABLE places (
 CREATE TABLE groups (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
+    codigo VARCHAR(50) NOT NULL,  -- Código único del grupo
+    creador INT NOT NULL,         -- ID del usuario creador del grupo
+    miembros INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creador) REFERENCES users(id)           -- Opcional: asegura que el código sea único
 ) ENGINE=InnoDB;
+
 
 -- Tabla de usuarios
 CREATE TABLE users (

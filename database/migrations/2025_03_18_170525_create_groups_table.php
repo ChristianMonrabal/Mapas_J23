@@ -13,8 +13,13 @@ return new class extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 20);
+            $table->string('name', 100);
+            $table->string('codigo', 6)->unique();
+            $table->unsignedBigInteger('creador');
+            $table->integer('miembros')->default(0);
             $table->timestamps();
+
+            $table->foreign('creador')->references('id')->on('users');
         });
     }
 
