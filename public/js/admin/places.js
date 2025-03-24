@@ -8,13 +8,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const placesTableContainer = document.getElementById("placesTableContainer");
     const tagsTableContainer = document.getElementById("tagsTableContainer");
     const usersTableContainer = document.getElementById("usersTableContainer");
+    const placeSearchInput = document.getElementById("placeSearchInput");
+    const clearPlaceSearch = document.getElementById("clearPlaceSearch");
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
     usersTableContainer.style.display = "block";
 
-    function loadPlaces() {
-        fetch("/places/list")
+    let searchTimeout;
+
+    function loadPlaces(searchTerm = '') {
+        let url = "/places/list";
+        if (searchTerm) {
+            url += `?search=${encodeURIComponent(searchTerm)}`;
+        }
+
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 placesTableBody.innerHTML = "";
@@ -59,8 +68,20 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error("Error al cargar los places:", error));
     }
 
-    setInterval(loadPlaces, 5000);
-    
+    // Event listener para el input de búsqueda
+    placeSearchInput.addEventListener("input", function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadPlaces(this.value);
+        }, 300);
+    });
+
+    // Event listener para el botón de limpiar búsqueda
+    clearPlaceSearch.addEventListener("click", function() {
+        placeSearchInput.value = "";
+        loadPlaces();
+    });
+
     function openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription) {
         document.getElementById("editPlaceId").value = placeId;
         document.getElementById("editPlaceName").value = placeName;

@@ -7,9 +7,17 @@ use App\Models\Place;
 
 class PlaceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $places = Place::all();
+        $query = Place::query();
+        
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
+
+        $places = $query->get();
+        
         return response()->json(['places' => $places]);
     }
 
