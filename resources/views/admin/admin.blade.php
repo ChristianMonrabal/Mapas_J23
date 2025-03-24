@@ -7,6 +7,7 @@
     <title>Admin Panel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
     @if(Auth::check() && Auth::user()->role_id == 2)
@@ -265,11 +266,17 @@
     <div class="mt-4" id="usersTableContainer" style="display: none;">
         <h1 class="text-center">Usuarios</h1>
         <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                <span class="input-group-text bg-white" id="clearSearch" style="cursor: pointer;">
+                    <i class="bi bi-x-lg"></i>
+                </span>
+            </div>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userModal">
                 <i class="bi bi-plus-circle"></i> Agregar Usuario
             </button>
         </div>
-
+    
         <div class="table-responsive mx-auto" style="max-width: 80%;">
             <table class="table table-bordered table-striped table-hover text-center">
                 <thead class="table-dark">
