@@ -9,6 +9,7 @@ use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
 use App\Models\Tag;
 
+
 Route::get('signin', [AuthController::class, 'showSigninForm'])->name('auth.signin');
 Route::post('signin', [AuthController::class, 'signin'])->name('auth.signin.submit');
 Route::get('signup', [AuthController::class, 'showSignupForm'])->name('auth.signup');
@@ -31,8 +32,23 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 
 //groups
-Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
 
+
+    // Ruta para mostrar la vista visual
+    Route::get('/groups/index', function () {
+         return view('groups.index');
+    })->name('groups.index');
+
+    // Endpoint que retorna JSON con los datos de los grupos
+    Route::get('/groups', [GroupController::class, 'listarGrupos'])->name('groups.listar');
+
+    // Endpoint para crear un grupo (devuelve JSON)
+    Route::post('/groups/crear', [GroupController::class, 'crearGrupo'])->name('groups.crear');
+
+    // Otros endpoints (unirse, expulsar, iniciar, etc.)
+    Route::post('/groups/unirse', [GroupController::class, 'unirseGrupo'])->name('groups.unirse');
+    Route::delete('/groups/{groupsId}/miembros/{miembroId}', [GroupController::class, 'expulsarMiembro'])->name('groups.expelir');
+    Route::post('/groups/{groupsId}/iniciar', [GroupController::class, 'iniciarJuego'])->name('groups.iniciar');
 
 
 Route::get('/tags/list', function () {

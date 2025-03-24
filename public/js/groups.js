@@ -1,80 +1,93 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Obtener el elemento del modal
-    var joinGroupModalEl = document.getElementById('joinGroupModal');
+document.addEventListener('DOMContentLoaded', function() {
+    $('#joinGroupModal').on('shown.bs.modal', obtenerGrupos);
 
-    // Escuchar el evento de que el modal se muestra
-    joinGroupModalEl.addEventListener('shown.bs.modal', function () {
-        loadGroups();
+    const formCrearGrupo = document.getElementById('form-crear-grupo');
+    formCrearGrupo.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const nombre       = document.getElementById('groupName').value;
+        const gymkhana_id  = document.getElementById('gymkhanaSelect').value;
+        const max_miembros = document.getElementById('groupCapacity').value;
+
+        try {
+            const respuesta = await fetch('/groups/crear', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: nombre,
+                    gymkhana_id,
+                    max_miembros
+                })
+            });
+
+            const datos = await respuesta.json();
+            if (!respuesta.ok) throw new Error(datos.message || 'Error creando grupo');
+
+            console.log('Grupo creado:', datos.grupo);
+            $('#createGroupModal').modal('hide');
+            obtenerGrupos();
+        } catch (error) {
+            console.error('Error al crear el grupo:', error);
+            alert(error.message);
+        }
     });
 });
 
-function loadGroups() {
-    const groupsListEl = document.getElementById('groupsList');
-    groupsListEl.innerHTML = '<p class="text-center">Cargando grupos...</p>';
-
-    // Se asume que el endpoint devuelve un JSON con un arreglo de grupos
-    fetch('/api/groups')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error al obtener los grupos');
+async function obtenerGrupos() {
+    try {
+        const respuesta = await fetch('/groups', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.length > 0) {
-                // Crear una lista de grupos
-                const ul = document.createElement('ul');
-                ul.classList.add('list-group');
-                data.forEach(group => {
-                    const li = document.createElement('li');
-                    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                    li.textContent = group.nombre;
-
-                    const joinButton = document.createElement('button');
-                    joinButton.classList.add('btn', 'btn-success', 'btn-sm');
-                    joinButton.textContent = 'Unirse';
-                    joinButton.onclick = function () {
-                        joinGroup(group.id);
-                    };
-
-                    li.appendChild(joinButton);
-                    ul.appendChild(li);
-                });
-                groupsListEl.innerHTML = '';
-                groupsListEl.appendChild(ul);
-            } else {
-                groupsListEl.innerHTML = '<p class="text-center">No hay grupos disponibles.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            groupsListEl.innerHTML = '<p class="text-center text-danger">Error al cargar los grupos.</p>';
         });
+
+        const { groups } = await respuesta.json();
+        mostrarGrupos(groups);
+    } catch (error) {
+        console.error('Error al obtener los grupos:', error);
+    }
 }
 
-function joinGroup(groupId) {
-    fetch(`/groups/join/${groupId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al unirse al grupo');
-        }
-        return response.json();
-    })
-    .then(data => {
-        alert('Te has unido al grupo exitosamente');
-        // Cerrar el modal usando la API de Bootstrap 5
-        var joinModal = bootstrap.Modal.getInstance(document.getElementById('joinGroupModal'));
-        joinModal.hide();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Hubo un error al unirse al grupo');
+function mostrarGrupos(grupos) {
+    const contenedor = document.getElementById('listaGrupos');
+    contenedor.innerHTML = grupos.length === 0
+        ? '<p class="text-center">No hay grupos disponibles.</p>'
+        : grupos.map(g => `
+            <div class="border p-2 mb-2">
+                <p><strong>Nombre:</strong> ${g.name}</p>
+                <p><strong>Código:</strong> ${g.codigo}</p>
+                <p><strong>Gimkhana:</strong> ${g.gymkhana?.nombre || 'No asignada'}</p>
+                <p><strong>Capacidad:</strong> ${g.max_miembros}</p>
+                <p><strong>Miembros:</strong> ${g.users.length}</p>
+                <button class="btn btn-primary btn-join" data-id="${g.id}">Unirse</button>
+            </div>
+        `).join('');
+
+    document.querySelectorAll('.btn-join').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const grupoId = btn.dataset.id;
+            try {
+                const respuesta = await fetch(`/groups/${grupoId}/unirse`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+                const datos = await respuesta.json();
+                if (!respuesta.ok) throw new Error(datos.mensaje);
+                console.log('Te has unido al grupo:', datos);
+                obtenerGrupos();
+            } catch (error) {
+                console.error('Error al unirse al grupo:', error);
+                alert(error.message);
+            }
+        });
     });
 }
