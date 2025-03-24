@@ -114,6 +114,12 @@
                             <div class="mb-3">
                                 <label for="placeAddress" class="form-label">Dirección</label>
                                 <input type="text" class="form-control" id="placeAddress" name="address">
+                                <div class="mt-2">
+                                    <a href="#" id="getCoordinatesBtn" class="text-decoration-none" title="Obtener coordenadas">
+                                        <i class="bi bi-geo-alt-fill text-primary"></i> 
+                                        <small class="text-muted">Obtener coordenadas</small>
+                                    </a>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="placeLatitude" class="form-label">Latitud</label>

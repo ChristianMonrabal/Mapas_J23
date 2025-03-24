@@ -10,12 +10,56 @@ document.addEventListener("DOMContentLoaded", function () {
     const usersTableContainer = document.getElementById("usersTableContainer");
     const placeSearchInput = document.getElementById("placeSearchInput");
     const clearPlaceSearch = document.getElementById("clearPlaceSearch");
+    const getCoordinatesBtn = document.getElementById("getCoordinatesBtn");
+    const placeAddressInput = document.getElementById("placeAddress");
+    const placeLatitudeInput = document.getElementById("placeLatitude");
+    const placeLongitudeInput = document.getElementById("placeLongitude");
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
     usersTableContainer.style.display = "block";
 
     let searchTimeout;
+
+    // Función para obtener coordenadas usando OpenStreetMap Nominatim
+    function getCoordinatesFromAddress(address) {
+        if (!address || address.trim() === '') {
+            showSweetAlert('error', 'Por favor ingresa una dirección válida');
+            return;
+        }
+
+        showSweetAlert('info', 'Buscando coordenadas...', 'Espere por favor');
+
+        // Usamos Nominatim (OpenStreetMap) que no requiere API key
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    // Tomamos el primer resultado (el más relevante)
+                    placeLatitudeInput.value = data[0].lat;
+                    placeLongitudeInput.value = data[0].lon;
+                    Swal.close();
+                    showSweetAlert('success', 'Coordenadas obtenidas correctamente');
+                } else {
+                    throw new Error('No se encontraron coordenadas para esta dirección');
+                }
+            })
+            .catch(error => {
+                showSweetAlert('error', error.message || 'Error al obtener las coordenadas. Intenta con una dirección más específica.');
+            });
+    }
+
+    // Event listener para el botón de obtener coordenadas
+    getCoordinatesBtn.addEventListener("click", function() {
+        getCoordinatesFromAddress(placeAddressInput.value);
+    });
 
     function loadPlaces(searchTerm = '') {
         let url = "/places/list";
@@ -24,7 +68,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar los lugares');
+                }
+                return response.json();
+            })
             .then(data => {
                 placesTableBody.innerHTML = "";
                 
@@ -65,7 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             })
-            .catch(error => console.error("Error al cargar los places:", error));
+            .catch(error => {
+                console.error("Error al cargar los places:", error);
+                placesTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos</td></tr>`;
+            });
     }
 
     // Event listener para el input de búsqueda
@@ -95,6 +147,12 @@ document.addEventListener("DOMContentLoaded", function () {
     createPlaceForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
+        // Validar que las coordenadas no estén vacías
+        if (!placeLatitudeInput.value || !placeLongitudeInput.value) {
+            showSweetAlert('error', 'Por favor obtén las coordenadas antes de guardar');
+            return;
+        }
+
         const formData = new FormData(this);
         fetch("/places", {
             method: "POST",
@@ -104,18 +162,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Accept": "application/json"
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
             }
-            showSweetAlert('success', data.message);
+            return response.json();
+        })
+        .then(data => {
+            showSweetAlert('success', data.message || 'Lugar creado correctamente');
             createPlaceForm.reset();
             createPlaceModal.hide();
             loadPlaces();
         })
         .catch(error => {
-            showSweetAlert('error', error.message);
+            showSweetAlert('error', error.error || error.message || 'Error al crear el lugar');
         });
     });
 
@@ -147,24 +207,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Content-Type": "application/json"
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
             }
-            showSweetAlert('success', data.message);
+            return response.json();
+        })
+        .then(data => {
+            showSweetAlert('success', data.message || 'Lugar actualizado correctamente');
             editPlaceForm.reset();
             editPlaceModal.hide();
             loadPlaces();
         })
         .catch(error => {
-            showSweetAlert('error', error.message);
+            showSweetAlert('error', error.error || error.message || 'Error al actualizar el lugar');
         });
     });
 
     function deletePlace(placeId) {
         Swal.fire({
-            title: '¿Seguro que deseas eliminar este place?',
+            title: '¿Seguro que deseas eliminar este lugar?',
             text: "¡Esta acción no se puede deshacer!",
             icon: 'warning',
             showCancelButton: true,
@@ -181,13 +243,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Accept": "application/json"
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    showSweetAlert('success', data.message);
+                    showSweetAlert('success', data.message || 'Lugar eliminado correctamente');
                     loadPlaces();
                 })
                 .catch(error => {
-                    showSweetAlert('error', error.message);
+                    showSweetAlert('error', error.error || error.message || 'Error al eliminar el lugar');
                 });
             }
         });
