@@ -10,7 +10,7 @@ class PlaceController extends Controller
     public function index()
     {
         try {
-            $places = Place::all();
+            $places = Place::with('tags')->get();
             return response()->json([
                 'success' => true,
                 'places' => $places
@@ -61,17 +61,21 @@ class PlaceController extends Controller
 
     public function show($id)
     {
-        try {
-            $place = Place::with('tags')->findOrFail($id);
-            return response()->json([
-                'success' => true,
-                'place' => $place
-            ]);
-        } catch (\Exception $e) {
+        $place = Place::with('tags')->find($id);
+        
+        if (!$place) {
             return response()->json([
                 'success' => false,
-                'error' => 'Error al cargar el lugar: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Lugar no encontrado'
+            ], 404);
         }
+
+        // Verificar si hay imagen y asegurarnos de que el campo se llama 'image'
+        $placeData = $place->toArray();
+
+        return response()->json([
+            'success' => true,
+            'place' => $placeData
+        ]);
     }
 }

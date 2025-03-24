@@ -188,15 +188,40 @@ function showPlaceDetails(placeId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const panel = document.getElementById('place-details');
-                const tagsContainer = document.getElementById('place-tags');
+                // Actualizar imagen con mejor manejo y logs
+                const placeImage = document.getElementById('place-image');
+                console.log('Datos de imagen:', data.place.image); // Log para depuración
+
+                if (data.place.image) {
+                    const imageUrl = `/storage/${data.place.image}`;
+                    console.log('URL completa:', imageUrl); // Log para depuración
+
+                    // Intentar cargar la imagen
+                    placeImage.onerror = function() {
+                        console.error('Error al cargar la imagen:', imageUrl);
+                        this.src = '/img/no_img.png';
+                        this.alt = 'Imagen no disponible';
+                    };
+
+                    placeImage.onload = function() {
+                        console.log('Imagen cargada correctamente:', imageUrl);
+                    };
+
+                    placeImage.src = imageUrl;
+                    placeImage.alt = data.place.name;
+                } else {
+                    console.log('No hay imagen definida');
+                    placeImage.src = '/img/no_img.png';
+                    placeImage.alt = 'Imagen no disponible';
+                }
 
                 // Actualizar información básica
                 document.getElementById('place-name').textContent = data.place.name;
-                document.getElementById('place-address').textContent = data.place.address;
+                document.getElementById('place-address').innerHTML = '<i class="fa-solid fa-location-dot"></i> ' + data.place.address;
                 document.getElementById('place-description').textContent = data.place.description;
 
                 // Limpiar y actualizar tags
+                const tagsContainer = document.getElementById('place-tags');
                 tagsContainer.innerHTML = '';
                 if (data.place.tags && data.place.tags.length > 0) {
                     data.place.tags.forEach(tag => {
@@ -207,6 +232,7 @@ function showPlaceDetails(placeId) {
                     });
                 }
 
+                const panel = document.getElementById('place-details');
                 panel.classList.add('active');
             }
         })
