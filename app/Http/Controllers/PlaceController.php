@@ -9,8 +9,18 @@ class PlaceController extends Controller
 {
     public function index()
     {
-        $places = Place::all();
-        return response()->json(['places' => $places]);
+        try {
+            $places = Place::with('tags')->get();
+            return response()->json([
+                'success' => true,
+                'places' => $places
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al cargar los lugares: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
@@ -47,5 +57,25 @@ class PlaceController extends Controller
         $place = Place::findOrFail($id);
         $place->delete();
         return response()->json(['message' => 'Place deleted successfully']);
+    }
+
+    public function show($id)
+    {
+        $place = Place::with('tags')->find($id);
+        
+        if (!$place) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lugar no encontrado'
+            ], 404);
+        }
+
+        // Verificar si hay imagen y asegurarnos de que el campo se llama 'image'
+        $placeData = $place->toArray();
+
+        return response()->json([
+            'success' => true,
+            'place' => $placeData
+        ]);
     }
 }
