@@ -9,6 +9,28 @@ use Illuminate\Support\Carbon;
 
 class TagController extends Controller
 {
+    public function index(Request $request)
+    {
+        try {
+            $query = Tag::query();
+            
+            if ($request->has('search')) {
+                $searchTerm = $request->search;
+                $query->where('name', 'like', '%' . $searchTerm . '%');
+            }
+
+            $tags = $query->get();
+            
+            return response()->json([
+                'tags' => $tags
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
@@ -54,24 +76,20 @@ class TagController extends Controller
             ], 500);
         }
     }
-    
 
-public function destroy($id)
-{
-    try {
-        $tag = Tag::findOrFail($id);
-        $tag->delete();
+    public function destroy($id)
+    {
+        try {
+            $tag = Tag::findOrFail($id);
+            $tag->delete();
 
-        return response()->json([
-            'message' => 'Tag eliminado correctamente'
-        ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'message' => 'Tag eliminado correctamente'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
-
-}
-
-

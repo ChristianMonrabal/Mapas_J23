@@ -7,8 +7,9 @@ use App\Models\Place;
 
 class PlaceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+<<<<<<< HEAD
         try {
             $places = Place::with('tags')->get();
             return response()->json([
@@ -21,6 +22,18 @@ class PlaceController extends Controller
                 'error' => 'Error al cargar los lugares: ' . $e->getMessage()
             ], 500);
         }
+=======
+        $query = Place::query();
+        
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
+
+        $places = $query->get();
+        
+        return response()->json(['places' => $places]);
+>>>>>>> admin
     }
 
     public function store(Request $request)
