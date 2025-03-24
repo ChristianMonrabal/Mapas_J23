@@ -72,6 +72,12 @@
         <div class="mt-4" id="tagsTableContainer" style="display: none;">
             <h1 class="text-center">Tags</h1>
             <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="tagSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                    <span class="input-group-text bg-white" id="clearTagSearch" style="cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tagModal">
                     <i class="bi bi-plus-circle"></i> Agregar Tag
                 </button>

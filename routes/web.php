@@ -14,6 +14,7 @@ Route::get('signup', [AuthController::class, 'showSignupForm'])->name('auth.sign
 Route::post('signup', [AuthController::class, 'signup'])->name('auth.signup.submit');
 Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
+Route::get('/tags', [TagController::class, 'index']); // Para la lista de tags con búsqueda
 Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 Route::put('/tags/{id}', [TagController::class, 'update']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
