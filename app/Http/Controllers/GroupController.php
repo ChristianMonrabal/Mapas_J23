@@ -108,4 +108,22 @@ class GroupController extends Controller
 
         return response()->json(['mensaje' => 'El juego ha comenzado.']);
     }
+
+    public function listarGruposDisponibles(Request $request)
+{
+    $grupos = Group::with('gymkhana','users')
+        ->withCount('users')
+        ->having('users_count','<','max_miembros')
+        ->whereDoesntHave('users', fn($q) => $q->where('user_id', Auth::id()))
+        ->get();
+
+    return response()->json(['groups' => $grupos]);
+}
+public function listarMisGrupos(Request $request)
+{
+    $grupos = Auth::user()->groups()->with('gymkhana', 'users')->get();
+    return response()->json(['groups' => $grupos]);
+}
+
+
 }

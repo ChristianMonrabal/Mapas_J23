@@ -82,6 +82,28 @@
     </div>
   </div>
 </div>
+
+<div class="text-center mt-2">
+    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#myGroupsModal">
+      Mis Grupos
+    </button>
+  </div>
+  
+  <!-- Modal Mis Grupos -->
+  <div class="modal fade" id="myGroupsModal" tabindex="-1" aria-labelledby="myGroupsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="myGroupsModalLabel">Mis Grupos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="listaMisGrupos">
+          <p class="text-center">Cargando tus grupos...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 @endsection
 
 @section('scripts')

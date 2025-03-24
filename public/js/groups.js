@@ -90,4 +90,17 @@ function mostrarGrupos(grupos) {
             }
         });
     });
+    async function obtenerGrupos() {
+        try {
+            const respuesta = await fetch('/groups/disponibles', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            const { groups } = await respuesta.json();
+            mostrarGrupos(groups);
+        } catch (error) {
+            console.error('Error al obtener los grupos:', error);
+        }
+    }
+    
 }

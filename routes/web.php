@@ -49,6 +49,13 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/groups/unirse', [GroupController::class, 'unirseGrupo'])->name('groups.unirse');
     Route::delete('/groups/{groupsId}/miembros/{miembroId}', [GroupController::class, 'expulsarMiembro'])->name('groups.expelir');
     Route::post('/groups/{groupsId}/iniciar', [GroupController::class, 'iniciarJuego'])->name('groups.iniciar');
+    // Sólo grupos disponibles para unirse
+    Route::get('/groups/disponibles', [GroupController::class, 'listarGruposDisponibles'])
+    ->name('groups.disponibles');
+
+    // Mis grupos (todos en los que participo)
+    Route::get('/groups/mis-grupos', [GroupController::class, 'listarMisGrupos'])
+    ->name('groups.mis');
 
 
 Route::get('/tags/list', function () {
