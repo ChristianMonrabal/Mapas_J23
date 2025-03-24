@@ -179,8 +179,6 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Dirección</th>
-                        <th>Latitud</th>
-                        <th>Longitud</th>
                         <th>Descripción</th>
                         <th>Acciones</th>
                     </tr>

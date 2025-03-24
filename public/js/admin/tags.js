@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
-    usersTableContainer.style.display = "none";
+    usersTableContainer.style.display = "block";
 
     function loadTags() {
         fetch("/tags/list")
@@ -27,14 +27,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         let row = `<tr>
                             <td>${tag.name}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm edit-btn" data-id="${tag.id}" data-name="${tag.name}">Editar</button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${tag.id}">Eliminar</button>
+                                <button class="btn btn-warning btn-sm tags-edit-btn" data-id="${tag.id}" data-name="${tag.name}">Editar</button>
+                                <button class="btn btn-danger btn-sm tags-delete-btn" data-id="${tag.id}">Eliminar</button>
                             </td>
                         </tr>`;
                         tagsTableBody.innerHTML += row;
                     });
     
-                    document.querySelectorAll(".edit-btn").forEach(button => {
+                    document.querySelectorAll(".tags-edit-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const tagId = this.getAttribute("data-id");
                             const tagName = this.getAttribute("data-name");
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         });
                     });
     
-                    document.querySelectorAll(".delete-btn").forEach(button => {
+                    document.querySelectorAll(".tags-delete-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const tagId = this.getAttribute("data-id");
                             deleteTag(tagId);
@@ -157,13 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleTagsButton.addEventListener("click", function() {
         placesTableContainer.style.display = "none";
         usersTableContainer.style.display = "none";
-
-        if (tagsTableContainer.style.display === "none") {
-            tagsTableContainer.style.display = "block";
-            loadTags();
-        } else {
-            tagsTableContainer.style.display = "none";
-        }
+        tagsTableContainer.style.display = "block";
+        loadTags();
     });
 
     loadTags();

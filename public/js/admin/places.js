@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
-    usersTableContainer.style.display = "none";
+    usersTableContainer.style.display = "block";
 
     function loadPlaces() {
         fetch("/places/list")
@@ -27,18 +27,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         let row = `<tr>
                             <td>${place.name}</td>
                             <td>${place.address}</td>
-                            <td>${place.latitude}</td>
-                            <td>${place.longitude}</td>
                             <td>${place.description}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm edit-btn" data-id="${place.id}" data-name="${place.name}" data-address="${place.address}" data-latitude="${place.latitude}" data-longitude="${place.longitude}" data-description="${place.description}">Editar</button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${place.id}">Eliminar</button>
+                                <button class="btn btn-warning btn-sm places-edit-btn" data-id="${place.id}" data-name="${place.name}" data-address="${place.address}" data-latitude="${place.latitude}" data-longitude="${place.longitude}" data-description="${place.description}">Editar</button>
+                                <button class="btn btn-danger btn-sm places-delete-btn" data-id="${place.id}">Eliminar</button>
                             </td>
                         </tr>`;
                         placesTableBody.innerHTML += row;
                     });
     
-                    document.querySelectorAll(".edit-btn").forEach(button => {
+                    document.querySelectorAll(".places-edit-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const placeId = this.getAttribute("data-id");
                             const placeName = this.getAttribute("data-name");
@@ -50,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         });
                     });
     
-                    document.querySelectorAll(".delete-btn").forEach(button => {
+                    document.querySelectorAll(".places-delete-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const placeId = this.getAttribute("data-id");
                             deletePlace(placeId);
@@ -177,13 +175,8 @@ document.addEventListener("DOMContentLoaded", function () {
     togglePlacesButton.addEventListener("click", function() {
         tagsTableContainer.style.display = "none";
         usersTableContainer.style.display = "none";
-
-        if (placesTableContainer.style.display === "none") {
-            placesTableContainer.style.display = "block";
-            loadPlaces();
-        } else {
-            placesTableContainer.style.display = "none";
-        }
+        placesTableContainer.style.display = "block";
+        loadPlaces();
     });
 
     loadPlaces();

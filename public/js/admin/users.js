@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
-    usersTableContainer.style.display = "none";
+    usersTableContainer.style.display = "block";
 
     function loadUsers() {
         fetch("/users/list")
@@ -29,14 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${user.email}</td>
                             <td>${user.role_id}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm edit-btn" data-id="${user.id}" data-name="${user.name}" data-email="${user.email}" data-role-id="${user.role_id}">Editar</button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${user.id}">Eliminar</button>
+                                <button class="btn btn-warning btn-sm users-edit-btn" data-id="${user.id}" data-name="${user.name}" data-email="${user.email}" data-role-id="${user.role_id}">Editar</button>
+                                <button class="btn btn-danger btn-sm users-delete-btn" data-id="${user.id}">Eliminar</button>
                             </td>
                         </tr>`;
                         usersTableBody.innerHTML += row;
                     });
     
-                    document.querySelectorAll(".edit-btn").forEach(button => {
+                    document.querySelectorAll(".users-edit-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const userId = this.getAttribute("data-id");
                             const userName = this.getAttribute("data-name");
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         });
                     });
     
-                    document.querySelectorAll(".delete-btn").forEach(button => {
+                    document.querySelectorAll(".users-delete-btn").forEach(button => {
                         button.addEventListener("click", function() {
                             const userId = this.getAttribute("data-id");
                             deleteUser(userId);
@@ -165,13 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleUsersButton.addEventListener("click", function() {
         tagsTableContainer.style.display = "none";
         placesTableContainer.style.display = "none";
-
-        if (usersTableContainer.style.display === "none") {
-            usersTableContainer.style.display = "block";
-            loadUsers();
-        } else {
-            usersTableContainer.style.display = "none";
-        }
+        usersTableContainer.style.display = "block";
+        loadUsers();
     });
 
     loadUsers();
