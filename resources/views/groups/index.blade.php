@@ -1,111 +1,89 @@
 @extends('layout.layout')
 
 @section('content')
-<div class="container">
-    <h2 class="text-center my-3">Iniciar Juego - Grupos</h2>
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-6">
-            <!-- Botones para abrir los modales -->
-            <div class="text-center mb-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                    Crear Grupo
-                </button>
-            </div>
-            <div class="text-center">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
-                    Unirse a un Grupo
-                </button>
-            </div>
+<div class="container my-4">
+    <h1 class="mb-3">Gestión de Grupos</h1>
+
+    {{-- Buscador --}}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por nombre o código...">
         </div>
+        <div class="col-md-2">
+            <button id="btnBuscar" class="btn btn-primary w-100">Buscar</button>
+        </div>
+        <div class="col-md-6 text-end">
+            <!-- Botón Crear Grupo -->
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                Crear Grupo
+            </button>
+        </div>
+    </div>
+
+    <hr>
+
+    {{-- Listado de grupos --}}
+    <div id="listaGrupos">
+        <p>Cargando grupos...</p>
     </div>
 </div>
 
-<!-- Modal de Crear Grupo -->
+{{-- Modal para Crear Grupo --}}
 <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="createGroupModalLabel">Crear Grupo</h1>
+        <h1 class="modal-title fs-5" id="createGroupModalLabel">Crear Nuevo Grupo</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <form id="form-crear-grupo" action="{{ url('/groups/crear') }}" method="POST">
+        <form id="formCrearGrupo">
             @csrf
             <div class="mb-3">
-                <label for="groupName" class="form-label">Nombre del Grupo</label>
-                <input type="text" class="form-control" id="groupName" name="name" placeholder="Ingrese el nombre del grupo" required>
+                <label for="nombreGrupo" class="form-label">Nombre del Grupo</label>
+                <input type="text" class="form-control" id="nombreGrupo" name="nombre" required>
             </div>
-            <!-- Campo opcional: Descripción -->
             <div class="mb-3">
-                <label for="groupDescription" class="form-label">Descripción del Grupo</label>
-                <textarea class="form-control" id="groupDescription" name="descripcion" placeholder="Ingrese una descripción (opcional)"></textarea>
-            </div>
-            <!-- Campo: Seleccionar Gimkhana -->
-            <div class="mb-3">
-                <label for="gymkhanaSelect" class="form-label">Seleccionar Gimkhana</label>
-                <select class="form-select" id="gymkhanaSelect" name="gymkhana_id" required>
-                    <option value="">Seleccione una Gimkhana</option>
-                    <!-- Opciones de ejemplo; se pueden llenar dinámicamente -->
+                <label for="gymkhanaId" class="form-label">Gimkhana</label>
+                <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
+                    <option value="">-- Seleccione Gimkhana --</option>
                     <option value="1">Gimkhana 1</option>
                     <option value="2">Gimkhana 2</option>
                 </select>
             </div>
-            <!-- Campo: Capacidad del Grupo -->
             <div class="mb-3">
-                <label for="groupCapacity" class="form-label">Capacidad del Grupo (2-4)</label>
-                <input type="number" class="form-control" id="groupCapacity" name="max_miembros" placeholder="Ingrese la capacidad (2-4)" required min="2" max="4">
+                <label for="capacidadGrupo" class="form-label">Capacidad (2-4)</label>
+                <input type="number" class="form-control" id="capacidadGrupo" name="max_miembros" min="2" max="4" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Crear Grupo</button>
+            <button type="submit" class="btn btn-primary w-100">Crear</button>
         </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal de Unirse a un Grupo -->
-<div class="modal fade" id="joinGroupModal" tabindex="-1" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
+{{-- Modal para Detalle de Grupo --}}
+<div class="modal fade" id="detalleGroupModal" tabindex="-1" aria-labelledby="detalleGroupModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="joinGroupModalLabel">Unirse a un Grupo</h1>
+        <h1 class="modal-title fs-5" id="detalleGroupModalLabel">Detalle del Grupo</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="modal-body">
-        <!-- Contenedor para la lista de grupos disponibles para unirse -->
-        <div id="listaGrupos">
-            <p class="text-center">Cargando grupos...</p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      <div class="modal-body" id="detalleGroupBody">
+        <p>Cargando detalle...</p>
       </div>
     </div>
   </div>
 </div>
-
-<div class="text-center mt-2">
-    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#myGroupsModal">
-      Mis Grupos
-    </button>
-  </div>
-  
-  <!-- Modal Mis Grupos -->
-  <div class="modal fade" id="myGroupsModal" tabindex="-1" aria-labelledby="myGroupsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="myGroupsModalLabel">Mis Grupos</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="listaMisGrupos">
-          <p class="text-center">Cargando tus grupos...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
 @endsection
 
 @section('scripts')
+    {{-- Injecta el ID del usuario autenticado (si lo deseas) --}}
+    <script>
+        window.currentUserId = {{ Auth::id() ?? 'null' }};
+    </script>
+
+    {{-- Carga nuestro archivo JS para manejar todo vía fetch --}}
     <script src="{{ asset('js/groups.js') }}"></script>
 @endsection
