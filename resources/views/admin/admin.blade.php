@@ -7,6 +7,7 @@
     <title>Admin Panel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
     @if(Auth::check() && Auth::user()->role_id == 2)
@@ -71,6 +72,12 @@
         <div class="mt-4" id="tagsTableContainer" style="display: none;">
             <h1 class="text-center">Tags</h1>
             <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="tagSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                    <span class="input-group-text bg-white" id="clearTagSearch" style="cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tagModal">
                     <i class="bi bi-plus-circle"></i> Agregar Tag
                 </button>
@@ -107,6 +114,12 @@
                             <div class="mb-3">
                                 <label for="placeAddress" class="form-label">Dirección</label>
                                 <input type="text" class="form-control" id="placeAddress" name="address">
+                                <div class="mt-2">
+                                    <a href="#" id="getCoordinatesBtn" class="text-decoration-none" title="Obtener coordenadas">
+                                        <i class="bi bi-geo-alt-fill text-primary"></i> 
+                                        <small class="text-muted">Obtener coordenadas</small>
+                                    </a>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="placeLatitude" class="form-label">Latitud</label>
@@ -168,28 +181,32 @@
         <div class="mt-4" id="placesTableContainer" style="display: none;">
             <h1 class="text-center">Places</h1>
             <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="placeSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                    <span class="input-group-text bg-white" id="clearPlaceSearch" style="cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#placeModal">
                     <i class="bi bi-plus-circle"></i> Agregar Place
                 </button>
             </div>
-
-        <div class="table-responsive mx-auto" style="max-width: 80%;">
-            <table class="table table-bordered table-striped table-hover text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Dirección</th>
-                        <th>Latitud</th>
-                        <th>Longitud</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="placesTableBody">
-                </tbody>
-            </table>
+        
+            <div class="table-responsive mx-auto" style="max-width: 80%;">
+                <table class="table table-bordered table-striped table-hover text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="placesTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -267,11 +284,17 @@
     <div class="mt-4" id="usersTableContainer" style="display: none;">
         <h1 class="text-center">Usuarios</h1>
         <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                <span class="input-group-text bg-white" id="clearSearch" style="cursor: pointer;">
+                    <i class="bi bi-x-lg"></i>
+                </span>
+            </div>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userModal">
                 <i class="bi bi-plus-circle"></i> Agregar Usuario
             </button>
         </div>
-
+    
         <div class="table-responsive mx-auto" style="max-width: 80%;">
             <table class="table table-bordered table-striped table-hover text-center">
                 <thead class="table-dark">

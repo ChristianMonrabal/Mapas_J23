@@ -14,6 +14,7 @@ Route::get('signup', [AuthController::class, 'showSignupForm'])->name('auth.sign
 Route::post('signup', [AuthController::class, 'signup'])->name('auth.signup.submit');
 Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
+Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 Route::put('/tags/{id}', [TagController::class, 'update']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
@@ -22,7 +23,8 @@ Route::get('/places/list', [PlaceController::class, 'index'])->middleware('auth'
 Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
-Route::get('/places/{id}', [PlaceController::class, 'show'])->middleware('auth');
+Route::get('/places/{id}', [PlaceController::class, 'show']);
+Route::get('/places/search/{query}', [PlaceController::class, 'search'])->middleware('auth');
 
 Route::get('/users/list', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');

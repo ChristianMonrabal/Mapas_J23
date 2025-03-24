@@ -7,10 +7,11 @@ use App\Models\Place;
 
 class PlaceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+<<<<<<< HEAD
         try {
-            $places = Place::all();
+            $places = Place::with('tags')->get();
             return response()->json([
                 'success' => true,
                 'places' => $places
@@ -21,6 +22,18 @@ class PlaceController extends Controller
                 'error' => 'Error al cargar los lugares: ' . $e->getMessage()
             ], 500);
         }
+=======
+        $query = Place::query();
+        
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
+
+        $places = $query->get();
+        
+        return response()->json(['places' => $places]);
+>>>>>>> admin
     }
 
     public function store(Request $request)
@@ -61,17 +74,21 @@ class PlaceController extends Controller
 
     public function show($id)
     {
-        try {
-            $place = Place::with('tags')->findOrFail($id);
-            return response()->json([
-                'success' => true,
-                'place' => $place
-            ]);
-        } catch (\Exception $e) {
+        $place = Place::with('tags')->find($id);
+        
+        if (!$place) {
             return response()->json([
                 'success' => false,
-                'error' => 'Error al cargar el lugar: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Lugar no encontrado'
+            ], 404);
         }
+
+        // Verificar si hay imagen y asegurarnos de que el campo se llama 'image'
+        $placeData = $place->toArray();
+
+        return response()->json([
+            'success' => true,
+            'place' => $placeData
+        ]);
     }
 }

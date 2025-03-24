@@ -34,9 +34,19 @@ h1 {
 }
 
 .sidebar-btn {
-    background-color: white;
-    cursor: pointer;
+    background: none;
     border: none;
+    padding: 12px;
+    margin: 0;
+    cursor: pointer;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-btn:hover {
+    color: #000;
 }
 
 .sidebar {
@@ -62,7 +72,6 @@ h1 {
     transform: translateX(-50%);
     z-index: 998;
     width: 80vw;
-    padding: 8px;
     background-color: white;
     border-radius: 24px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -70,22 +79,44 @@ h1 {
     align-items: center;
 }
 
+.search-container {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    border-radius: 24px;
+}
+
 .search-bar input {
     flex: 1;
     border: none;
     outline: none;
-    padding: 0 16px;
-    font-size: 16px;
+    padding: 12px;
+    font-size: 14px;
+    background: transparent;
+    margin: 0;
 }
 
-.search-bar .search-icon {
-    padding: 0 16px;
+.search-btn {
+    background: none;
+    border: none;
+    padding: 12px;
+    margin: 0;
+    cursor: pointer;
     color: #5f6368;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.search-bar .mic-icon {
-    padding: 0 16px;
-    color: #5f6368;
+.search-btn:hover {
+    color: #000;
+}
+
+.search-btn i {
+    font-size: 14px;
 }
 
 .sidebar-content {
@@ -178,13 +209,16 @@ h1 {
     border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    min-height: 60px;
 }
 
-.panel-content {
-    padding: 20px;
-    overflow-y: auto;
-    max-height: calc(50vh - 70px);
+.panel-header h2 {
+    margin: 0;
+    padding-right: 20px;
+    word-wrap: break-word;
+    flex: 1;
+    line-height: 1.3;
 }
 
 .close-panel-btn {
@@ -193,10 +227,18 @@ h1 {
     font-size: 1.5em;
     cursor: pointer;
     color: #666;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 .close-panel-btn:hover {
     color: #000;
+}
+
+.panel-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(50vh - 100px);
 }
 
 .tags-container {
@@ -204,6 +246,8 @@ h1 {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    width: 100%;
+    overflow: visible;
 }
 
 .tag {
@@ -213,4 +257,23 @@ h1 {
     font-size: 0.9em;
     color: #333;
     display: inline-block;
+}
+
+.place-image-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.place-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#searchButton {
+    background: none;
+    border: none;
 }

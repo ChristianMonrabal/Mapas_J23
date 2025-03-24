@@ -45,7 +45,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.34839817704779,
             'longitude' => 2.1109675288613423,
             'description' => "Bar de tapas y Café",
-            'img' => "parque.jpg",
+            'image' => "parque.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -56,7 +56,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.351247880486525,
             'longitude' => 2.1142504838519294,
             'description' => "Bar de tapas y Café",
-            'img' => "centrocultural.jpg",
+            'image' => "centrocultural.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -67,7 +67,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.35238726459627,
             'longitude' => 2.113220925533215,
             'description' => "Bar de tapas y Café",
-            'img' => "pistafutsal.jpg",
+            'image' => "pistafutsal.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -78,7 +78,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.3527150679557,
             'longitude' => 2.1132375666376957,
             'description' => "Bar de tapas y Café",
-            'img' => "pirulo.jpg",
+            'image' => "pirulo.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -89,7 +89,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.35349987069205,
             'longitude' => 2.1130038951058445,
             'description' => "Zona pública para jugar a la petanca",
-            'img' => "petanca.jpg",
+            'image' => "petanca.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -100,7 +100,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.353431167961254,
             'longitude' => 2.1137147960854787,
             'description' => "Churreria a muy buenos precios",
-            'img' => "churreria.jpg",
+            'image' => "churreria.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -111,7 +111,7 @@ class PlaceSeeder extends Seeder
             'latitude' => 41.354909067972386,
             'longitude' => 2.1152947960855433,
             'description' => "Estación de tren en Bellvitge",
-            'img' => "trenBellvtg.jpg",
+            'image' => "trenBellvtg.jpg",
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -123,7 +123,7 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.105874236356942,
             'description' => "Polideportivo AE Bellsport",
             'created_at' => $now,
-            'img' => "polideportivo.jpg",
+            'image' => "polideportivo.jpg",
             'updated_at' => $now,
         ]);
 
@@ -134,7 +134,7 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.107712728188918,
             'description' => "Supermercado Caprabo",
             'created_at' => $now,
-            'img' => "caprabo.jpg",
+            'image' => "caprabo.jpg",
             'updated_at' => $now,
         ]);
 
@@ -145,7 +145,7 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.108160812095318,
             'description' => "Estanco nº 21",
             'created_at' => $now,
-            'img' => "tabacs.jpg",
+            'image' => "tabacs.jpg",
             'updated_at' => $now,
         ]);
 
@@ -156,7 +156,7 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.1055756960012317,
             'description' => "Hospital Bellvitge",
             'created_at' => $now,
-            'img' => "hospital.jpg",
+            'image' => "hospital.jpg",
             'updated_at' => $now,
         ]);
 
@@ -167,7 +167,7 @@ class PlaceSeeder extends Seeder
             'longitude' => 2.1083479830420533,
             'description' => "Kebab Bellvitge",
             'created_at' => $now,
-            'img' => "kebab.jpg",
+            'image' => "kebab.jpg",
             'updated_at' => $now,
         ]);
         
