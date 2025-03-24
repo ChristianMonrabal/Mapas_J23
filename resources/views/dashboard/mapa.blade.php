@@ -15,9 +15,34 @@
     <input type="text" id="searchInput" placeholder="Busca un sitio">
 </div>
 
+<!-- Agregar indicador de carga -->
+<div id="loading" class="loading-indicator" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
+</div>
+
 <div class="sidebar" id="sidebar">
-<button class="btn btn-primary">Hola</button>
+    <div class="sidebar-content">
+        <div>
+            <h1>OnlyMaps</h1>
+            <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
+        </div>
+    </div>
     <!-- Aquí puedes añadir el contenido del sidebar -->
+</div>
+
+<!-- Panel inferior para detalles del lugar -->
+<div id="place-details" class="bottom-panel">
+    <div class="panel-header">
+        <h2 id="place-name"></h2>
+        <button class="close-panel-btn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="panel-content">
+        <p id="place-address"></p>
+        <p id="place-description"></p>
+        <div id="place-tags" class="tags-container"></div>
+    </div>
 </div>
 
 <div id="map"></div>
