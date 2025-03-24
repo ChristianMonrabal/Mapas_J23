@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('latitude', 14, 12);
             $table->decimal('longitude', 17, 16);
             $table->text('description');
-            $table->string('img', 255);
+            $table->string('image', 255);
             $table->timestamps();
         });
     }

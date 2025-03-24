@@ -12,7 +12,17 @@
     <button id="sidebar-btn" class="sidebar-btn">
         <i class="fas fa-bars"></i>
     </button>    
-    <input type="text" id="searchInput" placeholder="Busca un sitio">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Busca un sitio">
+        <button id="searchButton" class="search-btn">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Agregar indicador de carga -->
+<div id="loading" class="loading-indicator" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
 </div>
 
 <!-- Agregar indicador de carga -->
@@ -39,6 +49,9 @@
         </button>
     </div>
     <div class="panel-content">
+        <div class="place-image-container">
+            <img id="place-image" src="" alt="">
+        </div>
         <p id="place-address"></p>
         <p id="place-description"></p>
         <div id="place-tags" class="tags-container"></div>
