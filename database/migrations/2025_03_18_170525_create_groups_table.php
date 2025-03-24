@@ -16,10 +16,13 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('codigo', 6)->unique();
             $table->unsignedBigInteger('creador');
-            $table->integer('miembros')->default(0);
+            $table->unsignedBigInteger('gymkhana_id'); // Gimcana asociada
+            // La capacidad máxima debe ser como mínimo 2 y como máximo 4
+            $table->integer('max_miembros')->check('max_miembros >= 2 AND max_miembros <= 4');
             $table->timestamps();
 
             $table->foreign('creador')->references('id')->on('users');
+            $table->foreign('gymkhana_id')->references('id')->on('gymkhanas');
         });
     }
 

@@ -12,4 +12,6 @@ class GroupController extends Controller
         $groups = Group::all();
         return response()->json($groups);
     }
+
+    
 }
