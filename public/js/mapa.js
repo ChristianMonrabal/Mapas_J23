@@ -1,14 +1,24 @@
-// Inicializar el mapa (sin setView inicial)
+// Inicializar el mapa
 var map = L.map('map', {
     zoomControl: false
 });
 
-// Variable global para el marcador del usuario
+// Variable global para el marcador del usuario y el círculo
 var userMarker = null;
+var userRadius = null;
 var watchId = null;
+
+// Variable global para almacenar los marcadores
+let markers = [];
+
+// Variable global para almacenar los tags activos
+let activeTags = new Set();
 
 // Agregar capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+// Ocultar el logo de OpenStreetMap
+document.querySelector('.leaflet-control-attribution').style.display = 'none';
 
 // Función para actualizar la posición del marcador
 function updateUserLocation(position) {
@@ -19,6 +29,10 @@ function updateUserLocation(position) {
     if (userMarker) {
         map.removeLayer(userMarker);
     }
+    // Si el círculo existe, elimínalo también
+    if (userRadius) {
+        map.removeLayer(userRadius);
+    }
 
     // Crear un nuevo marcador
     userMarker = L.marker([latitude, longitude], {
@@ -28,6 +42,15 @@ function updateUserLocation(position) {
             iconSize: [20, 20],
             iconAnchor: [10, 10]
         })
+    }).addTo(map);
+
+    // Crear el círculo alrededor del usuario
+    userRadius = L.circle([latitude, longitude], {
+        radius: 10, // Radio en metros
+        color: '#2196F3', // Color del borde
+        fillColor: '#2196F3', // Color del relleno
+        fillOpacity: 0.2, // Opacidad del relleno
+        weight: 1 // Grosor del borde
     }).addTo(map);
 
     userMarker.bindPopup('Estás aquí');
@@ -108,6 +131,7 @@ window.addEventListener('beforeunload', function() {
 // Inicializar el mapa cuando se carga el DOM
 document.addEventListener('DOMContentLoaded', function() {
     initializeMapAndLoadPlaces();
+    loadTags();
 });
 
 document.getElementById('sidebar-btn').addEventListener('click', function() {
@@ -125,7 +149,7 @@ document.getElementById('map').addEventListener('click', function() {
 L.Control.LocationButton = L.Control.extend({
     onAdd: function(map) {
         const button = L.DomUtil.create('button', 'location-button');
-        button.innerHTML = '<i class="fas fa-location-arrow"></i>';
+        button.innerHTML = '<i id="location-button" class="fa-solid fa-location-crosshairs"></i>';
         button.title = 'Centrar en mi ubicación';
 
         button.onclick = function() {
@@ -142,8 +166,11 @@ L.Control.LocationButton = L.Control.extend({
 // Agregar el control al mapa
 new L.Control.LocationButton({ position: 'bottomright' }).addTo(map);
 
-// Función para cargar los lugares
+// Modificar la función loadPlaces para guardar los marcadores
 function loadPlaces() {
+    // Limpiar marcadores existentes
+    clearMarkers();
+
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
 
@@ -161,13 +188,7 @@ function loadPlaces() {
         .then(data => {
             if (data.success) {
                 data.places.forEach(place => {
-                    const marker = L.marker([place.latitude, place.longitude])
-                        .addTo(map)
-                        .bindPopup(`<strong>${place.name}</strong>`);
-
-                    marker.on('click', function() {
-                        showPlaceDetails(place.id);
-                    });
+                    addMarker(place);
                 });
             }
         })
@@ -175,6 +196,34 @@ function loadPlaces() {
         .finally(() => {
             loading.style.display = 'none';
         });
+}
+
+// Función para añadir un marcador
+function addMarker(place) {
+    const customIcon = L.icon({
+        iconUrl: '/img/icon.png',
+        iconSize: [50, 50],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+    });
+
+    const marker = L.marker([place.latitude, place.longitude], {
+            icon: customIcon
+        })
+        .addTo(map)
+        .bindPopup(`<strong>${place.name}</strong>`);
+
+    marker.on('click', function() {
+        showPlaceDetails(place.id);
+    });
+
+    markers.push(marker);
+}
+
+// Función para limpiar todos los marcadores
+function clearMarkers() {
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
 }
 
 function showPlaceDetails(placeId) {
@@ -244,9 +293,129 @@ document.querySelector('.close-panel-btn').addEventListener('click', function() 
     document.getElementById('place-details').classList.remove('active');
 });
 
+// Al clicar id sidebar-btn, si place-details si tiene la clase active se cierra
+document.getElementById('sidebar-btn').addEventListener('click', function() {
+    const place_details = document.getElementById('place-details');
+    if (place_details.classList.contains('active')) {
+        place_details.classList.remove('active');
+    }
+});
+
+// Al clicar id map, si place-details si tiene la clase active se cierra
 document.getElementById('map').addEventListener('click', function() {
     const place_details = document.getElementById('place-details');
     if (place_details.classList.contains('active')) {
         place_details.classList.remove('active');
+    }
+});
+
+// Función para cargar los tags
+function loadTags() {
+    fetch('/tags/list')
+        .then(response => response.json())
+        .then(data => {
+            const tagsContainer = document.getElementById('tagsContainer');
+            tagsContainer.innerHTML = ''; // Limpiar contenedor
+
+            // Crear botón "Todos"
+            const allButton = document.createElement('button');
+            allButton.className = 'filter-tag active';
+            allButton.textContent = 'Todos';
+            allButton.onclick = () => {
+                activeTags.clear();
+                document.querySelectorAll('.filter-tag').forEach(tag => {
+                    tag.classList.remove('active');
+                });
+                allButton.classList.add('active');
+                searchPlaces(); // Llamar a búsqueda al cambiar filtros
+            };
+            tagsContainer.appendChild(allButton);
+
+            // Crear botones para cada tag
+            data.tags.forEach(tag => {
+                const button = document.createElement('button');
+                button.className = 'filter-tag';
+                button.textContent = tag.name;
+                button.onclick = () => {
+                    button.classList.toggle('active');
+                    if (button.classList.contains('active')) {
+                        activeTags.add(tag.id);
+                        allButton.classList.remove('active');
+                    } else {
+                        activeTags.delete(tag.id);
+                        if (activeTags.size === 0) {
+                            allButton.classList.add('active');
+                        }
+                    }
+                    searchPlaces(); // Llamar a búsqueda al cambiar filtros
+                };
+                tagsContainer.appendChild(button);
+            });
+        })
+        .catch(error => console.error('Error cargando tags:', error));
+}
+
+// Función unificada de búsqueda
+function searchPlaces() {
+    clearMarkers();
+    const query = document.getElementById('searchInput').value.trim();
+
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+    loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando lugares...';
+
+    // Obtener todos los lugares y aplicar filtros en el cliente
+    fetch('/places/list', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let filteredPlaces = data.places;
+
+                // Filtrar por texto de búsqueda
+                if (query) {
+                    const searchLower = query.toLowerCase();
+                    filteredPlaces = filteredPlaces.filter(place =>
+                        place.name.toLowerCase().includes(searchLower) ||
+                        place.address.toLowerCase().includes(searchLower) ||
+                        place.description.toLowerCase().includes(searchLower) ||
+                        place.tags.some(tag => tag.name.toLowerCase().includes(searchLower))
+                    );
+                }
+
+                // Filtrar por tags seleccionados
+                if (activeTags.size > 0) {
+                    filteredPlaces = filteredPlaces.filter(place =>
+                        place.tags.some(tag => activeTags.has(tag.id))
+                    );
+                }
+
+                // Mostrar lugares filtrados
+                clearMarkers();
+                filteredPlaces.forEach(place => addMarker(place));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            loading.innerHTML = 'Error en la búsqueda';
+        })
+        .finally(() => {
+            loading.style.display = 'none';
+        });
+}
+
+// Event listeners
+document.getElementById('searchButton').addEventListener('click', function() {
+    searchPlaces();
+});
+
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchPlaces();
     }
 });

@@ -7,9 +7,8 @@ use App\Models\Place;
 
 class PlaceController extends Controller
 {
-    public function index(Request $request)
+    public function mostrar_lugares()
     {
-<<<<<<< HEAD
         try {
             $places = Place::with('tags')->get();
             return response()->json([
@@ -22,18 +21,6 @@ class PlaceController extends Controller
                 'error' => 'Error al cargar los lugares: ' . $e->getMessage()
             ], 500);
         }
-=======
-        $query = Place::query();
-        
-        if ($request->has('search')) {
-            $searchTerm = $request->search;
-            $query->where('name', 'like', '%' . $searchTerm . '%');
-        }
-
-        $places = $query->get();
-        
-        return response()->json(['places' => $places]);
->>>>>>> admin
     }
 
     public function store(Request $request)
@@ -90,5 +77,30 @@ class PlaceController extends Controller
             'success' => true,
             'place' => $placeData
         ]);
+    }
+
+    public function search($query)
+    {
+        try {
+            $places = Place::with('tags')
+                ->where(function($q) use ($query) {
+                    $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($query) . '%'])
+                      ->orWhereRaw('LOWER(address) LIKE ?', ['%' . strtolower($query) . '%'])
+                      ->orWhereHas('tags', function($tagQuery) use ($query) {
+                          $tagQuery->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($query) . '%']);
+                      });
+                })
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'places' => $places
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error en la búsqueda: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
