@@ -1,6 +1,6 @@
 @extends('layout.layout')
 
-@section('title', 'Mapa')
+@section('title', 'Gimcana')
 
 @section('content')
 
@@ -50,5 +50,5 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/mapa.js') }}"></script>
+<script src="{{ asset('js/gimcana.js') }}"></script>
 @endsection

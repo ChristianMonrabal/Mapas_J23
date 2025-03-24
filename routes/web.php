@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
@@ -51,3 +52,14 @@ Route::get('/dashboard/mapa', function () {
     }
     return redirect()->route('index');
 })->name('dashboard.mapa');
+
+Route::get('/dashboard/gimcana', function () {
+    if (Auth::check() && Auth::user()->role_id == 1) {
+        return view('dashboard.gimcana');
+    }
+    return redirect()->route('index');
+})->name('dashboard.gimcana');
+
+Route::get('/api/unirse-grupo/{codigoGrupo}', [MapController::class, 'unirseAGrupo']);
+Route::get('/api/gymkhana-datos/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
+Route::post('/api/actualizar-progreso/{grupoId}', [MapController::class, 'actualizarProgreso']);

@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 
 class MapController extends Controller
 {
-    public function obtenerDatosGymkhana($gymkhanaId, $grupoId)
-    {
+    // Función para obtener los datos de la gymkhana (checkpoints, progreso, etc.)
+    public function obtenerDatosGymkhana($gymkhanaId, $grupoId) {
         // Buscar el grupo relacionado con la gymkhana
         $grupo = Group::findOrFail($grupoId);
 
@@ -54,9 +54,8 @@ class MapController extends Controller
         ]);
     }
 
-    // Función para obtener el icono según la etiqueta (puedes ampliar esto si necesitas más iconos)
-    public function obtenerIconoPorEtiqueta($etiqueta)
-    {
+    // Función para obtener el icono según la etiqueta
+    public function obtenerIconoPorEtiqueta($etiqueta) {
         $iconos = [
             'lugar' => 'https://cdn-icons-png.flaticon.com/128/367/367393.png',
             'parque' => 'https://cdn-icons-png.flaticon.com/128/367/367393.png',
@@ -64,5 +63,36 @@ class MapController extends Controller
         ];
 
         return $iconos[$etiqueta] ?? 'https://cdn-icons-png.flaticon.com/128/367/367393.png';
+    }
+
+    // Función para unirse a un grupo mediante el código
+    // public function unirseAGrupo($codigoGrupo)
+    // {
+    //     // Buscar el grupo por el código
+    //     $grupo = Group::where('codigo', $codigoGrupo)->first();
+        
+    //     // Si el grupo existe, se devuelve la información del grupo
+    //     if ($grupo) {
+    //         return response()->json(['success' => true, 'grupo' => $grupo]);
+    //     }
+
+    //     // Si no se encuentra el grupo, devolver un mensaje de error
+    //     return response()->json(['success' => false, 'message' => 'Código incorrecto.']);
+    // }
+
+    // Función para actualizar el progreso de un grupo en los checkpoints
+    public function actualizarProgreso(Request $request, $grupoId)
+    {
+        // Obtener el grupo correspondiente
+        $grupo = Group::findOrFail($grupoId);
+
+        // Crear un nuevo progreso en la gymkhana
+        $progreso = GymkhanaProgress::create([
+            'group_id' => $grupo->id,
+            'checkpoint_id' => $request->sitioId
+        ]);
+
+        // Devolver la respuesta indicando que el progreso se ha actualizado
+        return response()->json(['success' => true, 'progreso' => $progreso]);
     }
 }
