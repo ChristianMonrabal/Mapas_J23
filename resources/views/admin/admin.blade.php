@@ -15,6 +15,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="#"><img src="{{ asset('img/icon.png') }}" height="30"></a>
                 <div class="d-flex">
+                    <button id="gymkhana" class="btn btn-outline-light">Gymkhana</button>
                     <button id="toggleTags" class="btn btn-outline-light">Tags</button>
                     <button class="btn btn-outline-light" type="button" id="placesButton">Places</button>
                     <button class="btn btn-outline-light" type="button" id="usersButton">Users</button>
