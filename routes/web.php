@@ -19,12 +19,11 @@ Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 Route::put('/tags/{id}', [TagController::class, 'update']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
 
-Route::get('/places/list', [PlaceController::class, 'mostrar_lugares'])->middleware('auth');
+Route::get('/places/list', [PlaceController::class, 'index']);
+Route::get('/places', [PlaceController::class, 'index']);
 Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
-Route::get('/places/{id}', [PlaceController::class, 'show']);
-Route::get('/places/search/{query}', [PlaceController::class, 'search'])->middleware('auth');
 
 
 Route::get('/users/list', [UserController::class, 'index']);

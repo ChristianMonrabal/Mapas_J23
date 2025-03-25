@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const placeAddressInput = document.getElementById("placeAddress");
     const placeLatitudeInput = document.getElementById("placeLatitude");
     const placeLongitudeInput = document.getElementById("placeLongitude");
+    const placeTagsSelect = document.getElementById("placeTags");
+    const editPlaceTagsSelect = document.getElementById("editPlaceTags");
 
     tagsTableContainer.style.display = "none";
     placesTableContainer.style.display = "none";
@@ -30,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showSweetAlert('info', 'Buscando coordenadas...', 'Espere por favor');
 
-        // Usamos Nominatim (OpenStreetMap) que no requiere API key
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
 
         fetch(url)
@@ -42,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 if (data && data.length > 0) {
-                    // Tomamos el primer resultado (el más relevante)
                     placeLatitudeInput.value = data[0].lat;
                     placeLongitudeInput.value = data[0].lon;
                     Swal.close();
@@ -56,75 +56,144 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    // Función para cargar todos los tags disponibles
+    function loadAllTags() {
+        fetch("/tags", {
+            headers: {
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar los tags');
+            }
+            return response.json();
+        })
+        .then(data => {
+            placeTagsSelect.innerHTML = '';
+            editPlaceTagsSelect.innerHTML = '';
+            
+            if (data.tags && data.tags.length > 0) {
+                data.tags.forEach(tag => {
+                    const option = document.createElement("option");
+                    option.value = tag.id;
+                    option.textContent = tag.name;
+                    placeTagsSelect.appendChild(option);
+                    
+                    const editOption = option.cloneNode(true);
+                    editPlaceTagsSelect.appendChild(editOption);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error al cargar los tags:", error);
+        });
+    }
+
     // Event listener para el botón de obtener coordenadas
     getCoordinatesBtn.addEventListener("click", function() {
         getCoordinatesFromAddress(placeAddressInput.value);
     });
 
     function loadPlaces(searchTerm = '') {
-        let url = "/places/list";
+        let url = "/places";
         if (searchTerm) {
             url += `?search=${encodeURIComponent(searchTerm)}`;
         }
 
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al cargar los lugares');
-                }
-                return response.json();
-            })
-            .then(data => {
-                placesTableBody.innerHTML = "";
-                
-                if (data.places.length === 0) {
-                    let noResultsRow = `<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>`;
-                    placesTableBody.innerHTML = noResultsRow;
-                } else {
-                    data.places.forEach(place => {
-                        let row = `<tr>
-                            <td>${place.name}</td>
-                            <td>${place.address}</td>
-                            <td>${place.description}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm places-edit-btn" data-id="${place.id}" data-name="${place.name}" data-address="${place.address}" data-latitude="${place.latitude}" data-longitude="${place.longitude}" data-description="${place.description}">Editar</button>
-                                <button class="btn btn-danger btn-sm places-delete-btn" data-id="${place.id}">Eliminar</button>
-                            </td>
-                        </tr>`;
-                        placesTableBody.innerHTML += row;
+        fetch(url, {
+            headers: {
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al cargar los lugares');
+            }
+            return response.json();
+        })
+        .then(data => {
+            placesTableBody.innerHTML = "";
+            
+            if (data.places && data.places.length === 0) {
+                let noResultsRow = `<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>`;
+                placesTableBody.innerHTML = noResultsRow;
+            } else if (data.places) {
+                data.places.forEach(place => {
+                    const tags = place.tags ? place.tags.map(tag => tag.name).join(', ') : '';
+                    const imageCell = place.img ? 
+                        `<img src="/${place.img}" alt="${place.name}" style="max-width: 50px; max-height: 50px; border-radius: 4px;">` : 
+                        '<span class="text-muted">Sin imagen</span>';
+                    
+                    let row = `<tr>
+                        <td>${place.name}</td>
+                        <td>${place.address}</td>
+                        <td>${place.description}</td>
+                        <td>${tags}</td>
+                        <td>${imageCell}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm places-edit-btn" 
+                                data-id="${place.id}" 
+                                data-name="${place.name}" 
+                                data-address="${place.address}" 
+                                data-latitude="${place.latitude}" 
+                                data-longitude="${place.longitude}" 
+                                data-description="${place.description}"
+                                data-img="${place.img || ''}"
+                                data-tags="${place.tags ? place.tags.map(tag => tag.id).join(',') : ''}">
+                                Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm places-delete-btn" data-id="${place.id}">Eliminar</button>
+                        </td>
+                    </tr>`;
+                    placesTableBody.innerHTML += row;
+                });
+
+                document.querySelectorAll(".places-edit-btn").forEach(button => {
+                    button.addEventListener("click", function() {
+                        const placeId = this.getAttribute("data-id");
+                        const placeName = this.getAttribute("data-name");
+                        const placeAddress = this.getAttribute("data-address");
+                        const placeLatitude = this.getAttribute("data-latitude");
+                        const placeLongitude = this.getAttribute("data-longitude");
+                        const placeDescription = this.getAttribute("data-description");
+                        const placeImg = this.getAttribute("data-img");
+                        const placeTags = this.getAttribute("data-tags");
+                        
+                        openEditPlaceModal(
+                            placeId, 
+                            placeName, 
+                            placeAddress, 
+                            placeLatitude, 
+                            placeLongitude, 
+                            placeDescription,
+                            placeImg,
+                            placeTags
+                        );
                     });
-    
-                    document.querySelectorAll(".places-edit-btn").forEach(button => {
-                        button.addEventListener("click", function() {
-                            const placeId = this.getAttribute("data-id");
-                            const placeName = this.getAttribute("data-name");
-                            const placeAddress = this.getAttribute("data-address");
-                            const placeLatitude = this.getAttribute("data-latitude");
-                            const placeLongitude = this.getAttribute("data-longitude");
-                            const placeDescription = this.getAttribute("data-description");
-                            openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription);
-                        });
+                });
+
+                document.querySelectorAll(".places-delete-btn").forEach(button => {
+                    button.addEventListener("click", function() {
+                        const placeId = this.getAttribute("data-id");
+                        deletePlace(placeId);
                     });
-    
-                    document.querySelectorAll(".places-delete-btn").forEach(button => {
-                        button.addEventListener("click", function() {
-                            const placeId = this.getAttribute("data-id");
-                            deletePlace(placeId);
-                        });
-                    });
-                }
-            })
-            .catch(error => {
-                console.error("Error al cargar los places:", error);
-                placesTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos</td></tr>`;
-            });
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error al cargar los places:", error);
+            placesTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar los datos</td></tr>`;
+        });
     }
 
     // Event listener para el input de búsqueda
     placeSearchInput.addEventListener("input", function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            loadPlaces(this.value);
+            loadPlaces(this.value.trim());
         }, 300);
     });
 
@@ -134,13 +203,30 @@ document.addEventListener("DOMContentLoaded", function () {
         loadPlaces();
     });
 
-    function openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription) {
+    function openEditPlaceModal(placeId, placeName, placeAddress, placeLatitude, placeLongitude, placeDescription, placeImg, placeTags) {
         document.getElementById("editPlaceId").value = placeId;
         document.getElementById("editPlaceName").value = placeName;
         document.getElementById("editPlaceAddress").value = placeAddress;
         document.getElementById("editPlaceLatitude").value = placeLatitude;
         document.getElementById("editPlaceLongitude").value = placeLongitude;
         document.getElementById("editPlaceDescription").value = placeDescription;
+        
+        const imageContainer = document.getElementById("currentPlaceImage");
+        imageContainer.innerHTML = '';
+        
+        if (placeImg) {
+            imageContainer.innerHTML = `
+                <p class="mb-1">Imagen actual:</p>
+                <img src="/${placeImg}" alt="${placeName}" style="max-width: 100px; max-height: 100px; border-radius: 4px;" class="mb-2">
+            `;
+        }
+
+        // Seleccionar los tags actuales
+        const tagIds = placeTags ? placeTags.split(',') : [];
+        Array.from(editPlaceTagsSelect.options).forEach(option => {
+            option.selected = tagIds.includes(option.value);
+        });
+        
         editPlaceModal.show();
     }
 
@@ -182,29 +268,16 @@ document.addEventListener("DOMContentLoaded", function () {
     editPlaceForm.addEventListener("submit", function (event) {
         event.preventDefault();
     
+        const formData = new FormData(this);
         const placeId = document.getElementById("editPlaceId").value;
-        const placeName = document.getElementById("editPlaceName").value;
-        const placeAddress = document.getElementById("editPlaceAddress").value;
-        const placeLatitude = document.getElementById("editPlaceLatitude").value;
-        const placeLongitude = document.getElementById("editPlaceLongitude").value;
-        const placeDescription = document.getElementById("editPlaceDescription").value;
-    
-        const data = {
-            id: placeId,
-            name: placeName,
-            address: placeAddress,
-            latitude: placeLatitude,
-            longitude: placeLongitude,
-            description: placeDescription
-        };
-    
+        
         fetch(`/places/${placeId}`, {
-            method: "PUT",
-            body: JSON.stringify(data),
+            method: "POST",
+            body: formData,
             headers: {
                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
                 "Accept": "application/json",
-                "Content-Type": "application/json"
+                "X-HTTP-Method-Override": "PUT"
             }
         })
         .then(response => {
@@ -215,7 +288,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(data => {
             showSweetAlert('success', data.message || 'Lugar actualizado correctamente');
-            editPlaceForm.reset();
             editPlaceModal.hide();
             loadPlaces();
         })
@@ -267,5 +339,17 @@ document.addEventListener("DOMContentLoaded", function () {
         loadPlaces();
     });
 
+    // Cargar datos iniciales
+    loadAllTags();
     loadPlaces();
 });
+
+function showSweetAlert(icon, title, text = '') {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        showConfirmButton: false,
+        timer: 1500
+    });
+}

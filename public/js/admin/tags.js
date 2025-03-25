@@ -39,14 +39,19 @@ document.addEventListener("DOMContentLoaded", function () {
             tagsTableBody.innerHTML = "";
             
             if (data.tags && data.tags.length === 0) {
-                let noResultsRow = `<tr><td colspan="2" class="text-center">No se encontraron resultados</td></tr>`;
+                let noResultsRow = `<tr><td colspan="3" class="text-center">No se encontraron resultados</td></tr>`;
                 tagsTableBody.innerHTML = noResultsRow;
             } else if (data.tags) {
                 data.tags.forEach(tag => {
+                    let imageCell = tag.img ? 
+                        `<img src="/${tag.img}" alt="${tag.name}" style="max-width: 50px; max-height: 50px; border-radius: 4px;">` : 
+                        '<span class="text-muted">Sin imagen</span>';
+                    
                     let row = `<tr>
                         <td>${tag.name}</td>
+                        <td>${imageCell}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm tags-edit-btn" data-id="${tag.id}" data-name="${tag.name}">Editar</button>
+                            <button class="btn btn-warning btn-sm tags-edit-btn" data-id="${tag.id}" data-name="${tag.name}" ${tag.img ? `data-img="${tag.img}"` : ''}>Editar</button>
                             <button class="btn btn-danger btn-sm tags-delete-btn" data-id="${tag.id}">Eliminar</button>
                         </td>
                     </tr>`;
@@ -57,7 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     button.addEventListener("click", function() {
                         const tagId = this.getAttribute("data-id");
                         const tagName = this.getAttribute("data-name");
-                        openEditModal(tagId, tagName);
+                        const tagImg = this.getAttribute("data-img");
+                        openEditModal(tagId, tagName, tagImg);
                     });
                 });
 
@@ -71,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error("Error al cargar los tags:", error);
-            tagsTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-danger">Error al cargar los datos</td></tr>`;
+            tagsTableBody.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error al cargar los datos</td></tr>`;
         });
     }
 
@@ -87,9 +93,22 @@ document.addEventListener("DOMContentLoaded", function () {
         loadTags();
     });
 
-    function openEditModal(tagId, tagName) {
+    function openEditModal(tagId, tagName, tagImg = null) {
         document.getElementById("editTagId").value = tagId;
         document.getElementById("editTagName").value = tagName;
+        
+        const imageContainer = document.getElementById("currentImageContainer");
+        imageContainer.innerHTML = '';
+        
+        if (tagImg) {
+            imageContainer.innerHTML = `
+                <p class="mb-1">Imagen actual:</p>
+                <img src="/${tagImg}" alt="${tagName}" style="max-width: 100px; max-height: 100px; border-radius: 4px;" class="mb-2">
+            `;
+        } else {
+            imageContainer.innerHTML = '<p class="text-muted">No hay imagen actual</p>';
+        }
+        
         editTagModal.show();
     }
 
@@ -125,21 +144,16 @@ document.addEventListener("DOMContentLoaded", function () {
     editTagForm.addEventListener("submit", function (event) {
         event.preventDefault();
     
+        const formData = new FormData(this);
         const tagId = document.getElementById("editTagId").value;
-        const tagName = document.getElementById("editTagName").value;
-    
-        const data = {
-            id: tagId,
-            name: tagName
-        };
-    
+        
         fetch(`/tags/${tagId}`, {
-            method: "PUT",
-            body: JSON.stringify(data),
+            method: "POST",
+            body: formData,
             headers: {
                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
                 "Accept": "application/json",
-                "Content-Type": "application/json"
+                "X-HTTP-Method-Override": "PUT"
             }
         })
         .then(response => {
@@ -150,7 +164,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(data => {
             showSweetAlert('success', data.message || 'Tag actualizado correctamente');
-            editTagForm.reset();
             editTagModal.hide();
             loadTags();
         })
@@ -204,3 +217,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadTags();
 });
+
+function showSweetAlert(icon, title) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        showConfirmButton: false,
+        timer: 1500
+    });
+}
