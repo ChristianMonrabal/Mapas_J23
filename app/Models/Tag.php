@@ -9,7 +9,10 @@ class Tag extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'img'
+    ];
 
     public function places()
     {

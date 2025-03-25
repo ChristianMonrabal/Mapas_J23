@@ -35,13 +35,47 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="tagForm">
+                        <form id="tagForm" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="tagName" class="form-label">Nombre del Tag</label>
-                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20">
+                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tagImage" class="form-label">Imagen del Tag</label>
+                                <input type="file" class="form-control" id="tagImage" name="image" accept="image/*">
+                                <small class="text-muted">Formatos aceptados: JPEG, PNG, JPG, GIF. Tamaño máximo: 2MB</small>
                             </div>
                             <button type="submit" class="btn btn-success">Guardar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="editTagModal" tabindex="-1" aria-labelledby="editTagModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editTagModalLabel">Editar Tag</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editTagForm" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" id="editTagId" name="id">
+                            <div class="mb-3">
+                                <label for="editTagName" class="form-label">Nombre del Tag</label>
+                                <input type="text" class="form-control" id="editTagName" name="name" maxlength="20" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editTagImage" class="form-label">Nueva Imagen (opcional)</label>
+                                <input type="file" class="form-control" id="editTagImage" name="image" accept="image/*">
+                                <small class="text-muted">Dejar en blanco para mantener la imagen actual</small>
+                                <div id="currentImageContainer" class="mt-2"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
                         </form>
                     </div>
                 </div>
@@ -89,6 +123,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Nombre</th>
+                            <th>Imagen</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
