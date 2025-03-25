@@ -27,13 +27,16 @@ class User extends Authenticatable
         return $this->hasMany(Favorite::class);
     }
 
-    public function groups()
+    public function groupUsers()
     {
-        return $this->belongsToMany(Group::class, 'group_users');
+        return $this->hasMany(GroupUser::class, 'user_id');
     }
 
-    public function gymkhanaProgress()
+    public function groups(){
+        return $this->belongsToMany(Group::class, 'group_users', 'user_id', 'group_id');}
+
+    public function creador()
     {
-        return $this->hasMany(GymkhanaProgress::class);
+        return $this->hasMany(Group::class, 'creador');
     }
 }
