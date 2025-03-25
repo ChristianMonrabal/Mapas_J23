@@ -15,7 +15,8 @@ class Place extends Model
         'address',
         'latitude',
         'longitude',
-        'description'
+        'description',
+        'img'
     ];
 
     public function tags()
