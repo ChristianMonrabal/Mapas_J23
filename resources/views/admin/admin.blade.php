@@ -80,7 +80,7 @@
                     </span>
                 </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tagModal">
-                    <i class="bi bi-plus-circle"></i> Agregar Tag
+                    <i class="bi bi-plus-circle"></i> 
                 </button>
             </div>
         
@@ -189,7 +189,7 @@
                     </span>
                 </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#placeModal">
-                    <i class="bi bi-plus-circle"></i> Agregar Place
+                    <i class="bi bi-plus-circle"></i>
                 </button>
             </div>
         
@@ -292,7 +292,7 @@
                 </span>
             </div>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userModal">
-                <i class="bi bi-plus-circle"></i> Agregar Usuario
+                <i class="bi bi-plus-circle"></i>
             </button>
         </div>
     
@@ -314,7 +314,7 @@
 
     @else
         <?php
-        return redirect()->route('auth.login');
+            return redirect()->route('auth.login');
         ?>
     @endif
 
