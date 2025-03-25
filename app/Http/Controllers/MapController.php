@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Checkpoint;
 use App\Models\Group;
+use App\Models\Gymkhana;
 use App\Models\GymkhanaProgress;
 use App\Models\Place;
 use Illuminate\Http\Request;
@@ -12,47 +13,60 @@ class MapController extends Controller
 {
     // Función para obtener los datos de la gymkhana (checkpoints, progreso, etc.)
     public function obtenerDatosGymkhana($gymkhanaId, $grupoId) {
-        // Buscar el grupo relacionado con la gymkhana
+        // 1️⃣ Obtener el grupo
         $grupo = Group::findOrFail($grupoId);
-
-        // Obtener los progresos del grupo en la gymkhana
-        $progreso = GymkhanaProgress::where('group_id', $grupo->id)->get();
-
-        // Obtener los checkpoints de la gymkhana
-        $checkpoints = Checkpoint::where('gymkhana_id', $gymkhanaId)->get();
-
+    
+        // 2️⃣ Obtener los IDs de los usuarios relacionados con ese grupo (usando la relación many-to-many)
+        $usuariosDelGrupo = $grupo->users()->pluck('users.id'); // Extraemos solo los IDs
+    
+        // 3️⃣ Obtener la gymkhana
+        $gymkhana = Gymkhana::findOrFail($gymkhanaId);
+    
+        // 4️⃣ Obtener los checkpoints de la gymkhana
+        $checkpoints = Checkpoint::where('gymkhana_id', $gymkhana->id)->get();
+    
+        // 5️⃣ Obtener los IDs de los checkpoints
+        $checkpointsIds = $checkpoints->pluck('id');
+    
+        // 6️⃣ Obtener la relación entre "usuarios del grupo" y "checkpoints" en la tabla `gymkhana_progress`
+        $progreso = GymkhanaProgress::whereIn('group_users_id', $usuariosDelGrupo)
+        ->whereIn('checkpoint_id', $checkpointsIds)
+        ->get();
+    
+        // 7️⃣ Obtener los lugares asociados a los checkpoints
         $sitios = [];
-        
+    
         foreach ($checkpoints as $checkpoint) {
-            // Obtener el lugar (place) asociado al checkpoint
+            
             $lugar = Place::find($checkpoint->place_id);
-            
-            // Obtener las etiquetas del lugar (place)
-            $etiquetas = $lugar->tags()->pluck('tags.name')->toArray();
-            // Si tiene etiquetas, usamos la primera para el icono
-            $icono = $etiquetas ? $this->obtenerIconoPorEtiqueta($etiquetas[0]) : null;
-            
-            // Obtener la pista del checkpoint
-            $pista = $checkpoint->pista;
-
-            // Agregar los datos al array de sitios
-            $sitios[] = [
-                'name' => $lugar->name,
-                'latitude' => $lugar->latitude,
-                'longitude' => $lugar->longitude,
-                'etiquetas' => $etiquetas,
-                'icono' => $icono,
-                'pista' => $pista,
-            ];
+    
+            if ($lugar) {
+                // Obtener etiquetas del lugar
+                $etiquetas = $lugar->tags()->pluck('tags.name')->toArray();
+    
+                // Determinar el icono basado en la primera etiqueta (si existe)
+                $icono = !empty($etiquetas) ? $this->obtenerIconoPorEtiqueta($etiquetas[0]) : null;
+    
+                // Construir la información del sitio
+                $sitios[] = [
+                    'name' => $lugar->name,
+                    'latitude' => $lugar->latitude,
+                    'longitude' => $lugar->longitude,
+                    'etiquetas' => $etiquetas,
+                    'icono' => $icono,
+                    'pista' => $checkpoint->pista,
+                ];
+            }
         }
-
-        // Devolver los datos al frontend (en formato JSON)
+    
+        // 8️⃣ Devolver la respuesta en formato JSON
         return response()->json([
             'sitios' => $sitios,
             'grupo' => $grupo,
             'progreso' => $progreso
         ]);
-    }
+    }   
+    
 
     // Función para obtener el icono según la etiqueta
     public function obtenerIconoPorEtiqueta($etiqueta) {

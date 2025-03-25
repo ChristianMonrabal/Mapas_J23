@@ -60,6 +60,6 @@ Route::get('/dashboard/gimcana', function () {
     return redirect()->route('index');
 })->name('dashboard.gimcana');
 
-Route::get('/api/unirse-grupo/{codigoGrupo}', [MapController::class, 'unirseAGrupo']);
-Route::get('/api/gymkhana-datos/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
+// Route::get('/api/unirse-grupo/{codigoGrupo}', [MapController::class, 'unirseAGrupo']);
+Route::get('/buscarGymkhana/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
 Route::post('/api/actualizar-progreso/{grupoId}', [MapController::class, 'actualizarProgreso']);

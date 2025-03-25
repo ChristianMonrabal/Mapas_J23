@@ -71,7 +71,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
         return;
     }
 
-    fetch("/api/gymkhana-datos/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
+    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -99,9 +99,10 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 }
 
 function verificarProgreso(miUbicacion) {
+    
     if (!grupoActivo || !grupoActivo.progreso) return;
 
-    fetch("/api/gymkhana-datos/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
+    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
         .then(response => response.json())
         .then(data => {
             var sitios = data.sitios;
