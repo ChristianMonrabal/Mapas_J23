@@ -11,7 +11,7 @@ class GymkhanaProgress extends Model
     use HasFactory;
 
     protected $fillable = [
-        'group_users_id',
+        'user_id',
         'checkpoint_id',
         'completed'
     ];
@@ -20,13 +20,14 @@ class GymkhanaProgress extends Model
         'completed' => 'boolean'
     ];
 
-    public function user()
+    public function groupUser()
     {
-        return $this->belongsTo(User::class, 'group_users_id', 'id');
+        return $this->belongsTo(GroupUser::class, 'group_users_id');
     }
 
     public function checkpoint()
     {
         return $this->belongsTo(Checkpoint::class);
     }
+
 }
