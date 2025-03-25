@@ -39,7 +39,7 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="tagName" class="form-label">Nombre del Tag</label>
-                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20" required>
+                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20">
                             </div>
                             <div class="mb-3">
                                 <label for="tagImage" class="form-label">Imagen del Tag</label>
@@ -67,7 +67,7 @@
                             <input type="hidden" id="editTagId" name="id">
                             <div class="mb-3">
                                 <label for="editTagName" class="form-label">Nombre del Tag</label>
-                                <input type="text" class="form-control" id="editTagName" name="name" maxlength="20" required>
+                                <input type="text" class="form-control" id="editTagName" name="name" maxlength="20">
                             </div>
                             <div class="mb-3">
                                 <label for="editTagImage" class="form-label">Nueva Imagen (opcional)</label>
@@ -145,11 +145,11 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="placeName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="placeName" name="name" maxlength="20" required>
+                                <input type="text" class="form-control" id="placeName" name="name" maxlength="20">
                             </div>
                             <div class="mb-3">
                                 <label for="placeAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="placeAddress" name="address" required>
+                                <input type="text" class="form-control" id="placeAddress" name="address">
                                 <div class="mt-2">
                                     <a href="#" id="getCoordinatesBtn" class="text-decoration-none" title="Obtener coordenadas">
                                         <i class="bi bi-geo-alt-fill text-primary"></i> 
@@ -159,15 +159,15 @@
                             </div>
                             <div class="mb-3">
                                 <label for="placeLatitude" class="form-label">Latitud</label>
-                                <input type="text" class="form-control" id="placeLatitude" name="latitude" required>
+                                <input type="text" class="form-control" id="placeLatitude" name="latitude">
                             </div>
                             <div class="mb-3">
                                 <label for="placeLongitude" class="form-label">Longitud</label>
-                                <input type="text" class="form-control" id="placeLongitude" name="longitude" required>
+                                <input type="text" class="form-control" id="placeLongitude" name="longitude">
                             </div>
                             <div class="mb-3">
                                 <label for="placeDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="placeDescription" name="description" required></textarea>
+                                <textarea class="form-control" id="placeDescription" name="description"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="placeImage" class="form-label">Imagen</label>
@@ -199,23 +199,23 @@
                             <input type="hidden" id="editPlaceId" name="id">
                             <div class="mb-3">
                                 <label for="editPlaceName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="editPlaceName" name="name" maxlength="20" required>
+                                <input type="text" class="form-control" id="editPlaceName" name="name" maxlength="20">
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="editPlaceAddress" name="address" required>
+                                <input type="text" class="form-control" id="editPlaceAddress" name="address">
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceLatitude" class="form-label">Latitud</label>
-                                <input type="text" class="form-control" id="editPlaceLatitude" name="latitude" required>
+                                <input type="text" class="form-control" id="editPlaceLatitude" name="latitude">
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceLongitude" class="form-label">Longitud</label>
-                                <input type="text" class="form-control" id="editPlaceLongitude" name="longitude" required>
+                                <input type="text" class="form-control" id="editPlaceLongitude" name="longitude">
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="editPlaceDescription" name="description" required></textarea>
+                                <textarea class="form-control" id="editPlaceDescription" name="description"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceImage" class="form-label">Nueva Imagen (opcional)</label>
