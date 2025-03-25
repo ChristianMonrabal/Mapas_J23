@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var btnBuscar      = document.getElementById('btnBuscar');
     var inputSearch    = document.getElementById('searchQuery');
     var formCrearGrupo = document.getElementById('formCrearGrupo');
+    var createGroupModalEl = document.getElementById('createGroupModal');
+
 
     // Al cargar la página, listamos grupos
     cargarGrupos();
@@ -18,6 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Cuando se abra el modal de "Crear Grupo", cargamos la lista de Gymkhanas:
+    if (createGroupModalEl) {
+        createGroupModalEl.addEventListener('shown.bs.modal', function() {
+            console.log('Modal abierto, llamando cargarGymkhanas...');
+            cargarGymkhanas();  // NUEVO
+        });
+    }
+
     // Form Crear Grupo
     if (formCrearGrupo) {
         formCrearGrupo.addEventListener('submit', function(e) {
@@ -27,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-/* 1. LISTAR GRUPOS */
+/* 1. Cargar Grupos (existente) */
 function cargarGrupos() {
     var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
@@ -53,6 +63,7 @@ function cargarGrupos() {
     });
 }
 
+/* 2. Buscar Grupos (existe) */
 function buscarGrupos(query) {
     var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
@@ -78,6 +89,7 @@ function buscarGrupos(query) {
     });
 }
 
+/* 3. Mostrar lista (existe) */
 function mostrarListaGrupos(grupos) {
     var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
@@ -88,13 +100,18 @@ function mostrarListaGrupos(grupos) {
     }
 
     var html = grupos.map(function(g) {
-        var numMiembros = (typeof g.users_count !== 'undefined') 
+        var numMiembros = (typeof g.users_count !== 'undefined')
                           ? g.users_count 
                           : (g.users ? g.users.length : 0);
+        // Verifica si el grupo es "tu grupo" (por ejemplo, si el creador es el usuario actual)
+        var mensajePropio = (g.creador == window.currentUserId)
+                            ? '<p style="color:green; font-weight:bold;">Este es tu grupo</p>'
+                            : '';
 
         return `
           <div class="border p-3 mb-2">
-            <h5>${g.nombre}</h5>
+            <h5>${g.name}</h5>
+            ${mensajePropio}
             <p>Código: <strong>${g.codigo}</strong></p>
             <p>Capacidad: <strong>${g.max_miembros}</strong></p>
             <p>Miembros Actuales: <strong>${numMiembros}</strong></p>
@@ -108,7 +125,8 @@ function mostrarListaGrupos(grupos) {
     listaGrupos.innerHTML = html;
 }
 
-/* 3. VER DETALLES (GET /groups/{id}) */
+
+/* 4. Ver Detalle de Grupo (existe) */
 function verDetalleGrupo(groupId) {
     var modalEl = document.getElementById('detalleGroupModal');
     var modalBody = document.getElementById('detalleGroupBody');
@@ -141,22 +159,33 @@ function verDetalleGrupo(groupId) {
     });
 }
 
+/* Render Detalle (existe) */
 function renderDetalleGrupo(grupo, isCreator, isMember) {
     var numMiembros = grupo.users.length;
+
+    // Agregamos un mensaje si el usuario es creador o ya forma parte del grupo.
+    var mensajePropio = (isCreator || isMember)
+        ? '<p style="color:green; font-weight: bold;">Este es tu grupo</p>'
+        : '';
+
     var html = `
-        <h4>${grupo.nombre}</h4>
+        <h3>Detalle del Grupo</h3>
+        <hr>
+        ${mensajePropio}
+        <p><strong>Creador:</strong> ${grupo.creator_name ? grupo.creator_name : 'Desconocido'}</p>
+        <hr>
+        <h4>${grupo.name}</h4>
+        <p>Gymkhana: <strong>${grupo.gymkhana ? grupo.gymkhana.name : 'No asignada'}</strong></p>
         <p>Código: <strong>${grupo.codigo}</strong></p>
         <p>Capacidad: <strong>${grupo.max_miembros}</strong></p>
         <p>Miembros Actuales: <strong>${numMiembros}</strong></p>
-        <p>Gimkhana: <strong>${grupo.gymkhana ? grupo.gymkhana.nombre : 'No asignada'}</strong></p>
         <hr>
         <h5>Miembros:</h5>
         <ul>
     `;
 
     grupo.users.forEach(function(u) {
-        html += `<li>${u.nombre || ('UsuarioID:' + u.id)}`;
-        // Botón expulsar si soy creador y no soy yo
+        html += `<li>${u.name || ('UsuarioID:' + u.id)}`;
         if (isCreator && u.id !== grupo.creador) {
             html += `
                 <button class="btn btn-sm btn-outline-danger ms-2"
@@ -170,19 +199,12 @@ function renderDetalleGrupo(grupo, isCreator, isMember) {
 
     html += `</ul><hr>`;
 
-    // Unirse (si NO es miembro, NO es creator, y no está lleno)
-    // (aunque con la nueva lógica, no haría falta, 
-    //  pues el controller te dará 400 si ya estás en uno)
     if (!isMember && !isCreator && numMiembros < grupo.max_miembros) {
         html += `<button class="btn btn-primary me-2" onclick="unirseGrupo(${grupo.id})">Unirse</button>`;
     }
-
-    // Salir (solo si eres miembro normal)
     if (isMember && !isCreator) {
         html += `<button class="btn btn-warning me-2" onclick="salirGrupo(${grupo.id})">Salir</button>`;
     }
-
-    // Eliminar (solo si eres creador)
     if (isCreator) {
         html += `<button class="btn btn-danger me-2" onclick="eliminarGrupo(${grupo.id})">Eliminar Grupo</button>`;
         if (numMiembros == grupo.max_miembros) {
@@ -193,11 +215,60 @@ function renderDetalleGrupo(grupo, isCreator, isMember) {
     return html;
 }
 
-/* 4. CREAR GRUPO */
+
+
+/* 5. NUEVO: cargarGymkhanas() para el select */
+function cargarGymkhanas() {
+    console.log('Llamando a cargarGymkhanas...');
+    
+    fetch('/groups/gymkhanas', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      console.log('Respuesta fetch:', response);
+      if (!response.ok) {
+        throw new Error('Error al cargar gymkhanas');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Data Gymkhanas:', data);
+  
+      // Ubicamos el <select> en el DOM
+      const selectG = document.getElementById('gymkhanaId');
+      if (!selectG) return;
+  
+      // Limpiamos las opciones previas y agregamos una por defecto
+      selectG.innerHTML = '<option style="color:#0000FF;" value="">-- Seleccione Gymkhana --</option>';
+  
+      // Recorremos el array "data"
+      data.forEach(function(g) {
+        // Creamos un nuevo <option>
+        const opt = document.createElement('option');
+        opt.value = g.id;       // Asignamos el id de la gymkhana como value
+        opt.textContent = g.name; // El texto visible será el nombre de la gymkhana
+  
+        // Agregamos el <option> generado al <select>
+        selectG.appendChild(opt);
+      });
+  
+    })
+    .catch(error => {
+      console.error('Error al cargar gymkhanas:', error);
+    });
+  }
+  
+  
+  
+
+/* 6. Crear Grupo (actualizado) */
 function crearGrupo() {
-    var nombre       = document.getElementById('nombreGrupo').value.trim();
-    var gymkhanaId   = document.getElementById('gymkhanaId').value;
-    var maxMiembros  = document.getElementById('capacidadGrupo').value;
+    var nombre      = document.getElementById('nombreGrupo').value.trim();
+    var maxMiembros = document.getElementById('capacidadGrupo').value;
+    
+    // NUEVO: obtener la gymkhana elegida
+    var gymkhanaId  = document.getElementById('gymkhanaId').value;
 
     fetch('/groups', {
         method: 'POST',
@@ -206,24 +277,25 @@ function crearGrupo() {
             'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
+        // Añadir 'gymkhana_id' en el body
         body: JSON.stringify({
             name: nombre,
-            gymkhana_id: gymkhanaId,
-            max_miembros: maxMiembros
+            max_miembros: maxMiembros,
+            gymkhana_id: gymkhanaId
         })
     })
     .then(function(response) {
-        if (!response.ok) {
-            return response.json().then(function(err) {
-                throw new Error(err.message || 'Error al crear el grupo');
-            });
-        }
-        return response.json();
+        return response.json().then(function(data) {
+            if (!response.ok) {
+                throw new Error(data.message || 'Error al crear el grupo');
+            }
+            return data;
+        });
     })
     .then(function(data) {
         Swal.fire({
             title: 'Éxito',
-            text: 'Grupo creado: ' + data.group.nombre,
+            text: 'Grupo creado: ' + data.group.name,
             icon: 'success',
             confirmButtonText: 'OK'
         });
@@ -236,11 +308,10 @@ function crearGrupo() {
                 modalInstance.hide();
             }
         }
-
-        // Refrescar lista
+        // Refrescar la lista
         cargarGrupos();
 
-        // Limpiar el form
+        // Limpiar form
         var formCrearGrupo = document.getElementById('formCrearGrupo');
         if (formCrearGrupo) {
             formCrearGrupo.reset();
@@ -257,7 +328,6 @@ function crearGrupo() {
     });
 }
 
-/* 5. UNIRSE A UN GRUPO */
 function unirseGrupo(groupId) {
     fetch('/groups/' + groupId + '/join', {
         method: 'POST',
@@ -295,7 +365,6 @@ function unirseGrupo(groupId) {
     });
 }
 
-/* 6. SALIR DE UN GRUPO */
 function salirGrupo(groupId) {
     Swal.fire({
         title: '¿Salir del grupo?',
@@ -328,8 +397,6 @@ function salirGrupo(groupId) {
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-
-            // Cerrar modal detalle
             var detailModalEl = document.getElementById('detalleGroupModal');
             if (detailModalEl) {
                 var modalInstance = bootstrap.Modal.getInstance(detailModalEl);
@@ -351,7 +418,6 @@ function salirGrupo(groupId) {
     });
 }
 
-/* 7. EXPULSAR MIEMBRO */
 function expulsarMiembro(groupId, userId) {
     Swal.fire({
         title: '¿Expulsar a este miembro?',
@@ -383,9 +449,19 @@ function expulsarMiembro(groupId, userId) {
                 text: data.mensaje || 'Miembro expulsado',
                 icon: 'info',
                 confirmButtonText: 'OK'
+            }).then(function() {
+                // Cerrar el modal actual antes de actualizarlo
+                var detailModalEl = document.getElementById('detalleGroupModal');
+                if (detailModalEl) {
+                    var modalInstance = bootstrap.Modal.getInstance(detailModalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                }
+                // Ahora, recargar el detalle del grupo para reflejar el cambio
+                verDetalleGrupo(groupId);
+                cargarGrupos();
             });
-            verDetalleGrupo(groupId);
-            cargarGrupos();
         })
         .catch(function(error) {
             Swal.fire({
@@ -399,7 +475,7 @@ function expulsarMiembro(groupId, userId) {
     });
 }
 
-/* 8. INICIAR JUEGO */
+
 function iniciarJuego(groupId) {
     fetch('/groups/' + groupId + '/start', {
         method: 'POST',
@@ -436,7 +512,6 @@ function iniciarJuego(groupId) {
     });
 }
 
-/* 9. ELIMINAR GRUPO */
 function eliminarGrupo(groupId) {
     Swal.fire({
         title: '¿Eliminar este grupo?',
@@ -470,7 +545,6 @@ function eliminarGrupo(groupId) {
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-
             var detailModalEl = document.getElementById('detalleGroupModal');
             if (detailModalEl) {
                 var modalInstance = bootstrap.Modal.getInstance(detailModalEl);

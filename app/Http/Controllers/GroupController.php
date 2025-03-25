@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Group;
-use App\Models\Gymkhana;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use App\Models\Gymkhana;
+use App\Models\GymkhanaProgress;
 
 class GroupController extends Controller
 {
@@ -25,7 +24,7 @@ class GroupController extends Controller
      */
     public function list()
     {
-        $grupos = Group::with('users', 'gymkhana')
+        $grupos = Group::with('users')
             ->withCount('users')
             ->get();
 
@@ -39,9 +38,9 @@ class GroupController extends Controller
     {
         $query = $request->get('query', '');
 
-        $grupos = Group::with('users', 'gymkhana')
+        $grupos = Group::with('users')
             ->withCount('users')
-            ->where('nombre', 'LIKE', "%{$query}%")
+            ->where('name', 'LIKE', "%{$query}%")
             ->orWhere('codigo', 'LIKE', "%{$query}%")
             ->get();
 
@@ -52,63 +51,76 @@ class GroupController extends Controller
      * Detalle de un grupo (JSON).
      */
     public function show(Group $group)
-    {
-        // Cargamos usuarios y gymkhana
-        $group->load(['users', 'gymkhana']);
+{
+    // Cargamos la relación 'users' y 'gymkhana' en el grupo
+    $group->load(['users']);
 
-        $is_creator = (Auth::id() === $group->creador);
-        $is_member  = $group->users->contains(Auth::id());
+    $is_creator = (Auth::id() === $group->creador);
+    $is_member  = $group->users->contains(Auth::id());
 
-        return response()->json([
-            'group'      => $group,
-            'is_creator' => $is_creator,
-            'is_member'  => $is_member
-        ]);
-    }
+    return response()->json([
+        'group'      => $group,
+        'is_creator' => $is_creator,
+        'is_member'  => $is_member
+    ]);
+}
+
 
     /**
      * Crear grupo.
      * - Solo si no estás en ningún grupo (como creador o miembro).
      */
+    public function listarGymkhanas()
+    {
+        $gymkhanas = Gymkhana::all();
+        return response()->json($gymkhanas);
+    }
+    
+
+
+    /**
+     * Crea un nuevo Grupo y lo asocia a la Gymkhana en gymkhana_progress.
+     */
     public function store(Request $request)
     {
-        // Verificar si usuario ya está en algún grupo
         if ($this->userIsInAnyGroup()) {
             return response()->json([
-                'message' => 'Ya perteneces a un grupo. Debes salir/eliminar ese grupo antes de crear otro.'
+                'message' => 'Ya perteneces a un grupo. Debes salir o eliminar ese grupo antes de crear otro.'
             ], 400);
         }
 
         $data = $request->validate([
-            'name'       => 'required|string|max:100',
+            'name'         => 'required|string|max:100',
             'gymkhana_id'  => 'required|exists:gymkhanas,id',
-            'max_miembros' => 'required|integer|between:2,4',
+            'max_miembros' => 'required|integer|between:2,4'
         ]);
-
+    
+        // Aquí, decide si guardas en `groups` o `gymkhana_progress`.
+        // Ejemplo: guardarlo en `groups`.
         $data['codigo']  = strtoupper(Str::random(6));
         $data['creador'] = Auth::id();
-
+    
         DB::beginTransaction();
         try {
-            $grupo = Group::create($data);
-            // El creador también pasa a ser "miembro"
-            $grupo->users()->attach(Auth::id());
-
+            $group = Group::create($data);
+            $group->users()->attach(Auth::id());
+    
             DB::commit();
-
             return response()->json([
-                'message' => 'Grupo creado correctamente.',
-                'group'   => $grupo
+                'message' => 'Grupo creado correctamente',
+                'group'   => $group
             ], 201);
-
+    
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Error al crear el grupo.',
-                'error'   => $e->getMessage()
+                'message' => 'Error al crear el grupo',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
+    
+
 
     /**
      * Unirse a un grupo:
@@ -117,21 +129,18 @@ class GroupController extends Controller
      */
     public function unirseGrupo(Group $group)
     {
-        // Verificar si usuario ya está en un grupo (como creador o miembro)
         if ($this->userIsInAnyGroup()) {
             return response()->json([
                 'message' => 'No puedes unirte; ya perteneces a un grupo o eres creador de uno.'
             ], 400);
         }
 
-        // Verificar capacidad
         if ($group->users()->count() >= $group->max_miembros) {
             return response()->json([
                 'message' => 'El grupo está lleno.'
             ], 400);
         }
 
-        // Verificar si ya es miembro (caso extraño, pero por seguridad)
         if ($group->users->contains(Auth::id())) {
             return response()->json([
                 'message' => 'Ya formas parte de este grupo.'
@@ -162,11 +171,6 @@ class GroupController extends Controller
                 'message' => 'El grupo no está completo aún.'
             ], 400);
         }
-
-        // Dashboard.Gymkhana
-
-        // $group->estado = 'en_juego';
-        // $group->save();
 
         return response()->json([
             'message' => 'El juego ha comenzado.'
@@ -203,7 +207,6 @@ class GroupController extends Controller
      */
     public function salirDelGrupo(Group $group)
     {
-        // Recargamos la relación con users para asegurarnos
         $group->load('users');
 
         if ($group->creador == Auth::id()) {
@@ -212,14 +215,12 @@ class GroupController extends Controller
             ], 400);
         }
 
-        // Verificar si realmente eres miembro
         if (!$group->users->contains(Auth::id())) {
             return response()->json([
                 'message' => 'No perteneces a este grupo.'
             ], 400);
         }
 
-        // Salir
         $group->users()->detach(Auth::id());
 
         return response()->json([
@@ -259,23 +260,20 @@ class GroupController extends Controller
     /**
      * Chequea si el usuario actual está en algún grupo:
      *   - Como creador
-     *   - O como miembro en la pivot 'group_users'
+     *   - O como miembro en la tabla pivote 'group_users'
      */
     private function userIsInAnyGroup()
     {
         $userId = Auth::id();
         if (!$userId) {
-            return false; // O forzar error si no hay sesión
+            return false;
         }
 
-        // 1) ¿Es creador de algún grupo?
         $esCreador = Group::where('creador', $userId)->exists();
         if ($esCreador) {
             return true;
         }
 
-        // 2) ¿Está en algún grupo como miembro?
-        //   Revisa la tabla pivot group_users
         $estaEnAlguno = DB::table('group_users')
             ->where('user_id', $userId)
             ->exists();

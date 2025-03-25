@@ -44,17 +44,19 @@
                 <input type="text" class="form-control" id="nombreGrupo" name="name">
             </div>
             <div class="mb-3">
-                <label for="gymkhanaId" class="form-label">Gimkhana</label>
-                <select class="form-select" id="gymkhanaId" name="gymkhana_id">
-                    <option value="">-- Seleccione Gimkhana --</option>
-                    <option value="1">Gimkhana 1</option>
-                    <option value="2">Gimkhana 2</option>
-                </select>
-            </div>
-            <div class="mb-3">
                 <label for="capacidadGrupo" class="form-label">Capacidad (2-4)</label>
                 <input type="number" class="form-control" id="capacidadGrupo" name="max_miembros">
             </div>
+
+            <!-- NUEVO: Seleccionar Gymkhana vía fetch -->
+            <div class="mb-3">
+              <label for="gymkhanaId" class="form-label">Gymkhana</label>
+              <select class="form-select" id="gymkhanaId" name="gymkhana_id">
+                  <!-- Se llenará dinámicamente al abrir el modal -->
+              </select>
+          </div>
+          
+
             <button type="submit" class="btn btn-primary w-100">Crear</button>
         </form>
       </div>
@@ -79,6 +81,12 @@
 @endsection
 
 @section('scripts')
-    {{-- Carga nuestro archivo JS para manejar todo vía fetch --}}
+    <!-- SweetAlert (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      window.currentUserId = {{ Auth::id() }};
+  </script>
+  
+    <!-- JS principal -->
     <script src="{{ asset('js/groups.js') }}"></script>
 @endsection
