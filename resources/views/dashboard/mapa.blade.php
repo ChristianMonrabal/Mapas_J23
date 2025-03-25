@@ -20,6 +20,13 @@
     </div>
 </div>
 
+<!-- Añadir el contenedor de tags -->
+<div class="tags-filter">
+    <div class="tags-scroll" id="tagsContainer">
+        <!-- Los tags se cargarán aquí dinámicamente -->
+    </div>
+</div>
+
 <!-- Agregar indicador de carga -->
 <div id="loading" class="loading-indicator" style="display: none;">
     <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
@@ -31,8 +38,12 @@
             <h1>OnlyMaps</h1>
             <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
         </div>
+        <div>
+            <a href="/grupos" class="btn btn-primary btn-sidebar">
+                <i class="fa-solid fa-user-group"> Grupo</i></a>
+        </div>
     </div>
-    <!-- Aquí puedes añadir el contenido del sidebar -->
+
 </div>
 
 <!-- Panel inferior para detalles del lugar -->
