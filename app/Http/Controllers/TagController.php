@@ -40,22 +40,22 @@ class TagController extends Controller
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
 
-            $imageName = null;
+            $imagePath = null;
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = time().'.'.$image->getClientOriginalExtension();
                 
-                // Crear directorio si no existe
                 if (!File::exists(public_path('img/tags'))) {
                     File::makeDirectory(public_path('img/tags'), 0755, true);
                 }
                 
                 $image->move(public_path('img/tags'), $imageName);
+                $imagePath = '/img/tags/'.$imageName;
             }
 
             $tag = Tag::create([
                 'name' => $request->input('name'),
-                'img' => $imageName ? 'img/tags/'.$imageName : null,
+                'img' => $imagePath,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]);
@@ -91,7 +91,7 @@ class TagController extends Controller
                 $image = $request->file('image');
                 $imageName = time().'.'.$image->getClientOriginalExtension();
                 $image->move(public_path('img/tags'), $imageName);
-                $tag->img = 'img/tags/'.$imageName;
+                $tag->img = '/img/tags/'.$imageName;
             }
             
             $tag->save();

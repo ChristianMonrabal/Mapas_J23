@@ -332,3 +332,16 @@
             color: white;
             border: none
         }
+        
+        .tag-filter-img {
+            width: 20px;
+            height: 20px;
+            object-fit: cover;
+        }
+        
+        .tag-img {
+            width: 20px;
+            height: 20px;
+            object-fit: cover;
+            margin-right: 5px;
+        }

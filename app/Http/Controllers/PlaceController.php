@@ -46,7 +46,7 @@ class PlaceController extends Controller
             }
             
             $image->move(public_path('img/places'), $imageName);
-            $imagePath = 'img/places/'.$imageName;
+            $imagePath = '/img/places/'.$imageName;
         }
 
         $place = Place::create([
@@ -81,7 +81,6 @@ class PlaceController extends Controller
         $place = Place::findOrFail($id);
 
         if ($request->hasFile('image')) {
-            // Eliminar imagen anterior si existe
             if ($place->img && File::exists(public_path($place->img))) {
                 File::delete(public_path($place->img));
             }
@@ -89,7 +88,7 @@ class PlaceController extends Controller
             $image = $request->file('image');
             $imageName = time().'.'.$image->getClientOriginalExtension();
             $image->move(public_path('img/places'), $imageName);
-            $place->img = 'img/places/'.$imageName;
+            $place->img = '/img/places/'.$imageName;
         }
 
         $place->update([
@@ -120,5 +119,14 @@ class PlaceController extends Controller
         $place->delete();
         
         return response()->json(['message' => 'Place deleted successfully']);
+    }
+
+    public function show($id)
+    {
+        $place = Place::with('tags')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'place' => $place
+        ]);
     }
 }

@@ -168,11 +168,11 @@ new L.Control.LocationButton({ position: 'bottomright' }).addTo(map);
 
 // Modificar la función loadPlaces para guardar los marcadores
 function loadPlaces() {
-    // Limpiar marcadores existentes
     clearMarkers();
 
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
+    loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando lugares...';
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -186,7 +186,7 @@ function loadPlaces() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
+            if (data.places) {
                 data.places.forEach(place => {
                     addMarker(place);
                 });
@@ -227,6 +227,10 @@ function clearMarkers() {
 }
 
 function showPlaceDetails(placeId) {
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+    loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando detalles del lugar...';
+
     fetch(`/places/${placeId}`, {
             method: 'GET',
             headers: {
@@ -237,55 +241,63 @@ function showPlaceDetails(placeId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Actualizar imagen con mejor manejo y logs
                 const placeImage = document.getElementById('place-image');
-                console.log('Datos de imagen:', data.place.image); // Log para depuración
 
-                if (data.place.image) {
-                    const imageUrl = `/storage/${data.place.image}`;
-                    console.log('URL completa:', imageUrl); // Log para depuración
-
-                    // Intentar cargar la imagen
+                if (data.place.img && data.place.img !== null && data.place.img !== '') {
+                    // Corregir la ruta de la imagen del lugar
+                    const imgPath = data.place.img.startsWith('/') ? data.place.img : `/img/places/${data.place.img}`;
+                    placeImage.src = imgPath;
+                    placeImage.alt = data.place.name;
                     placeImage.onerror = function() {
-                        console.error('Error al cargar la imagen:', imageUrl);
                         this.src = '/img/no_img.png';
                         this.alt = 'Imagen no disponible';
                     };
-
-                    placeImage.onload = function() {
-                        console.log('Imagen cargada correctamente:', imageUrl);
-                    };
-
-                    placeImage.src = imageUrl;
-                    placeImage.alt = data.place.name;
                 } else {
-                    console.log('No hay imagen definida');
                     placeImage.src = '/img/no_img.png';
                     placeImage.alt = 'Imagen no disponible';
                 }
 
-                // Actualizar información básica
                 document.getElementById('place-name').textContent = data.place.name;
                 document.getElementById('place-address').innerHTML = '<i class="fa-solid fa-location-dot"></i> ' + data.place.address;
                 document.getElementById('place-description').textContent = data.place.description;
 
-                // Limpiar y actualizar tags
+                // Actualizar tags
                 const tagsContainer = document.getElementById('place-tags');
                 tagsContainer.innerHTML = '';
                 if (data.place.tags && data.place.tags.length > 0) {
                     data.place.tags.forEach(tag => {
-                        const tagElement = document.createElement('span');
+                        const tagElement = document.createElement('div');
                         tagElement.className = 'tag';
-                        tagElement.textContent = tag.name;
+
+                        // Añadir imagen del tag si existe
+                        if (tag.img) {
+                            const tagImg = document.createElement('img');
+                            const tagImgPath = tag.img.startsWith('/') ? tag.img : `/img/tags/${tag.img}`;
+                            tagImg.src = tagImgPath;
+                            tagImg.alt = tag.name;
+                            tagImg.className = 'tag-img';
+                            tagImg.onerror = function() {
+                                this.src = '/img/no_img.png';
+                            };
+                            tagElement.appendChild(tagImg);
+                        }
+
+                        // Añadir nombre del tag
+                        const tagName = document.createElement('span');
+                        tagName.textContent = tag.name;
+                        tagElement.appendChild(tagName);
+
                         tagsContainer.appendChild(tagElement);
                     });
                 }
 
-                const panel = document.getElementById('place-details');
-                panel.classList.add('active');
+                document.getElementById('place-details').classList.add('active');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => console.error('Error:', error))
+        .finally(() => {
+            loading.style.display = 'none';
+        });
 }
 
 // Agregar manejador para cerrar el panel
@@ -315,7 +327,7 @@ function loadTags() {
         .then(response => response.json())
         .then(data => {
             const tagsContainer = document.getElementById('tagsContainer');
-            tagsContainer.innerHTML = ''; // Limpiar contenedor
+            tagsContainer.innerHTML = '';
 
             // Crear botón "Todos"
             const allButton = document.createElement('button');
@@ -327,7 +339,7 @@ function loadTags() {
                     tag.classList.remove('active');
                 });
                 allButton.classList.add('active');
-                searchPlaces(); // Llamar a búsqueda al cambiar filtros
+                searchPlaces();
             };
             tagsContainer.appendChild(allButton);
 
@@ -335,7 +347,34 @@ function loadTags() {
             data.tags.forEach(tag => {
                 const button = document.createElement('button');
                 button.className = 'filter-tag';
-                button.textContent = tag.name;
+
+                // Contenedor flex para imagen y texto
+                const buttonContent = document.createElement('div');
+                buttonContent.style.display = 'flex';
+                buttonContent.style.alignItems = 'center';
+                buttonContent.style.gap = '8px';
+
+                // Añadir imagen si existe
+                if (tag.img) {
+                    const img = document.createElement('img');
+                    // Corregir la ruta de la imagen si es necesario
+                    const imgPath = tag.img.startsWith('/') ? tag.img : `/img/tags/${tag.img}`;
+                    img.src = imgPath;
+                    img.alt = tag.name;
+                    img.className = 'tag-filter-img';
+                    img.onerror = function() {
+                        this.src = '/img/no_img.png';
+                    };
+                    buttonContent.appendChild(img);
+                }
+
+                // Añadir texto
+                const text = document.createElement('span');
+                text.textContent = tag.name;
+                buttonContent.appendChild(text);
+
+                button.appendChild(buttonContent);
+
                 button.onclick = () => {
                     button.classList.toggle('active');
                     if (button.classList.contains('active')) {
@@ -347,7 +386,7 @@ function loadTags() {
                             allButton.classList.add('active');
                         }
                     }
-                    searchPlaces(); // Llamar a búsqueda al cambiar filtros
+                    searchPlaces();
                 };
                 tagsContainer.appendChild(button);
             });
@@ -364,7 +403,6 @@ function searchPlaces() {
     loading.style.display = 'block';
     loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando lugares...';
 
-    // Obtener todos los lugares y aplicar filtros en el cliente
     fetch('/places/list', {
             method: 'GET',
             headers: {
@@ -374,31 +412,26 @@ function searchPlaces() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                let filteredPlaces = data.places;
+            let filteredPlaces = data.places;
 
-                // Filtrar por texto de búsqueda
-                if (query) {
-                    const searchLower = query.toLowerCase();
-                    filteredPlaces = filteredPlaces.filter(place =>
-                        place.name.toLowerCase().includes(searchLower) ||
-                        place.address.toLowerCase().includes(searchLower) ||
-                        place.description.toLowerCase().includes(searchLower) ||
-                        place.tags.some(tag => tag.name.toLowerCase().includes(searchLower))
-                    );
-                }
-
-                // Filtrar por tags seleccionados
-                if (activeTags.size > 0) {
-                    filteredPlaces = filteredPlaces.filter(place =>
-                        place.tags.some(tag => activeTags.has(tag.id))
-                    );
-                }
-
-                // Mostrar lugares filtrados
-                clearMarkers();
-                filteredPlaces.forEach(place => addMarker(place));
+            if (query) {
+                const searchLower = query.toLowerCase();
+                filteredPlaces = filteredPlaces.filter(place =>
+                    place.name.toLowerCase().includes(searchLower) ||
+                    place.address.toLowerCase().includes(searchLower) ||
+                    place.description.toLowerCase().includes(searchLower) ||
+                    place.tags.some(tag => tag.name.toLowerCase().includes(searchLower))
+                );
             }
+
+            if (activeTags.size > 0) {
+                filteredPlaces = filteredPlaces.filter(place =>
+                    place.tags.some(tag => activeTags.has(tag.id))
+                );
+            }
+
+            clearMarkers();
+            filteredPlaces.forEach(place => addMarker(place));
         })
         .catch(error => {
             console.error('Error:', error);

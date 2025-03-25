@@ -24,7 +24,7 @@ Route::get('/places', [PlaceController::class, 'index']);
 Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
-
+Route::get('/places/{id}', [PlaceController::class, 'show']);
 
 Route::get('/users/list', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
