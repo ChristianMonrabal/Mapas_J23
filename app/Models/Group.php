@@ -37,5 +37,4 @@ class Group extends Model
         return $this->belongsToMany(User::class, 'group_users', 'group_id', 'user_id');
     }
 
-
 }

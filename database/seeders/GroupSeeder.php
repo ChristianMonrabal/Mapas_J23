@@ -18,8 +18,8 @@ class GroupSeeder extends Seeder
         Group::create([
             'name'       => 'Group 1',
             'codigo'       => 'GRP1',
-            'creador'      => 1, // ID de un usuario existente
-            'max_miembros' => 4, // Capacidad máxima del grupo (entre 2 y 4)
+            'creador'      => 1,
+            'max_miembros' => 4,
             'created_at'   => $now,
             'updated_at'   => $now,
         ]);
@@ -36,7 +36,7 @@ class GroupSeeder extends Seeder
         Group::create([
             'name'       => 'Group 3',
             'codigo'       => 'GRP3',
-            'creador'      => 2, // Otro usuario
+            'creador'      => 2,
             'max_miembros' => 4,
             'created_at'   => $now,
             'updated_at'   => $now,
