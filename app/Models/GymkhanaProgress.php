@@ -22,7 +22,7 @@ class GymkhanaProgress extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'group_users_id', 'id');
     }
 
     public function checkpoint()
