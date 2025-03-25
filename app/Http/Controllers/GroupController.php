@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 class GroupController extends Controller
 {
     /**
-     * Devuelve la vista principal (sin datos).
-     * Los datos se cargarán vía fetch.
+     * Vista principal (sin datos directos). Se cargan vía fetch.
      */
     public function index()
     {
@@ -21,11 +21,10 @@ class GroupController extends Controller
     }
 
     /**
-     * Retorna la lista de grupos en JSON.
+     * Lista de grupos en JSON.
      */
     public function list()
     {
-        // Cargamos grupos con count de usuarios
         $grupos = Group::with('users', 'gymkhana')
             ->withCount('users')
             ->get();
@@ -34,7 +33,7 @@ class GroupController extends Controller
     }
 
     /**
-     * Busca grupos por nombre o código (JSON).
+     * Búsqueda de grupos por nombre o código en JSON.
      */
     public function search(Request $request)
     {
@@ -50,40 +49,40 @@ class GroupController extends Controller
     }
 
     /**
-     * Muestra detalles de un grupo (y sus usuarios) en JSON.
+     * Detalle de un grupo (JSON).
      */
     public function show(Group $group)
     {
-        // Cargamos sus relaciones
+        // Cargamos usuarios y gymkhana
         $group->load(['users', 'gymkhana']);
-        // Retornamos un flag "is_creator" o "is_member" para el usuario actual
+
         $is_creator = (Auth::id() === $group->creador);
-        $is_member = $group->users->contains(Auth::id());
+        $is_member  = $group->users->contains(Auth::id());
 
         return response()->json([
-            'group' => $group,
+            'group'      => $group,
             'is_creator' => $is_creator,
             'is_member'  => $is_member
         ]);
     }
 
     /**
-     * Crea un nuevo grupo con validaciones y transacción.
+     * Crear grupo.
+     * - Solo si no estás en ningún grupo (como creador o miembro).
      */
     public function store(Request $request)
     {
-        // Verificar si ya eres creador de un grupo
-        $grupoExistente = Group::where('creador', Auth::id())->first();
-        if ($grupoExistente) {
+        // Verificar si usuario ya está en algún grupo
+        if ($this->userIsInAnyGroup()) {
             return response()->json([
-                'message' => 'Ya eres creador de un grupo. Elimínalo antes de crear otro.'
+                'message' => 'Ya perteneces a un grupo. Debes salir/eliminar ese grupo antes de crear otro.'
             ], 400);
         }
 
         $data = $request->validate([
-            'nombre'       => 'required|string|max:100',
+            'name'       => 'required|string|max:100',
             'gymkhana_id'  => 'required|exists:gymkhanas,id',
-            'max_miembros' => 'required|integer|between:2,4'
+            'max_miembros' => 'required|integer|between:2,4',
         ]);
 
         $data['codigo']  = strtoupper(Str::random(6));
@@ -91,13 +90,12 @@ class GroupController extends Controller
 
         DB::beginTransaction();
         try {
-            // Crear grupo
             $grupo = Group::create($data);
-
-            // Asociar al creador
+            // El creador también pasa a ser "miembro"
             $grupo->users()->attach(Auth::id());
 
             DB::commit();
+
             return response()->json([
                 'message' => 'Grupo creado correctamente.',
                 'group'   => $grupo
@@ -113,15 +111,16 @@ class GroupController extends Controller
     }
 
     /**
-     * Unirse a un grupo (si no eres creador de otro).
+     * Unirse a un grupo:
+     * - Solo si no estás en ningún grupo (como creador o miembro).
+     * - Verifica si está lleno.
      */
     public function unirseGrupo(Group $group)
     {
-        // Verificar si usuario es creador de un grupo
-        $miGrupo = Group::where('creador', Auth::id())->first();
-        if ($miGrupo) {
+        // Verificar si usuario ya está en un grupo (como creador o miembro)
+        if ($this->userIsInAnyGroup()) {
             return response()->json([
-                'message' => 'No puedes unirte a otro grupo. Eres creador de uno.'
+                'message' => 'No puedes unirte; ya perteneces a un grupo o eres creador de uno.'
             ], 400);
         }
 
@@ -132,7 +131,7 @@ class GroupController extends Controller
             ], 400);
         }
 
-        // Verificar si ya es miembro
+        // Verificar si ya es miembro (caso extraño, pero por seguridad)
         if ($group->users->contains(Auth::id())) {
             return response()->json([
                 'message' => 'Ya formas parte de este grupo.'
@@ -148,7 +147,7 @@ class GroupController extends Controller
     }
 
     /**
-     * Iniciar el juego (sólo creador y si está lleno).
+     * Iniciar el juego (solo si eres creador y el grupo está lleno).
      */
     public function iniciarJuego(Group $group)
     {
@@ -164,7 +163,8 @@ class GroupController extends Controller
             ], 400);
         }
 
-        // Cambiar estado o lo que necesites
+        // Dashboard.Gymkhana
+
         // $group->estado = 'en_juego';
         // $group->save();
 
@@ -186,7 +186,7 @@ class GroupController extends Controller
 
         if ($userId == $group->creador) {
             return response()->json([
-                'mensaje' => 'No puedes expulsar al creador.'
+                'mensaje' => 'No puedes expulsarte a ti mismo (creador).'
             ], 400);
         }
 
@@ -198,14 +198,17 @@ class GroupController extends Controller
     }
 
     /**
-     * Salir de un grupo (miembro normal). El creador no puede "salir", debe eliminar el grupo.
+     * Salir de un grupo:
+     * - NO se permite si eres el creador (debes eliminar el grupo).
      */
     public function salirDelGrupo(Group $group)
     {
-        // Si eres creador no puedes "salir" (a menos que cambies la lógica).
+        // Recargamos la relación con users para asegurarnos
+        $group->load('users');
+
         if ($group->creador == Auth::id()) {
             return response()->json([
-                'message' => 'Eres el creador del grupo, no puedes simplemente salir. Elimínalo.'
+                'message' => 'Eres el creador. Debes eliminar el grupo si quieres salir.'
             ], 400);
         }
 
@@ -216,6 +219,7 @@ class GroupController extends Controller
             ], 400);
         }
 
+        // Salir
         $group->users()->detach(Auth::id());
 
         return response()->json([
@@ -224,7 +228,7 @@ class GroupController extends Controller
     }
 
     /**
-     * Eliminar un grupo (solo creador). Usamos transacción.
+     * Eliminar un grupo (solo creador).
      */
     public function destroy(Group $group)
     {
@@ -236,13 +240,10 @@ class GroupController extends Controller
 
         DB::beginTransaction();
         try {
-            // Desvincular usuarios
             $group->users()->detach();
-
-            // Eliminar el grupo
             $group->delete();
-
             DB::commit();
+
             return response()->json([
                 'message' => 'Grupo eliminado correctamente.'
             ]);
@@ -253,5 +254,32 @@ class GroupController extends Controller
                 'error'   => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Chequea si el usuario actual está en algún grupo:
+     *   - Como creador
+     *   - O como miembro en la pivot 'group_users'
+     */
+    private function userIsInAnyGroup()
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return false; // O forzar error si no hay sesión
+        }
+
+        // 1) ¿Es creador de algún grupo?
+        $esCreador = Group::where('creador', $userId)->exists();
+        if ($esCreador) {
+            return true;
+        }
+
+        // 2) ¿Está en algún grupo como miembro?
+        //   Revisa la tabla pivot group_users
+        $estaEnAlguno = DB::table('group_users')
+            ->where('user_id', $userId)
+            ->exists();
+
+        return $estaEnAlguno;
     }
 }

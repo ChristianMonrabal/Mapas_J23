@@ -13,23 +13,29 @@ class Group extends Model
     use HasFactory;
 
     // Campos asignables masivamente.
-    protected $fillable = ['name', 'codigo', 'creador', 'gymkhana_id', 'max_miembros'];
+    protected $fillable = ['name', 'codigo', 'creador', 'max_miembros'];
 
     // Relación many-to-many con los usuarios que pertenecen al grupo.
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'group_users');
-    }
-
-    // Relación para acceder al usuario que creó el grupo.
     public function creator()
     {
         return $this->belongsTo(User::class, 'creador');
     }
 
-    // Relación para acceder a la gimkhana asociada al grupo.
-    public function gymkhana()
+    /**
+     * Relación: Un grupo tiene muchos registros en la tabla pivote group_users.
+     */
+    public function groupUsers()
     {
-        return $this->belongsTo(Gymkhana::class, 'gymkhana_id');
+        return $this->hasMany(GroupUser::class, 'group_id');
     }
+
+    /**
+     * Relación: Un grupo tiene muchos usuarios (muchos a muchos a través de group_users).
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'group_users', 'group_id', 'user_id');
+    }
+
+
 }

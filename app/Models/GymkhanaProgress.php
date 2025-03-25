@@ -20,13 +20,14 @@ class GymkhanaProgress extends Model
         'completed' => 'boolean'
     ];
 
-    public function user()
+    public function groupUser()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(GroupUser::class, 'group_users_id');
     }
 
     public function checkpoint()
     {
         return $this->belongsTo(Checkpoint::class);
     }
+
 }

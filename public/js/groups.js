@@ -1,81 +1,85 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const btnBuscar = document.getElementById('btnBuscar');
-    const inputSearch = document.getElementById('searchQuery');
-    const formCrearGrupo = document.getElementById('formCrearGrupo');
+document.addEventListener('DOMContentLoaded', function() {
+    var btnBuscar      = document.getElementById('btnBuscar');
+    var inputSearch    = document.getElementById('searchQuery');
+    var formCrearGrupo = document.getElementById('formCrearGrupo');
 
-    // Cargar lista al inicio
+    // Al cargar la página, listamos grupos
     cargarGrupos();
 
-    // Evento buscar
+    // Botón Buscar
     if (btnBuscar) {
-        btnBuscar.addEventListener('click', () => {
-            const query = inputSearch.value.trim();
+        btnBuscar.addEventListener('click', function() {
+            var query = inputSearch.value.trim();
             if (query) {
                 buscarGrupos(query);
             } else {
-                cargarGrupos(); // si el input está vacío, cargamos todo
+                cargarGrupos();
             }
         });
     }
 
-    // Crear grupo (submit del form)
+    // Form Crear Grupo
     if (formCrearGrupo) {
-        formCrearGrupo.addEventListener('submit', async (e) => {
+        formCrearGrupo.addEventListener('submit', function(e) {
             e.preventDefault();
-            await crearGrupo();
+            crearGrupo();
         });
     }
 });
 
-/**
- * Carga todos los grupos (GET /groups/list).
- */
-async function cargarGrupos() {
-    const listaGrupos = document.getElementById('listaGrupos');
+/* 1. LISTAR GRUPOS */
+function cargarGrupos() {
+    var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
 
     listaGrupos.innerHTML = '<p>Cargando grupos...</p>';
 
-    try {
-        const resp = await fetch('/groups/list', {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-        const data = await resp.json();
+    fetch('/groups/list', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Error al listar grupos');
+        }
+        return response.json();
+    })
+    .then(function(data) {
         mostrarListaGrupos(data);
-    } catch (err) {
-        console.error(err);
+    })
+    .catch(function(error) {
+        console.error(error);
         listaGrupos.innerHTML = '<p class="text-danger">Error al cargar grupos.</p>';
-    }
+    });
 }
 
-/**
- * Buscar grupos por nombre o código (GET /groups/search?query=...).
- */
-async function buscarGrupos(query) {
-    const listaGrupos = document.getElementById('listaGrupos');
+function buscarGrupos(query) {
+    var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
 
-    listaGrupos.innerHTML = '<p>Buscando...</p>';
+    listaGrupos.innerHTML = '<p>Buscando grupos...</p>';
 
-    try {
-        const resp = await fetch(`/groups/search?query=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-        const data = await resp.json();
+    fetch('/groups/search?query=' + encodeURIComponent(query), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Error en la búsqueda de grupos');
+        }
+        return response.json();
+    })
+    .then(function(data) {
         mostrarListaGrupos(data);
-    } catch (err) {
-        console.error(err);
+    })
+    .catch(function(error) {
+        console.error(error);
         listaGrupos.innerHTML = '<p class="text-danger">Error en la búsqueda.</p>';
-    }
+    });
 }
 
-/**
- * Muestra la lista de grupos en pantalla.
- */
 function mostrarListaGrupos(grupos) {
-    const listaGrupos = document.getElementById('listaGrupos');
+    var listaGrupos = document.getElementById('listaGrupos');
     if (!listaGrupos) return;
 
     if (!grupos || !grupos.length) {
@@ -83,8 +87,10 @@ function mostrarListaGrupos(grupos) {
         return;
     }
 
-    const html = grupos.map(g => {
-        const numMiembros = g.users_count || (g.users ? g.users.length : 0);
+    var html = grupos.map(function(g) {
+        var numMiembros = (typeof g.users_count !== 'undefined') 
+                          ? g.users_count 
+                          : (g.users ? g.users.length : 0);
 
         return `
           <div class="border p-3 mb-2">
@@ -93,7 +99,7 @@ function mostrarListaGrupos(grupos) {
             <p>Capacidad: <strong>${g.max_miembros}</strong></p>
             <p>Miembros Actuales: <strong>${numMiembros}</strong></p>
             <button class="btn btn-sm btn-info" onclick="verDetalleGrupo(${g.id})">
-                Ver Detalles
+                Ver Detalle
             </button>
           </div>
         `;
@@ -102,49 +108,42 @@ function mostrarListaGrupos(grupos) {
     listaGrupos.innerHTML = html;
 }
 
-/**
- * Ver detalle de un grupo en un modal (GET /groups/{id}).
- * Muestra opciones según si eres creador, miembro, etc.
- */
-async function verDetalleGrupo(groupId) {
-    const modalBody = document.getElementById('detalleGroupBody');
-    if (!modalBody) return;
-
-    // Abre el modal
-    const modalEl = document.getElementById('detalleGroupModal');
-    const modalInstance = new bootstrap.Modal(modalEl);
-    modalInstance.show();
-
-    // Mientras carga, pon un texto
-    modalBody.innerHTML = '<p>Cargando detalle...</p>';
-
-    try {
-        const resp = await fetch(`/groups/${groupId}`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error al cargar detalle');
-
-        const grupo = data.group;
-        const isCreator = data.is_creator;
-        const isMember = data.is_member;
-
-        // Renderizamos
-        modalBody.innerHTML = renderDetalleGrupo(grupo, isCreator, isMember);
-
-    } catch (err) {
-        console.error(err);
-        modalBody.innerHTML = `<p class="text-danger">Error al cargar detalle: ${err.message}</p>`;
+/* 3. VER DETALLES (GET /groups/{id}) */
+function verDetalleGrupo(groupId) {
+    var modalEl = document.getElementById('detalleGroupModal');
+    var modalBody = document.getElementById('detalleGroupBody');
+    if (modalEl && modalBody) {
+        var modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance.show();
+        modalBody.innerHTML = '<p>Cargando detalle...</p>';
     }
+
+    fetch('/groups/' + groupId, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Error al cargar detalle del grupo');
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (modalBody) {
+            modalBody.innerHTML = renderDetalleGrupo(data.group, data.is_creator, data.is_member);
+        }
+    })
+    .catch(function(error) {
+        console.error(error);
+        if (modalBody) {
+            modalBody.innerHTML = '<p class="text-danger">Error al cargar detalle: ' + error.message + '</p>';
+        }
+    });
 }
 
-/**
- * Genera el HTML para el detalle de un grupo: miembros, botones de unirse/salir, etc.
- */
 function renderDetalleGrupo(grupo, isCreator, isMember) {
-    const numMiembros = grupo.users.length;
-    let html = `
+    var numMiembros = grupo.users.length;
+    var html = `
         <h4>${grupo.nombre}</h4>
         <p>Código: <strong>${grupo.codigo}</strong></p>
         <p>Capacidad: <strong>${grupo.max_miembros}</strong></p>
@@ -155,13 +154,13 @@ function renderDetalleGrupo(grupo, isCreator, isMember) {
         <ul>
     `;
 
-    grupo.users.forEach(user => {
-        html += `<li>${user.nombre || ('UsuarioID:' + user.id)}`;
-        // Botón Expulsar (si soy el creador y no es el creador)
-        if (isCreator && user.id !== grupo.creador) {
+    grupo.users.forEach(function(u) {
+        html += `<li>${u.nombre || ('UsuarioID:' + u.id)}`;
+        // Botón expulsar si soy creador y no soy yo
+        if (isCreator && u.id !== grupo.creador) {
             html += `
                 <button class="btn btn-sm btn-outline-danger ms-2"
-                        onclick="expulsarMiembro(${grupo.id}, ${user.id})">
+                        onclick="expulsarMiembro(${grupo.id}, ${u.id})">
                     Expulsar
                 </button>
             `;
@@ -171,219 +170,324 @@ function renderDetalleGrupo(grupo, isCreator, isMember) {
 
     html += `</ul><hr>`;
 
-    // Botones de acción
-    // Si NO soy miembro y NO soy creador => Unirse
+    // Unirse (si NO es miembro, NO es creator, y no está lleno)
+    // (aunque con la nueva lógica, no haría falta, 
+    //  pues el controller te dará 400 si ya estás en uno)
     if (!isMember && !isCreator && numMiembros < grupo.max_miembros) {
-        html += `<button class="btn btn-primary me-2" onclick="unirseGrupo(${grupo.id})">
-                    Unirse
-                 </button>`;
+        html += `<button class="btn btn-primary me-2" onclick="unirseGrupo(${grupo.id})">Unirse</button>`;
     }
 
-    // Si soy miembro normal => Salir
+    // Salir (solo si eres miembro normal)
     if (isMember && !isCreator) {
-        html += `<button class="btn btn-warning me-2" onclick="salirGrupo(${grupo.id})">
-                    Salir del Grupo
-                 </button>`;
+        html += `<button class="btn btn-warning me-2" onclick="salirGrupo(${grupo.id})">Salir</button>`;
     }
 
-    // Si soy creador => Eliminar
+    // Eliminar (solo si eres creador)
     if (isCreator) {
-        html += `<button class="btn btn-danger me-2" onclick="eliminarGrupo(${grupo.id})">
-                    Eliminar Grupo
-                 </button>`;
-        // Iniciar juego si está lleno
+        html += `<button class="btn btn-danger me-2" onclick="eliminarGrupo(${grupo.id})">Eliminar Grupo</button>`;
         if (numMiembros == grupo.max_miembros) {
-            html += `<button class="btn btn-success me-2" onclick="iniciarJuego(${grupo.id})">
-                        Iniciar Juego
-                     </button>`;
+            html += `<button class="btn btn-success me-2" onclick="iniciarJuego(${grupo.id})">Iniciar Juego</button>`;
         }
     }
 
     return html;
 }
 
-/**
- * Crear grupo (POST /groups)
- */
-async function crearGrupo() {
-    const nombre = document.getElementById('nombreGrupo').value.trim();
-    const gymkhana_id = document.getElementById('gymkhanaId').value;
-    const max_miembros = document.getElementById('capacidadGrupo').value;
+/* 4. CREAR GRUPO */
+function crearGrupo() {
+    var nombre       = document.getElementById('nombreGrupo').value.trim();
+    var gymkhanaId   = document.getElementById('gymkhanaId').value;
+    var maxMiembros  = document.getElementById('capacidadGrupo').value;
 
-    try {
-        const resp = await fetch('/groups', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-                nombre,
-                gymkhana_id,
-                max_miembros
-            })
+    fetch('/groups', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            name: nombre,
+            gymkhana_id: gymkhanaId,
+            max_miembros: maxMiembros
+        })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            return response.json().then(function(err) {
+                throw new Error(err.message || 'Error al crear el grupo');
+            });
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        Swal.fire({
+            title: 'Éxito',
+            text: 'Grupo creado: ' + data.group.nombre,
+            icon: 'success',
+            confirmButtonText: 'OK'
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error creando grupo');
 
         // Cerrar modal de crear
-        const createModal = document.getElementById('createGroupModal');
-        const modal = bootstrap.Modal.getInstance(createModal);
-        modal.hide();
+        var createModalEl = document.getElementById('createGroupModal');
+        if (createModalEl) {
+            var modalInstance = bootstrap.Modal.getInstance(createModalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        }
 
         // Refrescar lista
-        await cargarGrupos();
+        cargarGrupos();
 
-        alert('Grupo creado correctamente.');
-
-        // Limpia el formulario
-        document.getElementById('formCrearGrupo').reset();
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error creando grupo:', err);
-    }
-}
-
-/**
- * Unirse a un grupo (POST /groups/{id}/join)
- */
-async function unirseGrupo(groupId) {
-    try {
-        const resp = await fetch(`/groups/${groupId}/join`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
+        // Limpiar el form
+        var formCrearGrupo = document.getElementById('formCrearGrupo');
+        if (formCrearGrupo) {
+            formCrearGrupo.reset();
+        }
+    })
+    .catch(function(error) {
+        Swal.fire({
+            title: 'Error',
+            text: error.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error al unirse');
-
-        alert('Te has unido al grupo');
-
-        // Tras unirse, recargamos el detalle
-        await verDetalleGrupo(groupId);
-        // Y refrescamos la lista principal si quieres
-        await cargarGrupos();
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error al unirse al grupo:', err);
-    }
+        console.error(error);
+    });
 }
 
-/**
- * Salir de un grupo (DELETE /groups/{id}/leave)
- */
-async function salirGrupo(groupId) {
-    if (!confirm('¿Estás seguro de salir del grupo?')) return;
+/* 5. UNIRSE A UN GRUPO */
+function unirseGrupo(groupId) {
+    fetch('/groups/' + groupId + '/join', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            return response.json().then(function(err) {
+                throw new Error(err.message || 'Error al unirse al grupo');
+            });
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        Swal.fire({
+            title: 'Unido',
+            text: data.message || 'Te has unido al grupo',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+        verDetalleGrupo(groupId);
+        cargarGrupos();
+    })
+    .catch(function(error) {
+        Swal.fire({
+            title: 'Error',
+            text: error.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        console.error(error);
+    });
+}
 
-    try {
-        const resp = await fetch(`/groups/${groupId}/leave`, {
+/* 6. SALIR DE UN GRUPO */
+function salirGrupo(groupId) {
+    Swal.fire({
+        title: '¿Salir del grupo?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, salir',
+        cancelButtonText: 'Cancelar'
+    }).then(function(result) {
+        if (!result.isConfirmed) return;
+
+        fetch('/groups/' + groupId + '/leave', {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                return response.json().then(function(err) {
+                    throw new Error(err.message || 'Error al salir del grupo');
+                });
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            Swal.fire({
+                title: 'Saliste',
+                text: data.message || 'Has salido del grupo',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+
+            // Cerrar modal detalle
+            var detailModalEl = document.getElementById('detalleGroupModal');
+            if (detailModalEl) {
+                var modalInstance = bootstrap.Modal.getInstance(detailModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+            cargarGrupos();
+        })
+        .catch(function(error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            console.error(error);
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error al salir');
-
-        alert(data.message || 'Has salido del grupo');
-        // Cierra el modal o recarga detalle
-        await verDetalleGrupo(groupId);
-        await cargarGrupos();
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error al salir del grupo:', err);
-    }
+    });
 }
 
-/**
- * Expulsar miembro (DELETE /groups/{groupId}/kick/{userId})
- */
-async function expulsarMiembro(groupId, userId) {
-    if (!confirm('¿Expulsar a este miembro?')) return;
+/* 7. EXPULSAR MIEMBRO */
+function expulsarMiembro(groupId, userId) {
+    Swal.fire({
+        title: '¿Expulsar a este miembro?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, expulsar',
+        cancelButtonText: 'Cancelar'
+    }).then(function(result) {
+        if (!result.isConfirmed) return;
 
-    try {
-        const resp = await fetch(`/groups/${groupId}/kick/${userId}`, {
+        fetch('/groups/' + groupId + '/kick/' + userId, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                return response.json().then(function(err) {
+                    throw new Error(err.mensaje || 'Error al expulsar miembro');
+                });
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            Swal.fire({
+                title: 'Expulsado',
+                text: data.mensaje || 'Miembro expulsado',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+            verDetalleGrupo(groupId);
+            cargarGrupos();
+        })
+        .catch(function(error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            console.error(error);
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.mensaje || 'Error al expulsar miembro');
-
-        alert('Miembro expulsado');
-        // Recargamos el detalle
-        await verDetalleGrupo(groupId);
-        await cargarGrupos();
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error al expulsar miembro:', err);
-    }
+    });
 }
 
-/**
- * Eliminar grupo (DELETE /groups/{id})
- */
-async function eliminarGrupo(groupId) {
-    if (!confirm('¿Eliminar este grupo?')) return;
+/* 8. INICIAR JUEGO */
+function iniciarJuego(groupId) {
+    fetch('/groups/' + groupId + '/start', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            return response.json().then(function(err) {
+                throw new Error(err.message || 'Error al iniciar juego');
+            });
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        Swal.fire({
+            title: 'Juego Iniciado',
+            text: data.message || 'El juego ha comenzado',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+        verDetalleGrupo(groupId);
+    })
+    .catch(function(error) {
+        Swal.fire({
+            title: 'Error',
+            text: error.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        console.error(error);
+    });
+}
 
-    try {
-        const resp = await fetch(`/groups/${groupId}`, {
+/* 9. ELIMINAR GRUPO */
+function eliminarGrupo(groupId) {
+    Swal.fire({
+        title: '¿Eliminar este grupo?',
+        text: 'Esta acción no se puede revertir.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then(function(result) {
+        if (!result.isConfirmed) return;
+
+        fetch('/groups/' + groupId, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
-        });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error al eliminar grupo');
-
-        alert('Grupo eliminado correctamente');
-
-        // Cierra el modal
-        const detailModalEl = document.getElementById('detalleGroupModal');
-        const modalInstance = bootstrap.Modal.getInstance(detailModalEl);
-        modalInstance.hide();
-
-        // Refrescar lista
-        await cargarGrupos();
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error al eliminar grupo:', err);
-    }
-}
-
-/**
- * Iniciar juego (POST /groups/{id}/start)
- */
-async function iniciarJuego(groupId) {
-    try {
-        const resp = await fetch(`/groups/${groupId}/start`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                return response.json().then(function(err) {
+                    throw new Error(err.message || 'Error al eliminar grupo');
+                });
             }
+            return response.json();
+        })
+        .then(function(data) {
+            Swal.fire({
+                title: 'Eliminado',
+                text: data.message || 'Grupo eliminado',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+
+            var detailModalEl = document.getElementById('detalleGroupModal');
+            if (detailModalEl) {
+                var modalInstance = bootstrap.Modal.getInstance(detailModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+            cargarGrupos();
+        })
+        .catch(function(error) {
+            Swal.fire({
+                title: 'Error',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            console.error(error);
         });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.message || 'Error al iniciar juego');
-
-        alert(data.message || 'Juego iniciado');
-        // Recargar el detalle
-        await verDetalleGrupo(groupId);
-
-    } catch (err) {
-        alert(err.message);
-        console.error('Error al iniciar juego:', err);
-    }
+    });
 }

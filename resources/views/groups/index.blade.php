@@ -41,11 +41,11 @@
             @csrf
             <div class="mb-3">
                 <label for="nombreGrupo" class="form-label">Nombre del Grupo</label>
-                <input type="text" class="form-control" id="nombreGrupo" name="nombre" required>
+                <input type="text" class="form-control" id="nombreGrupo" name="name">
             </div>
             <div class="mb-3">
                 <label for="gymkhanaId" class="form-label">Gimkhana</label>
-                <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
+                <select class="form-select" id="gymkhanaId" name="gymkhana_id">
                     <option value="">-- Seleccione Gimkhana --</option>
                     <option value="1">Gimkhana 1</option>
                     <option value="2">Gimkhana 2</option>
@@ -53,7 +53,7 @@
             </div>
             <div class="mb-3">
                 <label for="capacidadGrupo" class="form-label">Capacidad (2-4)</label>
-                <input type="number" class="form-control" id="capacidadGrupo" name="max_miembros" min="2" max="4" required>
+                <input type="number" class="form-control" id="capacidadGrupo" name="max_miembros">
             </div>
             <button type="submit" class="btn btn-primary w-100">Crear</button>
         </form>
@@ -79,11 +79,6 @@
 @endsection
 
 @section('scripts')
-    {{-- Injecta el ID del usuario autenticado (si lo deseas) --}}
-    <script>
-        window.currentUserId = {{ Auth::id() ?? 'null' }};
-    </script>
-
     {{-- Carga nuestro archivo JS para manejar todo vía fetch --}}
     <script src="{{ asset('js/groups.js') }}"></script>
 @endsection
