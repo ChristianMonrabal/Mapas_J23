@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Checkpoint;
 use App\Models\Group;
+use App\Models\GroupUser;
 use App\Models\Gymkhana;
 use App\Models\GymkhanaProgress;
 use App\Models\Place;
@@ -17,7 +18,7 @@ class MapController extends Controller
         $grupo = Group::findOrFail($grupoId);
     
         // 2️⃣ Obtener los IDs de los usuarios relacionados con ese grupo (usando la relación many-to-many)
-        $usuariosDelGrupo = $grupo->users()->pluck('users.id'); // Extraemos solo los IDs
+        $usuariosDelGrupo = GroupUser::where('group_id', $grupoId)->pluck('id');
     
         // 3️⃣ Obtener la gymkhana
         $gymkhana = Gymkhana::findOrFail($gymkhanaId);
