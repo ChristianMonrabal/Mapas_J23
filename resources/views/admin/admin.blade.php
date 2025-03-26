@@ -7,6 +7,7 @@
     <title>Admin Panel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
     @if(Auth::check() && Auth::user()->role_id == 2)
@@ -14,6 +15,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="#"><img src="{{ asset('img/icon.png') }}" height="30"></a>
                 <div class="d-flex">
+                    <button id="gymkhana" class="btn btn-outline-light">Gymkhana</button>
                     <button id="toggleTags" class="btn btn-outline-light">Tags</button>
                     <button class="btn btn-outline-light" type="button" id="placesButton">Places</button>
                     <button class="btn btn-outline-light" type="button" id="usersButton">Users</button>
@@ -33,13 +35,47 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="tagForm">
+                        <form id="tagForm" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="tagName" class="form-label">Nombre del Tag</label>
-                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20">
+                                <input type="text" class="form-control" id="tagName" name="name" maxlength="20" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tagImage" class="form-label">Imagen del Tag</label>
+                                <input type="file" class="form-control" id="tagImage" name="image" accept="image/*">
+                                <small class="text-muted">Formatos aceptados: JPEG, PNG, JPG, GIF. Tamaño máximo: 2MB</small>
                             </div>
                             <button type="submit" class="btn btn-success">Guardar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="editTagModal" tabindex="-1" aria-labelledby="editTagModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editTagModalLabel">Editar Tag</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editTagForm" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" id="editTagId" name="id">
+                            <div class="mb-3">
+                                <label for="editTagName" class="form-label">Nombre del Tag</label>
+                                <input type="text" class="form-control" id="editTagName" name="name" maxlength="20" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editTagImage" class="form-label">Nueva Imagen (opcional)</label>
+                                <input type="file" class="form-control" id="editTagImage" name="image" accept="image/*">
+                                <small class="text-muted">Dejar en blanco para mantener la imagen actual</small>
+                                <div id="currentImageContainer" class="mt-2"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
                         </form>
                     </div>
                 </div>
@@ -71,8 +107,14 @@
         <div class="mt-4" id="tagsTableContainer" style="display: none;">
             <h1 class="text-center">Tags</h1>
             <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="tagSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                    <span class="input-group-text bg-white" id="clearTagSearch" style="cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tagModal">
-                    <i class="bi bi-plus-circle"></i> Agregar Tag
+                    <i class="bi bi-plus-circle"></i> 
                 </button>
             </div>
         
@@ -81,6 +123,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Nombre</th>
+                            <th>Imagen</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -98,27 +141,42 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="placeForm">
+                        <form id="placeForm" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="placeName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="placeName" name="name" maxlength="20">
+                                <input type="text" class="form-control" id="placeName" name="name" maxlength="20" required>
                             </div>
                             <div class="mb-3">
                                 <label for="placeAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="placeAddress" name="address">
+                                <input type="text" class="form-control" id="placeAddress" name="address" required>
+                                <div class="mt-2">
+                                    <a href="#" id="getCoordinatesBtn" class="text-decoration-none" title="Obtener coordenadas">
+                                        <i class="bi bi-geo-alt-fill text-primary"></i> 
+                                        <small class="text-muted">Obtener coordenadas</small>
+                                    </a>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="placeLatitude" class="form-label">Latitud</label>
-                                <input type="text" class="form-control" id="placeLatitude" name="latitude">
+                                <input type="text" class="form-control" id="placeLatitude" name="latitude" required>
                             </div>
                             <div class="mb-3">
                                 <label for="placeLongitude" class="form-label">Longitud</label>
-                                <input type="text" class="form-control" id="placeLongitude" name="longitude">
+                                <input type="text" class="form-control" id="placeLongitude" name="longitude" required>
                             </div>
                             <div class="mb-3">
                                 <label for="placeDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="placeDescription" name="description"></textarea>
+                                <textarea class="form-control" id="placeDescription" name="description" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="placeImage" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" id="placeImage" name="image" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label for="placeTags" class="form-label">Tags</label>
+                                <select class="form-select" id="placeTags" name="tags[]" multiple>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-success">Guardar</button>
                         </form>
@@ -135,28 +193,39 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="editPlaceForm">
+                        <form id="editPlaceForm" enctype="multipart/form-data">
                             @csrf
+                            @method('PUT')
                             <input type="hidden" id="editPlaceId" name="id">
                             <div class="mb-3">
                                 <label for="editPlaceName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="editPlaceName" name="name" maxlength="20">
+                                <input type="text" class="form-control" id="editPlaceName" name="name" maxlength="20" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceAddress" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="editPlaceAddress" name="address">
+                                <input type="text" class="form-control" id="editPlaceAddress" name="address" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceLatitude" class="form-label">Latitud</label>
-                                <input type="text" class="form-control" id="editPlaceLatitude" name="latitude">
+                                <input type="text" class="form-control" id="editPlaceLatitude" name="latitude" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceLongitude" class="form-label">Longitud</label>
-                                <input type="text" class="form-control" id="editPlaceLongitude" name="longitude">
+                                <input type="text" class="form-control" id="editPlaceLongitude" name="longitude" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editPlaceDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="editPlaceDescription" name="description"></textarea>
+                                <textarea class="form-control" id="editPlaceDescription" name="description" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPlaceImage" class="form-label">Nueva Imagen (opcional)</label>
+                                <input type="file" class="form-control" id="editPlaceImage" name="image" accept="image/*">
+                                <div id="currentPlaceImage" class="mt-2"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPlaceTags" class="form-label">Tags</label>
+                                <select class="form-select" id="editPlaceTags" name="tags[]" multiple>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-warning">Actualizar</button>
                         </form>
@@ -168,28 +237,34 @@
         <div class="mt-4" id="placesTableContainer" style="display: none;">
             <h1 class="text-center">Places</h1>
             <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+                <div class="input-group" style="max-width: 300px;">
+                    <input type="text" id="placeSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                    <span class="input-group-text bg-white" id="clearPlaceSearch" style="cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
+                </div>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#placeModal">
-                    <i class="bi bi-plus-circle"></i> Agregar Place
+                    <i class="bi bi-plus-circle"></i>
                 </button>
             </div>
-
-        <div class="table-responsive mx-auto" style="max-width: 80%;">
-            <table class="table table-bordered table-striped table-hover text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Dirección</th>
-                        <th>Latitud</th>
-                        <th>Longitud</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="placesTableBody">
-                </tbody>
-            </table>
+        
+            <div class="table-responsive mx-auto" style="max-width: 80%;">
+                <table class="table table-bordered table-striped table-hover text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Descripción</th>
+                            <th>Tags</th>
+                            <th>Imagen</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="placesTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -267,11 +342,17 @@
     <div class="mt-4" id="usersTableContainer" style="display: none;">
         <h1 class="text-center">Usuarios</h1>
         <div class="d-flex justify-content-between align-items-center mb-3 mx-auto" style="max-width: 80%;">
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Buscar por nombre...">
+                <span class="input-group-text bg-white" id="clearSearch" style="cursor: pointer;">
+                    <i class="bi bi-x-lg"></i>
+                </span>
+            </div>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#userModal">
-                <i class="bi bi-plus-circle"></i> Agregar Usuario
+                <i class="bi bi-plus-circle"></i>
             </button>
         </div>
-
+    
         <div class="table-responsive mx-auto" style="max-width: 80%;">
             <table class="table table-bordered table-striped table-hover text-center">
                 <thead class="table-dark">
@@ -290,7 +371,7 @@
 
     @else
         <?php
-        return redirect()->route('auth.login');
+            return redirect()->route('auth.login');
         ?>
     @endif
 

@@ -16,14 +16,17 @@ Route::get('signup', [AuthController::class, 'showSignupForm'])->name('auth.sign
 Route::post('signup', [AuthController::class, 'signup'])->name('auth.signup.submit');
 Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
 
+Route::get('/tags', [TagController::class, 'index']);
 Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
 Route::put('/tags/{id}', [TagController::class, 'update']);
 Route::delete('/tags/{id}', [TagController::class, 'destroy']);
 
-Route::get('/places/list', [PlaceController::class, 'index'])->middleware('auth');
+Route::get('/places/list', [PlaceController::class, 'index']);
+Route::get('/places', [PlaceController::class, 'index']);
 Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
+Route::get('/places/{id}', [PlaceController::class, 'show']);
 
 Route::get('/users/list', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -62,16 +65,16 @@ Route::get('/admin', function () {
     if (Auth::check() && Auth::user()->role_id == 2) {
         return view('admin.admin');
     }
-    return redirect()->route('index');
+    return redirect()->route('signin');
 })->name('admin');
 
 Route::get('/', function () {
-    return view('index');
-})->name('index');
+    return view('auth.signin');
+})->name('signin');
 
 Route::get('/dashboard/mapa', function () {
     if (Auth::check() && Auth::user()->role_id == 1) {
         return view('dashboard.mapa');
     }
-    return redirect()->route('index');
+    return redirect()->route('signin');
 })->name('dashboard.mapa');
