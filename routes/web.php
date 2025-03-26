@@ -39,16 +39,16 @@ Route::get('/admin', function () {
     if (Auth::check() && Auth::user()->role_id == 2) {
         return view('admin.admin');
     }
-    return redirect()->route('index');
+    return redirect()->route('signin');
 })->name('admin');
 
 Route::get('/', function () {
-    return view('index');
-})->name('index');
+    return view('auth.signin');
+})->name('signin');
 
 Route::get('/dashboard/mapa', function () {
     if (Auth::check() && Auth::user()->role_id == 1) {
         return view('dashboard.mapa');
     }
-    return redirect()->route('index');
+    return redirect()->route('signin');
 })->name('dashboard.mapa');

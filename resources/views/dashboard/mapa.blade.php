@@ -39,8 +39,12 @@
             <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
         </div>
         <div>
+            <a href="/logout" class="btn btn-danger btn-sidebar">
+                <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i></a>
+        </div>
+        <div>
             <a href="/grupos" class="btn btn-primary btn-sidebar">
-                <i class="fa-solid fa-user-group"> Grupo</i></a>
+                <i class="fa-solid fa-user-group"> Grupos</i></a>
         </div>
     </div>
 
