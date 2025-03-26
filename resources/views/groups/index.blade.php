@@ -6,25 +6,31 @@
 
     {{-- Buscador --}}
     <div class="row mb-4">
-        <div class="col-md-4">
-            <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por nombre o código...">
-        </div>
-        <div class="col-md-2">
-            <button id="btnBuscar" class="btn btn-primary w-100">Buscar</button>
-        </div>
-        <div class="col-md-6 text-end">
-            <!-- Botón Crear Grupo -->
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                Crear Grupo
-            </button>
-        </div>
+      <div class="col-md-3">
+          <input type="text" id="searchName" class="form-control" placeholder="Buscar por nombre...">
+      </div>
+      <div class="col-md-3">
+          <input type="text" id="searchCode" class="form-control" placeholder="Buscar por código...">
+      </div>
+      <div class="col-md-2">
+          <button id="btnBuscar" class="btn btn-primary w-100">Buscar</button>
+      </div>
+      <div class="col-md-2">
+          <button id="btnClearFilters" class="btn btn-secondary w-100">Limpiar Filtros</button>
+      </div>
+      <div class="col-md-2 text-end">
+          <!-- Botón Crear Grupo -->
+          <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+              Crear Grupo
+          </button>
+      </div>
     </div>
 
     <hr>
 
-    {{-- Listado de grupos --}}
+    {{-- Listado de grupo (único, ya que el usuario solo puede pertenecer a uno) --}}
     <div id="listaGrupos">
-        <p>Cargando grupos...</p>
+        <p>Cargando grupo...</p>
     </div>
 </div>
 
@@ -42,21 +48,19 @@
             <div class="mb-3">
                 <label for="nombreGrupo" class="form-label">Nombre del Grupo</label>
                 <input type="text" class="form-control" id="nombreGrupo" name="name">
+                <!-- Aquí se puede insertar un mensaje de error mediante JS en el onblur (group-validate.js) -->
             </div>
             <div class="mb-3">
                 <label for="capacidadGrupo" class="form-label">Capacidad (2-4)</label>
                 <input type="number" class="form-control" id="capacidadGrupo" name="max_miembros">
             </div>
-
-            <!-- NUEVO: Seleccionar Gymkhana vía fetch -->
+            <!-- Seleccionar Gymkhana vía fetch -->
             <div class="mb-3">
               <label for="gymkhanaId" class="form-label">Gymkhana</label>
               <select class="form-select" id="gymkhanaId" name="gymkhana_id">
                   <!-- Se llenará dinámicamente al abrir el modal -->
               </select>
-          </div>
-          
-
+            </div>
             <button type="submit" class="btn btn-primary w-100">Crear</button>
         </form>
       </div>
@@ -85,8 +89,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       window.currentUserId = {{ Auth::id() }};
-  </script>
-  
+    </script>
     <!-- JS principal -->
     <script src="{{ asset('js/groups.js') }}"></script>
+    <script src="{{ asset('js/group-validate.js') }}"></script>
 @endsection

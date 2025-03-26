@@ -23,29 +23,72 @@ class GroupController extends Controller
      * Lista de grupos en JSON.
      */
     public function list()
-    {
-        $grupos = Group::with('users')
-            ->withCount('users')
-            ->get();
-
-        return response()->json($grupos);
+{
+    $userId = Auth::id();
+    // Asegurarse de que el usuario está autenticado:
+    if (!$userId) {
+        return response()->json(['message' => 'No autenticado'], 401);
     }
+
+    // Puedes hacer un dd para depurar:
+    // dd($userId);
+
+    $group = Group::with(['users', 'gymkhana'])
+            ->withCount('users')
+            ->where('creador', $userId)
+            ->orWhereHas('users', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->first();
+
+    // dd($group);
+
+    if ($group) {
+        return response()->json([$group]);
+    }
+
+    return response()->json([]);
+}
+public function available(Request $request)
+{
+    $userId = Auth::id();
+    
+    // Devuelve grupos en los que el usuario NO está
+    $grupos = Group::with(['users', 'gymkhana'])
+        ->withCount('users')
+        ->whereDoesntHave('users', function($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+        ->get();
+
+    return response()->json($grupos);
+}
+
+
+    
 
     /**
      * Búsqueda de grupos por nombre o código en JSON.
      */
     public function search(Request $request)
     {
-        $query = $request->get('query', '');
-
+        $name   = $request->get('name', '');
+        $codigo = $request->get('codigo', '');
+    
         $grupos = Group::with('users')
             ->withCount('users')
-            ->where('name', 'LIKE', "%{$query}%")
-            ->orWhere('codigo', 'LIKE', "%{$query}%")
+            ->when($name, function($query, $name) {
+                return $query->where('name', 'LIKE', "%{$name}%");
+            })
+            ->when($codigo, function($query, $codigo) {
+                return $query->where('codigo', 'LIKE', "%{$codigo}%");
+            })
             ->get();
-
+    
         return response()->json($grupos);
     }
+    
+
 
     /**
      * Detalle de un grupo (JSON).
@@ -88,39 +131,76 @@ class GroupController extends Controller
                 'message' => 'Ya perteneces a un grupo. Debes salir o eliminar ese grupo antes de crear otro.'
             ], 400);
         }
-
+    
+        // Validar que gymkhana_id esté presente y sea válido.
+        $request->validate([
+            'gymkhana_id' => 'required|exists:gymkhanas,id',
+        ]);
+    
+        // Validar los datos para el grupo (sin incluir gymkhana_id)
         $data = $request->validate([
             'name'         => 'required|string|max:100',
-            'gymkhana_id'  => 'required|exists:gymkhanas,id',
             'max_miembros' => 'required|integer|between:2,4'
         ]);
     
-        // Aquí, decide si guardas en `groups` o `gymkhana_progress`.
-        // Ejemplo: guardarlo en `groups`.
         $data['codigo']  = strtoupper(Str::random(6));
         $data['creador'] = Auth::id();
     
         DB::beginTransaction();
         try {
+            // 1. Crear el grupo en la tabla 'groups'
             $group = Group::create($data);
-            $group->users()->attach(Auth::id());
+    
+            // 2. Insertar manualmente en la tabla pivot 'group_users'
+            $groupUsersId = DB::table('group_users')->insertGetId([
+                'group_id'   => $group->id,
+                'user_id'    => Auth::id(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+    
+            // 3. Obtener el checkpoint_id:
+            // Si no se envía en el request, obtener el primer checkpoint para la gymkhana
+            $checkpointId = $request->input('checkpoint_id');
+            if (!$checkpointId) {
+                $checkpointId = \App\Models\Checkpoint::where('gymkhana_id', $request->gymkhana_id)
+                    ->orderBy('id')
+                    ->value('id');
+                if (!$checkpointId) {
+                    throw new \Exception("No hay checkpoints definidos para la gymkhana seleccionada.");
+                }
+            }
+    
+            // 4. Crear el registro en gymkhana_progress usando el ID obtenido de la tabla pivot
+            \App\Models\GymkhanaProgress::create([
+                'group_users_id' => $groupUsersId,
+                'gymkhana_id'    => $request->gymkhana_id,
+                'checkpoint_id'  => $checkpointId,
+                'completed'      => false,
+            ]);
     
             DB::commit();
             return response()->json([
                 'message' => 'Grupo creado correctamente',
                 'group'   => $group
             ], 201);
-    
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'message' => 'Error al crear el grupo',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ], 500);
         }
     }
     
+    
 
+
+    
+
+    
+
+    
 
     /**
      * Unirse a un grupo:
@@ -231,31 +311,48 @@ class GroupController extends Controller
     /**
      * Eliminar un grupo (solo creador).
      */
-    public function destroy(Group $group)
-    {
-        if ($group->creador !== Auth::id()) {
-            return response()->json([
-                'message' => 'No tienes permiso para eliminar este grupo.'
-            ], 403);
-        }
+    public function destroy($id)
+{
+    // Buscar el grupo manualmente
+    $group = Group::findOrFail($id);
 
-        DB::beginTransaction();
-        try {
-            $group->users()->detach();
-            $group->delete();
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Grupo eliminado correctamente.'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Error al eliminar el grupo.',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
+    // Verificar que el usuario autenticado sea el creador del grupo
+    if ($group->creador !== Auth::id()) {
+        return response()->json([
+            'message' => 'No tienes permiso para eliminar este grupo.'
+        ], 403);
     }
+
+    DB::beginTransaction();
+    try {
+        // 1. Eliminar los registros en gymkhana_progress que dependan de este grupo
+        DB::table('gymkhana_progress')
+            ->whereIn('group_users_id', function($query) use ($group) {
+                $query->select('id')
+                      ->from('group_users')
+                      ->where('group_id', $group->id);
+            })
+            ->delete();
+
+        // 2. Eliminar las relaciones en la tabla pivot group_users
+        $group->users()->detach();
+
+        // 3. Eliminar el grupo
+        $group->delete();
+
+        DB::commit();
+        return response()->json([
+            'message' => 'Grupo eliminado correctamente.'
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Error al eliminar el grupo.',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
+
 
     /**
      * Chequea si el usuario actual está en algún grupo:

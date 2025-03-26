@@ -12,6 +12,7 @@ class GymkhanaProgress extends Model
 
     protected $fillable = [
         'user_id',
+        'group_users_id', 
         'checkpoint_id',
         'completed'
     ];

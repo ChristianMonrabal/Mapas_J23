@@ -66,39 +66,67 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 // Vista principal con la lista de grupos (pero sin datos en Blade).
 
 
+// // Vista principal
+// Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
+
+// // Lista en JSON
+// Route::get('/groups/list', [GroupController::class, 'list'])->name('groups.list');
+
+// // Búsqueda en JSON
+// Route::get('/groups/search', [GroupController::class, 'search'])->name('groups.search');
+
+// // NUEVO: RUTA PARA OBTENER LAS GYMKHANAS (antes que {group})
+// Route::get('/groups/gymkhanas', [GroupController::class, 'listarGymkhanas'])->name('groups.gymkhanas');
+
+// // Ver detalles de un grupo
+// Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
+
+// // Crear grupo
+// Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
+
+// // Unirse a un grupo
+// Route::post('/groups/{group}/join', [GroupController::class, 'unirseGrupo'])->name('groups.join');
+
+// // Iniciar juego
+// Route::post('/groups/{group}/start', [GroupController::class, 'iniciarJuego'])->name('groups.start');
+
+// // Expulsar miembro
+// Route::delete('/groups/{group}/kick/{user}', [GroupController::class, 'expulsarMiembro'])->name('groups.kick');
+
+// // Salir (miembro normal)
+// Route::delete('/groups/{group}/leave', [GroupController::class, 'salirDelGrupo'])->name('groups.leave');
+
+// // Eliminar grupo (creador)
+// Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+
+
 // Vista principal
 Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
 
-// Lista en JSON
+// Listar el grupo actual del usuario
 Route::get('/groups/list', [GroupController::class, 'list'])->name('groups.list');
 
-// Búsqueda en JSON
+// Listar grupos disponibles (a los que el usuario no está unido)
+Route::get('/groups/available', [GroupController::class, 'available'])->name('groups.available');
+
+// Búsqueda (puedes dejarlo como ya lo tienes)
 Route::get('/groups/search', [GroupController::class, 'search'])->name('groups.search');
 
-// NUEVO: RUTA PARA OBTENER LAS GYMKHANAS (antes que {group})
 Route::get('/groups/gymkhanas', [GroupController::class, 'listarGymkhanas'])->name('groups.gymkhanas');
 
-// Ver detalles de un grupo
+
+// Detalle de un grupo
 Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
 
-// Crear grupo
+// Resto de rutas (crear, unirse, salir, expulsar, etc.)
 Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
-
-// Unirse a un grupo
 Route::post('/groups/{group}/join', [GroupController::class, 'unirseGrupo'])->name('groups.join');
-
-// Iniciar juego
 Route::post('/groups/{group}/start', [GroupController::class, 'iniciarJuego'])->name('groups.start');
-
-// Expulsar miembro
 Route::delete('/groups/{group}/kick/{user}', [GroupController::class, 'expulsarMiembro'])->name('groups.kick');
-
-// Salir (miembro normal)
 Route::delete('/groups/{group}/leave', [GroupController::class, 'salirDelGrupo'])->name('groups.leave');
-
-// Eliminar grupo (creador)
 Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
 
+// Ruta para cargar Gymkhanas (para el modal)
 
 
 

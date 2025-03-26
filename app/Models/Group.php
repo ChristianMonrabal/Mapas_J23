@@ -38,4 +38,8 @@ class Group extends Model
     }
 
 
+    public function gymkhana()
+    {
+        return $this->belongsTo(Gymkhana::class, 'gymkhana_id');
+    }
 }
