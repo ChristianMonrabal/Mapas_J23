@@ -51,6 +51,7 @@ class MapController extends Controller
                 // Construir la información del sitio
                 $sitios[] = [
                     'name' => $lugar->name,
+                    'description' => $lugar->description,
                     'latitude' => $lugar->latitude,
                     'longitude' => $lugar->longitude,
                     'etiquetas' => $etiquetas->toArray(),

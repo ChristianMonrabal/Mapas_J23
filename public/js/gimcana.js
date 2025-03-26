@@ -65,13 +65,13 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
             sitios.forEach(sitio => {
                 console.log(sitio);
                 var icono = L.icon({
-                    iconUrl: sitio.icono, 
+                    iconUrl: "https://cdn-icons-png.flaticon.com/128/2830/2830191.png", 
                     iconSize: [40, 40]
                 });
 
                 var marcador = L.marker([sitio.latitude, sitio.longitude], { icon: icono })
                     .addTo(map)
-                    .bindPopup("<strong>" + sitio.name + "</strong><br>" + sitio.pista);
+                    .bindPopup("<strong>" + sitio.name + "</strong><br>" + sitio.description);
             });
         })
         .catch(error => console.error("Error al cargar sitios:", error));
