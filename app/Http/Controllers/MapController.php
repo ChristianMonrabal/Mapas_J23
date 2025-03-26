@@ -43,19 +43,20 @@ class MapController extends Controller
     
             if ($lugar) {
                 // Obtener etiquetas del lugar
-                $etiquetas = $lugar->tags()->pluck('tags.name')->toArray();
+                $etiquetas = $lugar->tags()->get(['name', 'img']);
     
                 // Determinar el icono basado en la primera etiqueta (si existe)
-                $icono = !empty($etiquetas) ? $this->obtenerIconoPorEtiqueta($etiquetas[0]) : null;
+                $icono = $etiquetas->isNotEmpty() ? $etiquetas->first()->img : null;
     
                 // Construir la información del sitio
                 $sitios[] = [
                     'name' => $lugar->name,
                     'latitude' => $lugar->latitude,
                     'longitude' => $lugar->longitude,
-                    'etiquetas' => $etiquetas,
+                    'etiquetas' => $etiquetas->toArray(),
                     'icono' => $icono,
                     'pista' => $checkpoint->pista,
+                    'completed' => $checkpoint->completed,
                 ];
             }
         }
@@ -64,36 +65,19 @@ class MapController extends Controller
         return response()->json([
             'sitios' => $sitios,
             'grupo' => $grupo,
-            'progreso' => $progreso
+            'progreso' => $progreso,
         ]);
-    }   
-    
-
-    // Función para obtener el icono según la etiqueta
-    public function obtenerIconoPorEtiqueta($etiqueta) {
-        $iconos = [
-            'lugar' => 'https://cdn-icons-png.flaticon.com/128/367/367393.png',
-            'parque' => 'https://cdn-icons-png.flaticon.com/128/367/367393.png',
-            'restaurante' => 'https://cdn-icons-png.flaticon.com/128/367/367393.png',
-        ];
-
-        return $iconos[$etiqueta] ?? 'https://cdn-icons-png.flaticon.com/128/367/367393.png';
     }
 
-    // Función para unirse a un grupo mediante el código
-    // public function unirseAGrupo($codigoGrupo)
-    // {
-    //     // Buscar el grupo por el código
-    //     $grupo = Group::where('codigo', $codigoGrupo)->first();
-        
-    //     // Si el grupo existe, se devuelve la información del grupo
-    //     if ($grupo) {
-    //         return response()->json(['success' => true, 'grupo' => $grupo]);
-    //     }
+    // Función para actualizar el campo completed de un checkpoint
+    public function actualizarCheckpointCompletado(Request $request, $checkpointId)
+    {
+        $checkpoint = Checkpoint::findOrFail($checkpointId);
+        $checkpoint->completed = $request->completed;  // Marcamos el checkpoint como completado
+        $checkpoint->save();
 
-    //     // Si no se encuentra el grupo, devolver un mensaje de error
-    //     return response()->json(['success' => false, 'message' => 'Código incorrecto.']);
-    // }
+        return response()->json(['success' => true, 'checkpoint' => $checkpoint]);
+    }
 
     // Función para actualizar el progreso de un grupo en los checkpoints
     public function actualizarProgreso(Request $request, $grupoId)
@@ -101,11 +85,21 @@ class MapController extends Controller
         // Obtener el grupo correspondiente
         $grupo = Group::findOrFail($grupoId);
 
-        // Crear un nuevo progreso en la gymkhana
-        $progreso = GymkhanaProgress::create([
-            'group_id' => $grupo->id,
-            'checkpoint_id' => $request->sitioId
-        ]);
+        $usuariosDelGrupo = GroupUser::where('group_id', $grupoId)->pluck('id');
+
+        // Obtener el checkpoint correspondiente al sitio que se está desbloqueando
+        $checkpoint = Checkpoint::findOrFail($request->sitioId);
+
+        // Buscar el progreso de un usuario específico en la tabla `gymkhana_progress` para el checkpoint actual
+        $progreso = GymkhanaProgress::where('group_users_id', $usuariosDelGrupo->first()) // Asegúrate de que sea un usuario del grupo, puedes recorrer o filtrar si es necesario
+            ->where('checkpoint_id', $checkpoint->id)
+            ->first();
+
+        // Si se encuentra el progreso, actualizamos la columna "completed" de 0 a 1
+        if ($progreso) {
+            $progreso->completed = 1;  // Marcamos el progreso como completado
+            $progreso->save();
+        }
 
         // Devolver la respuesta indicando que el progreso se ha actualizado
         return response()->json(['success' => true, 'progreso' => $progreso]);

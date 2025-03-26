@@ -1,27 +1,5 @@
-// document.getElementById("unirseGrupoBtn").addEventListener("click", unirseAGrupo);
 
 var grupoActivo = { id: 1, gymkhana_id: 1 };
-
-// function unirseAGrupo() {
-//     var codigoIngresado = document.getElementById("codigoGrupo").value;
-//     fetch("/api/unirse-grupo/" + codigoIngresado)
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.success) {
-//                 grupoActivo = data.grupo; // Se asigna desde la respuesta del servidor
-//                 document.getElementById("mensaje").innerHTML = "¡Juego iniciado!";
-
-//                 // Ocultar formulario y mostrar el mapa
-//                 document.getElementById("unirseGrupo").style.display = "none";
-//                 document.getElementById("map").style.display = "block";
-                
-//                 iniciarJuego();
-//             } else {
-//                 document.getElementById("mensaje").innerHTML = "Código incorrecto.";
-//             }
-//         })
-//         .catch(error => console.error("Error al unirse al grupo:", error));
-// }
 
 iniciarJuego();
 
@@ -85,6 +63,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 
             var sitios = data.sitios;
             sitios.forEach(sitio => {
+                console.log(sitio);
                 var icono = L.icon({
                     iconUrl: sitio.icono, 
                     iconSize: [40, 40]
@@ -99,36 +78,62 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 }
 
 function verificarProgreso(miUbicacion) {
-    
-    if (!grupoActivo || !grupoActivo.progreso) return;
 
     fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
         .then(response => response.json())
         .then(data => {
             var sitios = data.sitios;
-            sitios.forEach(sitio => {
-                if (!grupoActivo.progreso.includes(sitio.id)) {
-                    var distancia = calcularDistancia(
-                        miUbicacion.getLatLng().lat, 
-                        miUbicacion.getLatLng().lng, 
-                        sitio.latitude, 
-                        sitio.longitude
-                    );
+            var progreso = data.progreso;  // Recogemos el progreso actual del grupo
 
-                    if (distancia < 85) {
+            sitios.forEach((sitio) => {
+                // Verificar si el sitio ya está desbloqueado
+                if (sitio.completed === 0) {  // Solo procedemos si el sitio aún no está desbloqueado
+                    // Comprobamos si todos los usuarios están dentro del rango de 85 metros
+                    var todosEnRango = true;
+
+                    // Iteramos sobre todos los usuarios del grupo
+                    grupoActivo.usuarios.forEach(usuario => {
+                        var distancia = calcularDistancia(
+                            miUbicacion.getLatLng().lat, 
+                            miUbicacion.getLatLng().lng, 
+                            sitio.latitude,
+                            sitio.longitude
+                        );
+
+                        // Si algún usuario está fuera del rango, marcamos como falso
+                        if (distancia >= 85) {
+                            todosEnRango = false;
+                        }
+                    });
+
+                    // Si todos los usuarios están en el rango adecuado, desbloqueamos la pista
+                    if (todosEnRango) {
                         alert("¡Pista desbloqueada en " + sitio.name + "!");
-                        grupoActivo.progreso.push(sitio.id);
+                        grupoActivo.progreso.push(sitio.id);  // Añadimos el sitio al progreso
 
-                        fetch("/api/actualizar-progreso/" + grupoActivo.id, {
+                        
+                        // Marcar el sitio como completado en el servidor (para no volver a desbloquearlo)
+                        fetch("/actualizarCheckpoint/" + sitio.id, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ completed: 1 })
+                        });
+
+                        // Actualizar el progreso en el backend
+                        fetch("/actualizarProgreso/" + grupoActivo.id, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ sitioId: sitio.id })
                         });
+                        
+                        // Salir del ciclo una vez que se desbloquea el sitio
+                        return;
                     }
                 }
             });
         });
 }
+
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     var rad = Math.PI / 180;

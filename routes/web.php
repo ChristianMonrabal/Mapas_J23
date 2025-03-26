@@ -62,4 +62,5 @@ Route::get('/dashboard/gimcana', function () {
 
 // Route::get('/api/unirse-grupo/{codigoGrupo}', [MapController::class, 'unirseAGrupo']);
 Route::get('/buscarGymkhana/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
-Route::post('/api/actualizar-progreso/{grupoId}', [MapController::class, 'actualizarProgreso']);
+Route::post('/actualizarCheckpoint/{checkpointId}', [MapController::class, 'actualizarCheckpointCompletado']);
+Route::post('/actualizarProgreso/{grupoId}', [MapController::class, 'actualizarProgreso']);
