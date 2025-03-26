@@ -19,7 +19,12 @@ function iniciarJuego() {
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
         var miUbicacion = L.marker([lat, lng], {
-            icon: L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/128/3699/3699532.png", iconSize: [30, 30] })
+            icon: L.divIcon({
+                className: 'user-location-marker',
+                html: '<i class="fas fa-circle"></i>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            })
         }).addTo(map);
 
         var radioSeguridad = L.circle([lat, lng], {
@@ -80,19 +85,28 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 function verificarProgreso(miUbicacion) {
 
     fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
-        .then(response => response.json())
+        .then(response => {
+            console.log(response);  // Verifica lo que está llegando
+            if (!response.ok) {
+                throw new Error("Error al obtener los datos. Código de estado: " + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
             var sitios = data.sitios;
             var progreso = data.progreso;  // Recogemos el progreso actual del grupo
 
             sitios.forEach((sitio) => {
-                // Verificar si el sitio ya está desbloqueado
-                if (sitio.completed === 0) {  // Solo procedemos si el sitio aún no está desbloqueado
+                // Verificar si el sitio está en la gymkhana y si aún no está desbloqueado
+                if (sitio.is_gymkhana && sitio.completed === 0) {
+
                     // Comprobamos si todos los usuarios están dentro del rango de 85 metros
                     var todosEnRango = true;
 
                     // Iteramos sobre todos los usuarios del grupo
-                    grupoActivo.usuarios.forEach(usuario => {
+                    usuariosDelGrupo.forEach(usuario => {
+
+                        // Aquí debes calcular la distancia entre la ubicación del usuario y el sitio
                         var distancia = calcularDistancia(
                             miUbicacion.getLatLng().lat, 
                             miUbicacion.getLatLng().lng, 
@@ -102,16 +116,15 @@ function verificarProgreso(miUbicacion) {
 
                         // Si algún usuario está fuera del rango, marcamos como falso
                         if (distancia >= 85) {
-                            todosEnRango = false;
+                            todosEnRango = false;  // Si un usuario está fuera del rango, paramos el ciclo
                         }
                     });
 
                     // Si todos los usuarios están en el rango adecuado, desbloqueamos la pista
                     if (todosEnRango) {
-                        alert("¡Pista desbloqueada en " + sitio.name + "!");
-                        grupoActivo.progreso.push(sitio.id);  // Añadimos el sitio al progreso
 
-                        
+                        alert(sitio.pista);
+
                         // Marcar el sitio como completado en el servidor (para no volver a desbloquearlo)
                         fetch("/actualizarCheckpoint/" + sitio.id, {
                             method: "POST",
@@ -133,7 +146,6 @@ function verificarProgreso(miUbicacion) {
             });
         });
 }
-
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     var rad = Math.PI / 180;

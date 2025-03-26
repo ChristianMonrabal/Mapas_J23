@@ -58,8 +58,31 @@ class MapController extends Controller
                     'icono' => $icono,
                     'pista' => $checkpoint->pista,
                     'completed' => $checkpoint->completed,
+                    'is_gymkhana' => true,
                 ];
             }
+        }
+
+        // También puedes incluir otros lugares no relacionados con la gymkhana si lo deseas
+        $otrosSitios = Place::all()->where('gymkhana_id', null);
+
+        foreach ($otrosSitios as $lugar) {
+
+            $etiquetas = $lugar->tags()->get(['name', 'img']);
+            $icono = $etiquetas->isNotEmpty() ? $etiquetas->first()->img : null;
+
+            $sitios[] = [
+                'id' => $lugar->id,
+                'name' => $lugar->name,
+                'description' => $lugar->description,
+                'latitude' => $lugar->latitude,
+                'longitude' => $lugar->longitude,
+                'etiquetas' => $etiquetas->toArray(),
+                'icono' => $icono,
+                'pista' => null,  // No tiene pista ya que no está en la gymkhana
+                'completed' => null,  // Como no está en la gymkhana, lo damos por nulo
+                'is_gymkhana' => false,  // Indicamos que no es parte de la gymkhana
+            ];
         }
     
         // 8️⃣ Devolver la respuesta en formato JSON
