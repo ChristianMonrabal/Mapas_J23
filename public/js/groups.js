@@ -160,13 +160,10 @@ function mostrarListaGrupos(grupos) {
     var numMiembros = (typeof g.users_count !== 'undefined')
                       ? g.users_count
                       : (g.users ? g.users.length : 0);
-    var mensajePropio = (g.creador == window.currentUserId)
-                        ? '<p style="color:green; font-weight:bold;">Este es tu grupo</p>'
-                        : '';
+   
     return `
       <div class="border p-3 mb-2">
         <h5>${g.name}</h5>
-        ${mensajePropio}
         <p>Código: <strong>${g.codigo}</strong></p>
         <p>Capacidad: <strong>${g.max_miembros}</strong></p>
         <p>Miembros Actuales: <strong>${numMiembros}</strong></p>
@@ -204,17 +201,10 @@ function verDetalleGrupo(groupId) {
 /* 6. Render Detalle de Grupo */
 function renderDetalleGrupo(grupo, isCreator, isMember) {
   var numMiembros = grupo.users.length;
-  var mensajePropio = (isCreator || isMember)
-      ? '<p style="color:green; font-weight:bold;">Este es tu grupo</p>'
-      : '';
   var html = `
       <h3>Detalle del Grupo</h3>
       <hr>
-      ${mensajePropio}
-      <p><strong>Creador:</strong> ${grupo.creator_name ? grupo.creator_name : 'Desconocido'}</p>
-      <hr>
       <h4>${grupo.name}</h4>
-      <p>Gymkhana: <strong>${grupo.gymkhana ? grupo.gymkhana.name : 'No asignada'}</strong></p>
       <p>Código: <strong>${grupo.codigo}</strong></p>
       <p>Capacidad: <strong>${grupo.max_miembros}</strong></p>
       <p>Miembros Actuales: <strong>${numMiembros}</strong></p>
