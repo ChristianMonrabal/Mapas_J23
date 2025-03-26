@@ -339,6 +339,7 @@ function unirseGrupo(groupId) {
     console.error(error);
   });
 }
+ 
 
 function salirGrupo(groupId) {
   Swal.fire({
