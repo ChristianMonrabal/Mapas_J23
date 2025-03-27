@@ -180,6 +180,7 @@ function fetchCheckpoints() {
       .then(response => response.json())
       .then(data => {
         console.log("Gymkhanas recibidas:", data); // Verificación en consola
+  
         // Select del formulario de creación
         var selectGymkhana = document.getElementById('gymkhanaId');
         if (selectGymkhana) {
@@ -191,6 +192,7 @@ function fetchCheckpoints() {
             selectGymkhana.appendChild(opt);
           });
         }
+        
         // Select del formulario de edición
         var selectEditGymkhana = document.getElementById('editGymkhanaId');
         if (selectEditGymkhana) {
@@ -200,7 +202,10 @@ function fetchCheckpoints() {
             opt.value = item.id;
             opt.textContent = item.name;
             selectEditGymkhana.appendChild(opt);
+            console.log('Seleccione Gymkhana:', item.name);
           });
+        } else {
+          console.error("El elemento con id 'editGymkhanaId' no se encontró.");
         }
       })
       .catch(error => console.error('Error al cargar gymkhanas:', error));
@@ -244,6 +249,7 @@ function fetchCheckpoints() {
   document.addEventListener('DOMContentLoaded', function() {
     fetchCheckpoints();
     cargarOpcionesGymkhanas();
+    
     cargarOpcionesPlaces();
   });
   

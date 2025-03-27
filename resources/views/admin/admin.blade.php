@@ -197,7 +197,7 @@
                         <form id="editPlaceForm" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
-                            <input type="hidden" id="editPlaceId" name="id">
+                            {{-- <input type="hidden" id="editPlaceId" name="id"> --}}
                             <div class="mb-3">
                                 <label for="editPlaceName" class="form-label">Nombre</label>
                                 <input type="text" class="form-control" id="editPlaceName" name="name" maxlength="20" required>
@@ -407,7 +407,7 @@
               <form id="gymkhanaForm">
                 @csrf
                 <!-- Campo oculto para edición, se usará si se edita un registro -->
-                <input type="hidden" id="editGymkhanaId" name="id">
+                {{-- <input type="hidden" id="editGymkhanaId" name="id"> --}}
                 <div class="mb-3">
                   <label for="gymkhanaName" class="form-label">Nombre de la Gymkhana</label>
                   <input type="text" class="form-control" id="gymkhanaName" name="name" required>
@@ -435,7 +435,7 @@
           <form id="editGymkhanaForm">
             @csrf
             @method('PUT')
-            <input type="hidden" id="editGymkhanaId" name="id">
+            {{-- <input type="hidden" id="editGymkhanaId" name="id"> --}}
             <div class="mb-3">
               <label for="editGymkhanaName" class="form-label">Nombre de la Gymkhana</label>
               <input type="text" class="form-control" id="editGymkhanaName" name="name" required>
@@ -497,17 +497,17 @@
             <input type="hidden" id="editCheckpointId" name="id">
             <div class="mb-3">
               <label for="checkpointPista" class="form-label">Pista</label>
-              <input type="text" class="form-control" id="checkpointPista" name="pista" required>
+              <input type="text" class="form-control" id="checkpointPista" name="pista" >
             </div>
             <div class="mb-3">
               <label for="gymkhanaId" class="form-label">Gymkhana</label>
-              <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
+              <select class="form-select" id="gymkhanaId" name="gymkhana_id" >
                 <!-- Se llenará dinámicamente -->
               </select>
             </div>
             <div class="mb-3">
               <label for="placeId" class="form-label">Place</label>
-              <select class="form-select" id="placeId" name="place_id" required>
+              <select class="form-select" id="placeId" name="place_id" >
                 <!-- Se llenará dinámicamente -->
               </select>
             </div>
@@ -519,7 +519,8 @@
   </div>
   
   <!-- Modal para editar Checkpoint -->
-  <div class="modal fade" id="editCheckpointModal" tabindex="-1" aria-labelledby="editCheckpointModalLabel" aria-hidden="true">
+<!-- Modal para editar Checkpoint -->
+<div class="modal fade" id="editCheckpointModal" tabindex="-1" aria-labelledby="editCheckpointModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -538,13 +539,13 @@
             <div class="mb-3">
               <label for="editGymkhanaId" class="form-label">Gymkhana</label>
               <select class="form-select" id="editGymkhanaId" name="gymkhana_id" >
-                <!-- Opciones dinámicas -->
+                <!-- Opciones dinámicas se llenarán aquí -->
               </select>
             </div>
             <div class="mb-3">
               <label for="editPlaceId" class="form-label">Place</label>
               <select class="form-select" id="editPlaceId" name="place_id" >
-                <!-- Opciones dinámicas -->
+                <!-- Opciones dinámicas se llenarán aquí -->
               </select>
             </div>
             <button type="submit" class="btn btn-warning">Actualizar</button>
