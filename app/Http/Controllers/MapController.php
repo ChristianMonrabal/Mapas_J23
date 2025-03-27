@@ -10,6 +10,7 @@ use App\Models\GymkhanaProgress;
 use App\Models\Place;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MapController extends Controller
 {
@@ -119,7 +120,7 @@ class MapController extends Controller
 
     // Actualiza el progreso del usuario que ha completado el sitio
     // (Actualiza la columna "completed" de la tabla group_users (del grupo en el que estemos) a 1 (completado) )
-    public function actualizarProgresoUsuario($usuarioId, $sitioId) {
+    public function actualizarProgresoUsuario($usuarioId) {
         // Buscar el usuario en la tabla pivot group_users
         $usuarioGrupo = GroupUser::where('user_id', $usuarioId)->first();
     
@@ -152,8 +153,10 @@ class MapController extends Controller
     {
         // Contar los checkpoints incompletos de la gymkhana
         $checkpointsIncompletos = Checkpoint::where('gymkhana_id', $gymkhanaId)
-            ->where('completed', 0)
-            ->count();
+        ->where('completed', 0)
+        ->count();
+
+        Log::info("Checkpoints incompletos para gymkhana {$gymkhanaId}: {$checkpointsIncompletos}");
 
         // Retornar el estado de la gymkhana
         return response()->json(['gymkhanaCompletada' => $checkpointsIncompletos === 0]);

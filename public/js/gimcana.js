@@ -86,7 +86,6 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 }
 
 function verificarProgreso(miUbicacion) {
-
     // Verifica si hay un grupo activo antes de continuar
     if (!grupoActivo) {
         console.error("Error: No hay grupo activo.");
@@ -102,29 +101,16 @@ function verificarProgreso(miUbicacion) {
             return response.json();
         })
         .then(data => {
-            
             var sitios = data.sitios;  // Lista de sitios de la gymkhana
-            // var usuariosDelGrupo = data.usuariosDelGrupo;
             var usuariosGrupo = data.todosLosUsuariosDeUnGrupo;
-            console.log(usuariosGrupo); // List
-            // var gymkhanaId = data.gymkhanaId; // ID de la gymkhana actual
-
-            // Recorre cada sitio de la gymkhana
+            var idUsuarioActual = data.idUsuarioActual;
+            
             sitios.forEach((sitio) => {
-
                 if (sitio.is_gymkhana && sitio.completed === 0) {
-
-                    var usuariosEnRango = [];
-
-                    var idUsuarioActual = data.idUsuarioActual;
-                    console.log(idUsuarioActual);
                     
-                    // Obtener el usuario de la sesión actual
                     var usuarioSesion = usuariosGrupo.find(usuario => usuario === idUsuarioActual);
-                    console.log(usuarioSesion);
                     
                     if (usuarioSesion) {
-
                         var distancia = calcularDistancia(
                             miUbicacion.getLatLng().lat, 
                             miUbicacion.getLatLng().lng, 
@@ -133,77 +119,75 @@ function verificarProgreso(miUbicacion) {
                         );
 
                         if (distancia < 85) {
-                            usuariosEnRango.push(usuarioSesion);
-                            console.log(distancia);
-                        }
+                            console.log(`Usuario ${idUsuarioActual} está cerca del sitio ${sitio.id} con distancia ${distancia}m`);
 
-                    }
-
-                    // Marcar el progreso de los usuarios en la base de datos
-                    usuariosEnRango.forEach(usuarioId => {
-                        console.log(usuarioId);
-                        fetch("/actualizarProgresoUsuario/" + usuarioId + "/" + sitio.id, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-CSRF-TOKEN": csrfToken
-                            },
-                            body: JSON.stringify({ completed: 1 })
-                        });
-                    });
-
-                    // Verifica en el backend si TODOS los usuarios del grupo han completado este checkpoint
-                    fetch("/verificarUsuariosCompletados/" + grupoActivo.id)
-                        .then(response => response.json())
-                        .then(resultado => {
-                            
-                            if (resultado.todosCompletados) {
-
-                                Swal.fire({
-                                    title: 'Pista',
-                                    text: sitio.pista,
-                                    icon: 'info',
-                                    confirmButtonText: 'Aceptar'
-                                });
-
-                                // Marcar el sitio como completado en checkpoints
-                                fetch("/actualizarCheckpointCompletado/" + sitio.id, {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": csrfToken
-                                    },
-                                    body: JSON.stringify({ completed: 1 })
-                                })
-                                .then(() => {
-                                    // 🔹 Verificar si la gymkhana está completa
-                                    fetch("/verificarGymkhanaCompletada/" + grupoActivo.gymkhana_id)
-                                        .then(response => response.json())
-                                        .then(resultado => {
-                                            if (resultado.gymkhanaCompletada) {
-                                                // Si la gymkhana está completa, marcarla como terminada
-                                                fetch("/actualizarProgresoGimcana/" + grupoActivo.id, {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    body: JSON.stringify({ completed: 1 })
-                                                })
-                                                .then(() => {
-                                                    // 🔹 Reiniciar el progreso de todos los usuarios a 0 en `group_users`
-                                                    fetch("/reiniciarProgresoUsuarios/" + grupoActivo.id, {
-                                                        method: "POST",
-                                                        headers: { "Content-Type": "application/json" }
-                                                    });
-                                                });
-                                            }
+                            // Marcar el progreso del usuario en la base de datos
+                            fetch("/actualizarProgresoUsuario/" + usuarioSesion, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": csrfToken
+                                },
+                                body: JSON.stringify({ completed: 1 })
+                            })
+                            .then(() => {
+                                // Verifica si TODOS los usuarios del grupo han completado este checkpoint
+                                return fetch("/verificarUsuariosCompletados/" + grupoActivo.id);
+                            })
+                            .then(response => response.json())
+                            .then(resultado => {
+                                if (resultado.todosCompletados) {
+                                    Swal.fire({
+                                        title: 'Pista',
+                                        text: sitio.pista,
+                                        icon: 'info',
+                                        confirmButtonText: 'Aceptar'
+                                    }).then(() => {
+                                        // Marcar el sitio como completado en checkpoints
+                                        return fetch("/actualizarCheckpointCompletado/" + sitio.id, {
+                                            method: "POST",
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRF-TOKEN": csrfToken
+                                            },
+                                            body: JSON.stringify({ completed: 1 })
                                         });
-                                });
-                            }
-                        });
+                                    })
+                                    .then(() => {
+                                        // 🔹 Verificar si la gymkhana está completa
+                                        return fetch("/verificarGymkhanaCompletada/" + grupoActivo.gymkhana_id);
+                                    })
+                                    .then(response => response.json())
+                                    .then(resultado => {
+                                        if (resultado.gymkhanaCompletada) {
+                                            // Si la gymkhana está completa, marcarla como terminada
+                                            return fetch("/actualizarProgresoGimcana/" + grupoActivo.id, {
+                                                method: "POST",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "X-CSRF-TOKEN": csrfToken
+                                                },
+                                                body: JSON.stringify({ sitioId: sitio.id, completed: 1 })
+                                            });
+                                        }
+                                    })
+                                    .then(() => {
+                                        // 🔹 Reiniciar el progreso de todos los usuarios a 0 en `group_users`
+                                        return fetch("/reiniciarProgresoUsuarios/" + grupoActivo.id, {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" }
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    }
                 }
             });
         })
         .catch(error => console.error("Error en verificarProgreso:", error));
 }
+
 
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
