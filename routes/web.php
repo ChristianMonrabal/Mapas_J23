@@ -7,6 +7,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
 use App\Models\Tag;
+use App\Http\Controllers\FavoriteController;
 
 Route::get('signin', [AuthController::class, 'showSigninForm'])->name('auth.signin');
 Route::post('signin', [AuthController::class, 'signin'])->name('auth.signin.submit');
@@ -52,3 +53,6 @@ Route::get('/dashboard/mapa', function () {
     }
     return redirect()->route('signin');
 })->name('dashboard.mapa');
+
+Route::post('/favorites/{placeId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+Route::get('/favorites/{placeId}/check', [FavoriteController::class, 'check'])->name('favorites.check');

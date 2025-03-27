@@ -231,13 +231,8 @@ function showPlaceDetails(placeId) {
     loading.style.display = 'block';
     loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando detalles del lugar...';
 
-    fetch(`/places/${placeId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
+    // Primero, cargar los detalles del lugar
+    fetch(`/places/${placeId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -291,6 +286,13 @@ function showPlaceDetails(placeId) {
                     });
                 }
 
+                // Verificar si el lugar está en favoritos
+                checkFavoriteStatus(placeId);
+
+                // Configurar el botón de favoritos
+                const favoriteBtn = document.getElementById('favorite-btn');
+                favoriteBtn.onclick = () => toggleFavorite(placeId);
+
                 document.getElementById('place-details').classList.add('active');
             }
         })
@@ -298,6 +300,49 @@ function showPlaceDetails(placeId) {
         .finally(() => {
             loading.style.display = 'none';
         });
+}
+
+// Función para verificar el estado de favorito
+function checkFavoriteStatus(placeId) {
+    fetch(`/favorites/${placeId}/check`)
+        .then(response => response.json())
+        .then(data => {
+            updateFavoriteButton(data.isFavorite);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Función para actualizar el aspecto del botón
+function updateFavoriteButton(isFavorite) {
+    const btn = document.getElementById('favorite-btn');
+    if (isFavorite) {
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-danger');
+        btn.querySelector('span').textContent = 'Eliminar de favoritos';
+    } else {
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-danger');
+        btn.querySelector('span').textContent = 'Añadir a favoritos';
+    }
+}
+
+// Función para alternar el estado de favorito
+function toggleFavorite(placeId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch(`/favorites/${placeId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateFavoriteButton(data.isFavorite);
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 // Agregar manejador para cerrar el panel

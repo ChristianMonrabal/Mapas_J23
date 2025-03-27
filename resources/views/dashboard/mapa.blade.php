@@ -62,6 +62,9 @@
         <div class="place-image-container">
             <img id="place-image" src="" alt="">
         </div>
+        <button id="favorite-btn" class="btn btn-outline-danger w-100 mb-3">
+            <i class="fas fa-heart"></i> <span>Añadir a favoritos</span>
+        </button>
         <p id="place-address"></p>
         <p id="place-description"></p>
         <div id="place-tags" class="tags-container"></div>
