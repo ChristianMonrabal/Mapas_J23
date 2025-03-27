@@ -44,8 +44,12 @@
             <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
         </div>
         <div>
-            <a href="/logout" class="btn btn-danger btn-sidebar">
-                <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i></a>
+            <form action="/logout" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-danger btn-sidebar">
+                    <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i>
+                </button>
+            </form>
         </div>
         <div>
             <a href="/groups" class="btn btn-primary btn-sidebar">
