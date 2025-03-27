@@ -10,11 +10,11 @@ CREATE TABLE roles (
 ) ENGINE=InnoDB;
 
 -- INSERTS ROLES
-INSERT INTO roles (name, created_at, updated_at) 
-VALUES ('user', NOW(), NOW());
+-- INSERT INTO roles (name, created_at, updated_at) 
+-- VALUES ('user', NOW(), NOW());
 
-INSERT INTO roles (name, created_at, updated_at) 
-VALUES ('admin', NOW(), NOW());
+-- INSERT INTO roles (name, created_at, updated_at) 
+-- VALUES ('admin', NOW(), NOW());
 
 -- Tabla de gimcanas
 CREATE TABLE gymkhanas (
@@ -49,9 +49,14 @@ CREATE TABLE places (
 CREATE TABLE groups (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
+    codigo VARCHAR(50) NOT NULL UNIQUE,  -- Código único del grupo
+    creador INT NOT NULL,                -- ID del usuario creador del grupo
+    max_miembros INT NOT NULL,           -- Capacidad máxima del grupo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creador) REFERENCES users(id),
 ) ENGINE=InnoDB;
+
 
 -- Tabla de usuarios
 CREATE TABLE users (
@@ -66,11 +71,11 @@ CREATE TABLE users (
 ) ENGINE=InnoDB;
 
 -- INSERTS USERS
-INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
-VALUES ('user', 'user@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 1, NOW(), NOW());
+-- INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+-- VALUES ('user', 'user@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 1, NOW(), NOW());
 
-INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
-VALUES ('admin', 'admin@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 2, NOW(), NOW());
+-- INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+-- VALUES ('admin', 'admin@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 2, NOW(), NOW());
 
 
 -- Relación entre lugares e etiquetas

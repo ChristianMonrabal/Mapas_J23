@@ -43,7 +43,7 @@
                 <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i></a>
         </div>
         <div>
-            <a href="/grupos" class="btn btn-primary btn-sidebar">
+            <a href="/groups" class="btn btn-primary btn-sidebar">
                 <i class="fa-solid fa-user-group"> Grupos</i></a>
         </div>
     </div>
