@@ -1,7 +1,10 @@
 
-var grupoActivo = { id: 1, gymkhana_id: 1, gymkhana_id2: 1 };
+var grupoActivo = { id: 1, gymkhana_id: 1};
 
 iniciarJuego();
+
+// Obtener el token CSRF desde el meta tag
+var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 function iniciarJuego() {
     if (!grupoActivo) {
@@ -54,7 +57,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
         return;
     }
 
-    fetch("/buscarGymkhana/" + grupoActivo.id + "/" + grupoActivo.id)
+    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -101,8 +104,10 @@ function verificarProgreso(miUbicacion) {
         .then(data => {
             
             var sitios = data.sitios;  // Lista de sitios de la gymkhana
-            var usuariosDelGrupo = data.usuariosDelGrupo; // Lista de usuarios del grupo
-            var gymkhanaId = data.gymkhanaId; // ID de la gymkhana actual
+            // var usuariosDelGrupo = data.usuariosDelGrupo;
+            var usuariosGrupo = data.todosLosUsuariosDeUnGrupo;
+            console.log(usuariosGrupo); // List
+            // var gymkhanaId = data.gymkhanaId; // ID de la gymkhana actual
 
             // Recorre cada sitio de la gymkhana
             sitios.forEach((sitio) => {
@@ -110,10 +115,16 @@ function verificarProgreso(miUbicacion) {
                 if (sitio.is_gymkhana && sitio.completed === 0) {
 
                     var usuariosEnRango = [];
-                    // Obtener el usuario de la sesión actual
-                    var usuarioSesion = usuariosDelGrupo.find(usuario => usuario.id === usuarioActualId);
 
+                    var idUsuarioActual = data.idUsuarioActual;
+                    console.log(idUsuarioActual);
+                    
+                    // Obtener el usuario de la sesión actual
+                    var usuarioSesion = usuariosGrupo.find(usuario => usuario === idUsuarioActual);
+                    console.log(usuarioSesion);
+                    
                     if (usuarioSesion) {
+
                         var distancia = calcularDistancia(
                             miUbicacion.getLatLng().lat, 
                             miUbicacion.getLatLng().lng, 
@@ -122,16 +133,21 @@ function verificarProgreso(miUbicacion) {
                         );
 
                         if (distancia < 85) {
-                            usuariosEnRango.push(usuarioSesion.id);
+                            usuariosEnRango.push(usuarioSesion);
+                            console.log(distancia);
                         }
-                    }
 
+                    }
 
                     // Marcar el progreso de los usuarios en la base de datos
                     usuariosEnRango.forEach(usuarioId => {
+                        console.log(usuarioId);
                         fetch("/actualizarProgresoUsuario/" + usuarioId + "/" + sitio.id, {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": csrfToken
+                            },
                             body: JSON.stringify({ completed: 1 })
                         });
                     });
@@ -140,18 +156,28 @@ function verificarProgreso(miUbicacion) {
                     fetch("/verificarUsuariosCompletados/" + grupoActivo.id)
                         .then(response => response.json())
                         .then(resultado => {
+                            
                             if (resultado.todosCompletados) {
-                                alert(sitio.pista);
+
+                                Swal.fire({
+                                    title: 'Pista',
+                                    text: sitio.pista,
+                                    icon: 'info',
+                                    confirmButtonText: 'Aceptar'
+                                });
 
                                 // Marcar el sitio como completado en checkpoints
                                 fetch("/actualizarCheckpointCompletado/" + sitio.id, {
                                     method: "POST",
-                                    headers: { "Content-Type": "application/json" },
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "X-CSRF-TOKEN": csrfToken
+                                    },
                                     body: JSON.stringify({ completed: 1 })
                                 })
                                 .then(() => {
                                     // 🔹 Verificar si la gymkhana está completa
-                                    fetch("/verificarGymkhanaCompletada/" + gymkhanaId)
+                                    fetch("/verificarGymkhanaCompletada/" + grupoActivo.gymkhana_id)
                                         .then(response => response.json())
                                         .then(resultado => {
                                             if (resultado.gymkhanaCompletada) {
