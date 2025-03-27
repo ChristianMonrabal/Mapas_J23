@@ -40,8 +40,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_users', 'user_id', 'group_id');
     }
 
-    // Creador
-    public function gruposCreados()
+    public function creador()
     {
         return $this->hasMany(Group::class, 'creador');
     }
