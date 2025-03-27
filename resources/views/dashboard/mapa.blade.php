@@ -32,6 +32,11 @@
     <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
 </div>
 
+<!-- Agregar indicador de carga -->
+<div id="loading" class="loading-indicator" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
+</div>
+
 <div class="sidebar" id="sidebar">
     <div class="sidebar-content">
         <div>
