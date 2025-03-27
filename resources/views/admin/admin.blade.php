@@ -422,73 +422,138 @@
           </div>
         </div>
       </div>
+      <!-- Modal para editar Gymkhana -->
+<!-- Modal para editar Gymkhana -->
+<div class="modal fade" id="editGymkhanaModal" tabindex="-1" aria-labelledby="editGymkhanaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editGymkhanaModalLabel">Editar Gymkhana</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editGymkhanaForm">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="editGymkhanaId" name="id">
+            <div class="mb-3">
+              <label for="editGymkhanaName" class="form-label">Nombre de la Gymkhana</label>
+              <input type="text" class="form-control" id="editGymkhanaName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="editGymkhanaDescription" class="form-label">Descripción</label>
+              <textarea class="form-control" id="editGymkhanaDescription" name="description" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-warning">Actualizar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
   
       <!-- ========================= -->
       <!-- Sección de Checkpoints -->
       <!-- ========================= -->
-      <div class="container mt-4" id="checkpointSection">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h1 class="text-center">Checkpoints</h1>
-          <!-- Botón para abrir el modal de creación de Checkpoint -->
-          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkpointModal">
-            <i class="bi bi-plus-circle"></i> Agregar Checkpoint
-          </button>
-        </div>
-        <!-- Tabla de Checkpoints siempre visible -->
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-hover text-center">
-            <thead class="table-dark">
-              <tr>
-                <th>Pista</th>
-                <th>Gymkhana</th>
-                <th>Lugar</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="checkpointTableBody">
-              <!-- Los datos se cargarán vía JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
+<!-- Sección de Checkpoints -->
+<div class="container mt-4" id="checkpointSection" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="text-center">Checkpoints</h1>
+      <!-- Botón para abrir el modal de creación de Checkpoint -->
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkpointModal">
+        <i class="bi bi-plus-circle"></i> Agregar Checkpoint
+      </button>
+    </div>
+    <!-- Tabla de Checkpoints -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover text-center">
+        <thead class="table-dark">
+          <tr>
+            <th>Pista</th>
+            <th>Gymkhana</th>
+            <th>Lugar</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="checkpointTableBody">
+          <!-- Se cargarán los datos vía JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
   
-      <!-- Modal para crear/editar Checkpoint -->
-      <div class="modal fade" id="checkpointModal" tabindex="-1" aria-labelledby="checkpointModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="checkpointModalLabel">Nuevo Checkpoint</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+  <!-- Modal para crear Checkpoint -->
+  <div class="modal fade" id="checkpointModal" tabindex="-1" aria-labelledby="checkpointModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="checkpointModalLabel">Nuevo Checkpoint</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="checkpointForm">
+            @csrf
+            <input type="hidden" id="editCheckpointId" name="id">
+            <div class="mb-3">
+              <label for="checkpointPista" class="form-label">Pista</label>
+              <input type="text" class="form-control" id="checkpointPista" name="pista" required>
             </div>
-            <div class="modal-body">
-              <form id="checkpointForm">
-                @csrf
-                <!-- Campo oculto para edición -->
-                <input type="hidden" id="editCheckpointId" name="id">
-                <div class="mb-3">
-                  <label for="checkpointPista" class="form-label">Pista</label>
-                  <input type="text" class="form-control" id="checkpointPista" name="pista" required>
-                </div>
-                <div class="mb-3">
-                  <label for="gymkhanaId" class="form-label">Gymkhana</label>
-                  <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
-                    <!-- Se llenará dinámicamente con las Gymkhanas disponibles -->
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label for="placeId" class="form-label">Place</label>
-                  <select class="form-select" id="placeId" name="place_id" required>
-                    <!-- Se llenará dinámicamente con los Places disponibles -->
-                  </select>
-                </div>
-                <button type="submit" class="btn btn-success">Guardar</button>
-              </form>
+            <div class="mb-3">
+              <label for="gymkhanaId" class="form-label">Gymkhana</label>
+              <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
+                <!-- Se llenará dinámicamente -->
+              </select>
             </div>
-          </div>
+            <div class="mb-3">
+              <label for="placeId" class="form-label">Place</label>
+              <select class="form-select" id="placeId" name="place_id" required>
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </form>
         </div>
       </div>
-
-
+    </div>
+  </div>
+  
+  <!-- Modal para editar Checkpoint -->
+  <div class="modal fade" id="editCheckpointModal" tabindex="-1" aria-labelledby="editCheckpointModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCheckpointModalLabel">Editar Checkpoint</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editCheckpointForm">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="editCheckpointId" name="id">
+            <div class="mb-3">
+              <label for="editCheckpointPista" class="form-label">Pista</label>
+              <input type="text" class="form-control" id="editCheckpointPista" name="pista" required>
+            </div>
+            <div class="mb-3">
+              <label for="editGymkhanaId" class="form-label">Gymkhana</label>
+              <select class="form-select" id="editGymkhanaId" name="gymkhana_id" required>
+                <!-- Opciones dinámicas -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="editPlaceId" class="form-label">Place</label>
+              <select class="form-select" id="editPlaceId" name="place_id" required>
+                <!-- Opciones dinámicas -->
+              </select>
+            </div>
+            <button type="submit" class="btn btn-warning">Actualizar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
  
 
     @else

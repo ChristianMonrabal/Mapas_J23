@@ -85,27 +85,46 @@ function fetchGymkhanas() {
   }
   
   // Edit Gymkhana: cargar datos en un modal de edición (asegúrate de tener los inputs correctos en el modal de edición)
-  function editGymkhana(id) {
+ // Función para editar Gymkhana (este es un ejemplo)
+function editGymkhana(id) {
     fetch('/gymkhanas/' + id)
-      .then(function(response) {
-        return response.json();
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('editGymkhanaId').value = data.id;
+        document.getElementById('editGymkhanaName').value = data.name;
+        document.getElementById('editGymkhanaDescription').value = data.description;
+        var modalEl = document.getElementById('editGymkhanaModal');
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
       })
-      .then(function(data) {
-        // Suponiendo que en el modal de edición tienes inputs con IDs 'editTagId', 'editTagName', 'editTagDescription'
-        document.getElementById('editTagId').value = data.id;
-        document.getElementById('editTagName').value = data.name;
-        // Aquí deberías tener un campo para descripción de Gymkhana, por ejemplo 'editTagDescription'
-        // Si no lo tienes, agrégalo en tu modal
-        if (document.getElementById('editTagDescription')) {
-          document.getElementById('editTagDescription').value = data.description;
-        }
-        // Mostrar el modal de edición
-        $('#editTagModal').modal('show');
-      })
-      .catch(function(error) {
-        console.error('Error fetching gymkhana for edit:', error);
-      });
+      .catch(error => console.error('Error fetching gymkhana for edit:', error));
   }
+  
+  document.getElementById('editGymkhanaForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var id = document.getElementById('editGymkhanaId').value;
+    var name = document.getElementById('editGymkhanaName').value;
+    var description = document.getElementById('editGymkhanaDescription').value;
+  
+    fetch('/gymkhanas/' + id, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ name: name, description: description })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message || 'Gymkhana actualizada con éxito');
+      // Aquí podrías actualizar la lista de gymkhanas o redirigir
+      var modalEl = document.getElementById('editGymkhanaModal');
+      var modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+    })
+    .catch(error => console.error('Error updating gymkhana:', error));
+  });
+  
   
   // Actualizar Gymkhana
   document.getElementById('editTagForm').addEventListener('submit', function(e) {
