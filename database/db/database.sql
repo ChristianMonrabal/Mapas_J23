@@ -10,11 +10,11 @@ CREATE TABLE roles (
 ) ENGINE=InnoDB;
 
 -- INSERTS ROLES
-INSERT INTO roles (name, created_at, updated_at) 
-VALUES ('user', NOW(), NOW());
+-- INSERT INTO roles (name, created_at, updated_at) 
+-- VALUES ('user', NOW(), NOW());
 
-INSERT INTO roles (name, created_at, updated_at) 
-VALUES ('admin', NOW(), NOW());
+-- INSERT INTO roles (name, created_at, updated_at) 
+-- VALUES ('admin', NOW(), NOW());
 
 -- Tabla de gimcanas
 CREATE TABLE gymkhanas (
@@ -51,13 +51,10 @@ CREATE TABLE groups (
     nombre VARCHAR(100) NOT NULL,
     codigo VARCHAR(50) NOT NULL UNIQUE,  -- Código único del grupo
     creador INT NOT NULL,                -- ID del usuario creador del grupo
-    gymkhana_id INT NOT NULL,            -- Gimcana asociada al grupo
     max_miembros INT NOT NULL,           -- Capacidad máxima del grupo
-    miembros INT DEFAULT 0,              -- Número actual de miembros
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (creador) REFERENCES users(id),
-    FOREIGN KEY (gymkhana_id) REFERENCES gymkhanas(id)      -- Opcional: asegura que el código sea único
 ) ENGINE=InnoDB;
 
 
@@ -74,11 +71,11 @@ CREATE TABLE users (
 ) ENGINE=InnoDB;
 
 -- INSERTS USERS
-INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
-VALUES ('user', 'user@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 1, NOW(), NOW());
+-- INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+-- VALUES ('user', 'user@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 1, NOW(), NOW());
 
-INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
-VALUES ('admin', 'admin@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 2, NOW(), NOW());
+-- INSERT INTO users (name, email, password, role_id, created_at, updated_at) 
+-- VALUES ('admin', 'admin@example.com', '$2y$12$lzOWclOxoyDaWoW/yO64Nekqmt76YHsy52p7cmC2M7De3A/fHxqbe', 2, NOW(), NOW());
 
 
 -- Relación entre lugares e etiquetas

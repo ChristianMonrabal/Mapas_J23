@@ -12,6 +12,7 @@ class GymkhanaProgress extends Model
 
     protected $fillable = [
         'user_id',
+        'group_users_id', 
         'checkpoint_id',
         'completed'
     ];
@@ -20,13 +21,14 @@ class GymkhanaProgress extends Model
         'completed' => 'boolean'
     ];
 
-    public function user()
+    public function groupUser()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(GroupUser::class, 'group_users_id');
     }
 
     public function checkpoint()
     {
         return $this->belongsTo(Checkpoint::class);
     }
+
 }

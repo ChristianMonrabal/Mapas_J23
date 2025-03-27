@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('group_users_id');
             $table->foreign('group_users_id')->references('id')->on('group_users');
-            $table->unsignedBigInteger('checkpoint_id');
+            $table->unsignedBigInteger('checkpoint_id')->nullable(); // Permite null
             $table->foreign('checkpoint_id')->references('id')->on('checkpoints');
             $table->boolean('completed')->default(false);
             $table->timestamps();

@@ -39,8 +39,12 @@
             <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
         </div>
         <div>
-            <a href="/grupos" class="btn btn-primary btn-sidebar">
-                <i class="fa-solid fa-user-group"> Grupo</i></a>
+            <a href="/logout" class="btn btn-danger btn-sidebar">
+                <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i></a>
+        </div>
+        <div>
+            <a href="/groups" class="btn btn-primary btn-sidebar">
+                <i class="fa-solid fa-user-group"> Grupos</i></a>
         </div>
     </div>
 
@@ -58,6 +62,9 @@
         <div class="place-image-container">
             <img id="place-image" src="" alt="">
         </div>
+        <button id="favorite-btn" class="btn btn-outline-danger w-100 mb-3">
+            <i class="fas fa-heart"></i> <span>Añadir a favoritos</span>
+        </button>
         <p id="place-address"></p>
         <p id="place-description"></p>
         <div id="place-tags" class="tags-container"></div>
