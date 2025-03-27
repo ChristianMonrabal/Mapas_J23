@@ -33,7 +33,11 @@ class PlaceSeeder extends Seeder
             'address' => "Carrer de l'Ermita de Bellvitge, 6, 08907 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.34740916452,
             'longitude' => 2.109722696085165,
+<<<<<<< HEAD
             'description' => "Bar de tapas y Café",
+=======
+            'description' => "Iglesia para orar al señor",
+>>>>>>> dcd565cb6b8ffb4893942ed08f17ca3f7a91505b
             'img' => "ermita.jpg",
             'created_at' => $now,
             'updated_at' => $now,
@@ -44,7 +48,11 @@ class PlaceSeeder extends Seeder
             'address' => "Carrer de l'Ermita de Bellvitge, 38, 08907 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.34839817704779,
             'longitude' => 2.1109675288613423,
+<<<<<<< HEAD
             'description' => "Bar de tapas y Café",
+=======
+            'description' => "Parque para que jueguen los niños",
+>>>>>>> dcd565cb6b8ffb4893942ed08f17ca3f7a91505b
             'img' => "parque.jpg",
             'created_at' => $now,
             'updated_at' => $now,
@@ -55,7 +63,11 @@ class PlaceSeeder extends Seeder
             'address' => "Plaça de la Cultura, 1, 08907 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.351247880486525,
             'longitude' => 2.1142504838519294,
+<<<<<<< HEAD
             'description' => "Bar de tapas y Café",
+=======
+            'description' => "Centro cultural abierto para la gente del barrio",
+>>>>>>> dcd565cb6b8ffb4893942ed08f17ca3f7a91505b
             'img' => "centrocultural.jpg",
             'created_at' => $now,
             'updated_at' => $now,
@@ -66,7 +78,11 @@ class PlaceSeeder extends Seeder
             'address' => "Av. d'Amèrica, 117B, 08907 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.35238726459627,
             'longitude' => 2.113220925533215,
+<<<<<<< HEAD
             'description' => "Bar de tapas y Café",
+=======
+            'description' => "Cancha de baloncesto",
+>>>>>>> dcd565cb6b8ffb4893942ed08f17ca3f7a91505b
             'img' => "pistafutsal.jpg",
             'created_at' => $now,
             'updated_at' => $now,
@@ -77,7 +93,11 @@ class PlaceSeeder extends Seeder
             'address' => "Av. d'Amèrica, 117B, 08907 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.3527150679557,
             'longitude' => 2.1132375666376957,
+<<<<<<< HEAD
             'description' => "Bar de tapas y Café",
+=======
+            'description' => "Centro de ocio para los niños",
+>>>>>>> dcd565cb6b8ffb4893942ed08f17ca3f7a91505b
             'img' => "pirulo.jpg",
             'created_at' => $now,
             'updated_at' => $now,
