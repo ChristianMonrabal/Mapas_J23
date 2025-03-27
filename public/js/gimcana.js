@@ -99,17 +99,21 @@ function verificarProgreso(miUbicacion) {
             return response.json();
         })
         .then(data => {
+            
             var sitios = data.sitios;  // Lista de sitios de la gymkhana
             var usuariosDelGrupo = data.usuariosDelGrupo; // Lista de usuarios del grupo
             var gymkhanaId = data.gymkhanaId; // ID de la gymkhana actual
 
             // Recorre cada sitio de la gymkhana
             sitios.forEach((sitio) => {
-                if (sitio.is_gymkhana && sitio.completed === 0) {
-                    var usuariosEnRango = [];
 
-                    // Recorre cada usuario del grupo
-                    usuariosDelGrupo.forEach(usuario => {
+                if (sitio.is_gymkhana && sitio.completed === 0) {
+
+                    var usuariosEnRango = [];
+                    // Obtener el usuario de la sesión actual
+                    var usuarioSesion = usuariosDelGrupo.find(usuario => usuario.id === usuarioActualId);
+
+                    if (usuarioSesion) {
                         var distancia = calcularDistancia(
                             miUbicacion.getLatLng().lat, 
                             miUbicacion.getLatLng().lng, 
@@ -118,9 +122,10 @@ function verificarProgreso(miUbicacion) {
                         );
 
                         if (distancia < 85) {
-                            usuariosEnRango.push(usuario.id);
+                            usuariosEnRango.push(usuarioSesion.id);
                         }
-                    });
+                    }
+
 
                     // Marcar el progreso de los usuarios en la base de datos
                     usuariosEnRango.forEach(usuarioId => {

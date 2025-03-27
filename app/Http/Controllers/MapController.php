@@ -9,6 +9,7 @@ use App\Models\Gymkhana;
 use App\Models\GymkhanaProgress;
 use App\Models\Place;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MapController extends Controller
 {
@@ -84,6 +85,8 @@ class MapController extends Controller
                 'is_gymkhana' => false,  // Indicamos que no es parte de la gymkhana
             ];
         }
+
+        $idUsuarioActual = Auth::id();
     
         // 8️⃣ Devolver la respuesta en formato JSON
         return response()->json([
@@ -110,24 +113,29 @@ class MapController extends Controller
     }
 
     // Actualiza el progreso del usuario que ha completado el sitio
-    // (Actualiza la columna "completed" de la tabla group_users (del del grupo en el que estemos) a 1 (completado) )
+    // (Actualiza la columna "completed" de la tabla group_users (del grupo en el que estemos) a 1 (completado) )
     public function actualizarProgresoUsuario($usuarioId, $sitioId)
     {
-        // Buscar si el usuario pertenece a un grupo que tiene este checkpoint
+        // Buscar el usuario en la tabla pivot group_users
         $usuarioGrupo = GroupUser::where('user_id', $usuarioId)
-            ->whereHas('group.gymkhana.checkpoints', function ($query) use ($sitioId) {
-                $query->where('place_id', $sitioId);
+            ->whereHas('group', function ($query) use ($sitioId) {
+                $query->whereHas('gymkhana.checkpoints', function ($query) use ($sitioId) {
+                    $query->where('place_id', $sitioId);
+                });
             })
             ->first();
-
-        // Si el usuario pertenece al grupo, actualizar su progreso
+    
+        // Si el usuario pertenece al grupo y el checkpoint pertenece a su gymkhana
         if ($usuarioGrupo) {
             $usuarioGrupo->completed = 1;
             $usuarioGrupo->save();
+    
+            return response()->json(['success' => true, 'message' => 'Progreso actualizado']);
         }
-
-        return response()->json(['success' => true]);
+    
+        return response()->json(['success' => false, 'message' => 'Usuario o checkpoint no válidos'], 400);
     }
+    
 
     // Cuando han completado el sitio todos los del grupo
     // (cuando todos los usuarios del grupo que estén relacionados con la gymkhana (se relacionan en la tabla "gymkhana_progress") tengan la columna "completed" de la tabla "group_users" a 1),
