@@ -29,6 +29,10 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+
+    <!-- En la sección de head -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 </head>
 <body>
     <nav>

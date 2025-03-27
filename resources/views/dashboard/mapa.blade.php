@@ -65,6 +65,9 @@
         <button id="favorite-btn" class="btn btn-outline-danger w-100 mb-3">
             <i class="fas fa-heart"></i> <span>Añadir a favoritos</span>
         </button>
+        <button id="route-btn" class="btn btn-outline-primary w-100 mb-3">
+            <i class="fa-solid fa-route"></i> <span>Cómo llegar</span>
+        </button>
         <p id="place-address"></p>
         <p id="place-description"></p>
         <div id="place-tags" class="tags-container"></div>

@@ -14,6 +14,9 @@ let markers = [];
 // Variable global para almacenar los tags activos
 let activeTags = new Set();
 
+// Variable global para la ruta
+let routingControl = null;
+
 // Agregar capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -97,8 +100,7 @@ function initializeMapAndLoadPlaces() {
                 loadPlaces();
                 loading.style.display = 'none';
             },
-            function(error) {
-                console.error("Error obteniendo ubicación:", error);
+            function() {
                 loading.innerHTML = 'Error al obtener tu ubicación';
                 map.setView([40.416775, -3.703790], 16);
                 loadPlaces();
@@ -224,6 +226,11 @@ function addMarker(place) {
 function clearMarkers() {
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
+
+    if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+    }
 }
 
 function showPlaceDetails(placeId) {
@@ -231,7 +238,6 @@ function showPlaceDetails(placeId) {
     loading.style.display = 'block';
     loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando detalles del lugar...';
 
-    // Primero, cargar los detalles del lugar
     fetch(`/places/${placeId}`)
         .then(response => response.json())
         .then(data => {
@@ -292,6 +298,18 @@ function showPlaceDetails(placeId) {
                 // Configurar el botón de favoritos
                 const favoriteBtn = document.getElementById('favorite-btn');
                 favoriteBtn.onclick = () => toggleFavorite(placeId);
+
+                // Configurar el botón de ruta
+                const routeBtn = document.getElementById('route-btn');
+                routeBtn.onclick = () => {
+                    if (userMarker) {
+                        calculateRoute(
+                            userMarker.getLatLng(), [data.place.latitude, data.place.longitude]
+                        );
+                    } else {
+                        alert('No se puede obtener tu ubicación actual');
+                    }
+                };
 
                 document.getElementById('place-details').classList.add('active');
             }
@@ -497,3 +515,39 @@ document.getElementById('searchInput').addEventListener('keypress', function(e) 
         searchPlaces();
     }
 });
+
+// Función para calcular y mostrar la ruta
+function calculateRoute(start, end) {
+    // Si ya existe una ruta, la eliminamos
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+
+    // Crear nuevo control de ruta para caminar
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(start.lat, start.lng),
+            L.latLng(end[0], end[1])
+        ],
+        routeWhileDragging: false,
+        lineOptions: {
+            styles: [{ color: '#2196F3', weight: 6 }]
+        },
+        createMarker: function() { return null; }, // No crear marcadores adicionales
+        language: 'es', // Establecer idioma a español
+        show: false, // No mostrar el panel de instrucciones
+        router: L.Routing.osrmv1({
+            serviceUrl: 'https://routing.openstreetmap.de/routed-foot/route/v1', // Servidor OSRM con soporte para peatones
+            profile: 'foot'
+        })
+    }).addTo(map);
+
+    // Cerrar el panel de detalles
+    document.getElementById('place-details').classList.remove('active');
+
+    // Ajustar la vista para mostrar toda la ruta
+    routingControl.on('routesfound', function(e) {
+        const bounds = L.latLngBounds(start, end);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    });
+}

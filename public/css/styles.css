@@ -344,3 +344,15 @@
             object-fit: cover;
             margin-right: 5px;
         }
+        
+        #route-btn {
+            transition: all 0.3s ease;
+        }
+        
+        #route-btn i {
+            margin-right: 5px;
+        }
+        
+        .leaflet-routing-container {
+            display: none !important;
+        }
