@@ -13,7 +13,7 @@ class Group extends Model
     use HasFactory;
 
     // Campos asignables masivamente.
-    protected $fillable = ['name', 'codigo', 'creador', 'max_miembros'];
+    protected $fillable = ['name', 'codigo', 'creador', 'max_miembros' , 'game_started'];
 
     // Relación many-to-many con los usuarios que pertenecen al grupo.
     public function creator()

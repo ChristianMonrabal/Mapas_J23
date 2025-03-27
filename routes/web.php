@@ -7,6 +7,9 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\GymkhanaController;
+use App\Http\Controllers\CheckpointController;
+
 use App\Models\Tag;
 
 
@@ -44,6 +47,8 @@ Route::get('/groups/list', [GroupController::class, 'list'])->name('groups.list'
 Route::get('/groups/available', [GroupController::class, 'available'])->name('groups.available');
 // Búsqueda (puedes dejarlo como ya lo tienes)
 Route::get('/groups/search', [GroupController::class, 'search'])->name('groups.search');
+Route::get('/grupo/estado', [GroupController::class, 'estadoJuego'])->name('grupo.estado');
+
 Route::get('/groups/gymkhanas', [GroupController::class, 'listarGymkhanas'])->name('groups.gymkhanas');
 // Detalle de un grupo
 Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
@@ -54,6 +59,49 @@ Route::post('/groups/{group}/start', [GroupController::class, 'iniciarJuego'])->
 Route::delete('/groups/{group}/kick/{user}', [GroupController::class, 'expulsarMiembro'])->name('groups.kick');
 Route::delete('/groups/{group}/leave', [GroupController::class, 'salirDelGrupo'])->name('groups.leave');
 Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+
+
+
+
+
+// Mostrar todas las Gymkhanas
+Route::get('/gymkhanas', [GymkhanaController::class, 'index'])->name('gymkhanas.index');
+
+// Crear una nueva Gymkhana
+Route::post('/gymkhanas', [GymkhanaController::class, 'store'])->name('gymkhanas.store');
+
+// Ver una Gymkhana específica
+Route::get('/gymkhanas/{id}', [GymkhanaController::class, 'show'])->name('gymkhanas.show');
+
+// Actualizar una Gymkhana
+Route::put('/gymkhanas/{id}', [GymkhanaController::class, 'update'])->name('gymkhanas.update');
+
+// Eliminar una Gymkhana
+Route::delete('/gymkhanas/{id}', [GymkhanaController::class, 'destroy'])->name('gymkhanas.destroy');
+
+
+
+
+// Mostrar todos los Checkpoints
+Route::get('/checkpoints', [CheckpointController::class, 'index'])->name('checkpoints.index');
+
+// Crear un Checkpoint
+Route::post('/checkpoints', [CheckpointController::class, 'store'])->name('checkpoints.store');
+
+// Ver un Checkpoint específico
+Route::get('/checkpoints/{id}', [CheckpointController::class, 'show'])->name('checkpoints.show');
+
+// Actualizar un Checkpoint
+Route::put('/checkpoints/{id}', [CheckpointController::class, 'update'])->name('checkpoints.update');
+
+// Eliminar un Checkpoint
+Route::delete('/checkpoints/{id}', [CheckpointController::class, 'destroy'])->name('checkpoints.destroy');
+
+// Obtener todas las Gymkhanas para los Checkpoints
+Route::get('/checkpoints/gymkhanas', [CheckpointController::class, 'getGymkhanas'])->name('checkpoints.gymkhanas');
+
+// Obtener todos los lugares para los Checkpoints
+Route::get('/checkpoints/places', [CheckpointController::class, 'getPlaces'])->name('checkpoints.places');
 
 
 

@@ -15,7 +15,8 @@
             <div class="container-fluid">
                 <a class="navbar-brand" href="#"><img src="{{ asset('img/icon.png') }}" height="30"></a>
                 <div class="d-flex">
-                    <button id="gymkhana" class="btn btn-outline-light">Gymkhana</button>
+                    <button id="gymkhanaButton" class="btn btn-outline-light">Gymkhana</button>
+                    <button id="checkpointButton" class="btn btn-outline-light">Checkpoints</button>
                     <button id="toggleTags" class="btn btn-outline-light">Tags</button>
                     <button class="btn btn-outline-light" type="button" id="placesButton">Places</button>
                     <button class="btn btn-outline-light" type="button" id="usersButton">Users</button>
@@ -369,6 +370,127 @@
         </div>
     </div>
 
+    <div class="container mt-4" id="gymkhanaSection">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="text-center">Gymkhanas</h1>
+          <!-- Botón para abrir el modal de creación de Gymkhana -->
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#gymkhanaModal">
+            <i class="bi bi-plus-circle"></i> Agregar Gymkhana
+          </button>
+        </div>
+        <!-- Tabla de Gymkhanas siempre visible -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="gymkhanaTableBody">
+              <!-- Los datos se cargarán vía JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+  
+      <!-- Modal para crear/editar Gymkhana -->
+      <div class="modal fade" id="gymkhanaModal" tabindex="-1" aria-labelledby="gymkhanaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="gymkhanaModalLabel">Nuevo Gymkhana</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <form id="gymkhanaForm">
+                @csrf
+                <!-- Campo oculto para edición, se usará si se edita un registro -->
+                <input type="hidden" id="editGymkhanaId" name="id">
+                <div class="mb-3">
+                  <label for="gymkhanaName" class="form-label">Nombre de la Gymkhana</label>
+                  <input type="text" class="form-control" id="gymkhanaName" name="name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="gymkhanaDescription" class="form-label">Descripción</label>
+                  <textarea class="form-control" id="gymkhanaDescription" name="description" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Guardar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- ========================= -->
+      <!-- Sección de Checkpoints -->
+      <!-- ========================= -->
+      <div class="container mt-4" id="checkpointSection">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="text-center">Checkpoints</h1>
+          <!-- Botón para abrir el modal de creación de Checkpoint -->
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkpointModal">
+            <i class="bi bi-plus-circle"></i> Agregar Checkpoint
+          </button>
+        </div>
+        <!-- Tabla de Checkpoints siempre visible -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>Pista</th>
+                <th>Gymkhana</th>
+                <th>Lugar</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="checkpointTableBody">
+              <!-- Los datos se cargarán vía JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+  
+      <!-- Modal para crear/editar Checkpoint -->
+      <div class="modal fade" id="checkpointModal" tabindex="-1" aria-labelledby="checkpointModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="checkpointModalLabel">Nuevo Checkpoint</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <form id="checkpointForm">
+                @csrf
+                <!-- Campo oculto para edición -->
+                <input type="hidden" id="editCheckpointId" name="id">
+                <div class="mb-3">
+                  <label for="checkpointPista" class="form-label">Pista</label>
+                  <input type="text" class="form-control" id="checkpointPista" name="pista" required>
+                </div>
+                <div class="mb-3">
+                  <label for="gymkhanaId" class="form-label">Gymkhana</label>
+                  <select class="form-select" id="gymkhanaId" name="gymkhana_id" required>
+                    <!-- Se llenará dinámicamente con las Gymkhanas disponibles -->
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="placeId" class="form-label">Place</label>
+                  <select class="form-select" id="placeId" name="place_id" required>
+                    <!-- Se llenará dinámicamente con los Places disponibles -->
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-success">Guardar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+ 
+
     @else
         <?php
             return redirect()->route('auth.login');
@@ -383,5 +505,7 @@
     <script src="{{ asset('js/admin/users.js') }}"></script>
     <script src="{{ asset('js/admin/sweet_alerts.js') }}"></script>
     <script src="{{ asset('js/admin/validation_forms.js') }}"></script>
+    <script src="{{ asset('js/admin/gymkhana.js') }}"></script>
+    <script src="{{ asset('js/admin/checkpoints.js') }}"></script>
 </body>
 </html>

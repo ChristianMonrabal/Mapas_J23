@@ -93,4 +93,5 @@
     <!-- JS principal -->
     <script src="{{ asset('js/groups.js') }}"></script>
     <script src="{{ asset('js/group-validate.js') }}"></script>
+    <script src="{{ asset('js/validar-integrantes.js') }}"></script>
 @endsection

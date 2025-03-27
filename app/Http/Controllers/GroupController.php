@@ -239,23 +239,54 @@ public function available(Request $request)
      * Iniciar el juego (solo si eres creador y el grupo está lleno).
      */
     public function iniciarJuego(Group $group)
-    {
-        if ($group->creador !== Auth::id()) {
-            return response()->json([
-                'message' => 'No eres el creador; no puedes iniciar el juego.'
-            ], 403);
-        }
-
-        if ($group->users()->count() < $group->max_miembros) {
-            return response()->json([
-                'message' => 'El grupo no está completo aún.'
-            ], 400);
-        }
-
+{
+    if ($group->creador !== Auth::id()) {
         return response()->json([
-            'message' => 'El juego ha comenzado.'
+            'message' => 'No eres el creador; no puedes iniciar el juego.'
+        ], 403);
+    }
+
+    if ($group->users()->count() < $group->max_miembros) {
+        return response()->json([
+            'message' => 'El grupo no está completo aún.'
+        ], 400);
+    }
+
+    // Actualizamos el campo 'game_started' a true para indicar que el juego ha comenzado.
+    $group->update(['game_started' => true]);
+
+    return response()->json([
+        'message' => 'El juego ha comenzado.',
+        'group'   => $group
+    ]);
+}
+
+public function estadoJuego()
+{
+    $userId = Auth::id();
+    if (!$userId) {
+        return response()->json(['message' => 'No autenticado'], 401);
+    }
+
+    $group = Group::with('users')
+        ->where(function ($query) use ($userId) {
+            $query->where('creador', $userId)
+                  ->orWhereHas('users', function ($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  });
+        })
+        ->first();
+
+    if ($group) {
+        return response()->json([
+            'game_started' => $group->game_started,
+            'group'        => $group
         ]);
     }
+
+    return response()->json(['message' => 'Grupo no encontrado'], 404);
+}
+
 
     /**
      * Expulsar a un miembro (solo creador).

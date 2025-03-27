@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('creador');
             // La capacidad máxima debe ser como mínimo 2 y como máximo 4
             $table->integer('max_miembros')->check('max_miembros >= 2 AND max_miembros <= 4');
+            $table->boolean('game_started')->default(false);
+
             $table->timestamps();
 
             $table->foreign('creador')->references('id')->on('users');
