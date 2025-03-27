@@ -106,6 +106,7 @@ function verificarProgreso(miUbicacion) {
             var idUsuarioActual = data.idUsuarioActual;
             
             sitios.forEach((sitio) => {
+
                 if (sitio.is_gymkhana && sitio.completed === 0) {
                     
                     var usuarioSesion = usuariosGrupo.find(usuario => usuario === idUsuarioActual);
@@ -132,7 +133,7 @@ function verificarProgreso(miUbicacion) {
                             })
                             .then(() => {
                                 // Verifica si TODOS los usuarios del grupo han completado este checkpoint
-                                return fetch("/verificarUsuariosCompletados/" + grupoActivo.id);
+                                return fetch(`/verificarUsuariosCompletados/${grupoActivo.id}`);
                             })
                             .then(response => response.json())
                             .then(resultado => {
@@ -144,7 +145,7 @@ function verificarProgreso(miUbicacion) {
                                         confirmButtonText: 'Aceptar'
                                     }).then(() => {
                                         // Marcar el sitio como completado en checkpoints
-                                        return fetch("/actualizarCheckpointCompletado/" + sitio.id, {
+                                        return fetch(`/actualizarCheckpointCompletado/${sitio.id}`, {
                                             method: "POST",
                                             headers: {
                                                 "Content-Type": "application/json",
@@ -155,13 +156,13 @@ function verificarProgreso(miUbicacion) {
                                     })
                                     .then(() => {
                                         // 🔹 Verificar si la gymkhana está completa
-                                        return fetch("/verificarGymkhanaCompletada/" + grupoActivo.gymkhana_id);
+                                        return fetch(`/verificarGymkhanaCompletada/${grupoActivo.gymkhana_id}`);
                                     })
                                     .then(response => response.json())
                                     .then(resultado => {
                                         if (resultado.gymkhanaCompletada) {
                                             // Si la gymkhana está completa, marcarla como terminada
-                                            return fetch("/actualizarProgresoGimcana/" + grupoActivo.id, {
+                                            return fetch(`/actualizarProgresoGimcana/${grupoActivo.id}`, {
                                                 method: "POST",
                                                 headers: {
                                                     "Content-Type": "application/json",
@@ -173,9 +174,12 @@ function verificarProgreso(miUbicacion) {
                                     })
                                     .then(() => {
                                         // 🔹 Reiniciar el progreso de todos los usuarios a 0 en `group_users`
-                                        return fetch("/reiniciarProgresoUsuarios/" + grupoActivo.id, {
+                                        return fetch(`/reiniciarProgresoUsuarios/${grupoActivo.id}`, {
                                             method: "POST",
-                                            headers: { "Content-Type": "application/json" }
+                                            headers: {
+                                                "Content-Type": "application/json",
+                                                "X-CSRF-TOKEN": csrfToken
+                                            },
                                         });
                                     });
                                 }

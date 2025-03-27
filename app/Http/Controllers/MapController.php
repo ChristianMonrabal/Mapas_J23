@@ -182,7 +182,7 @@ class MapController extends Controller
 
         // Si se encuentra el progreso, actualizamos la columna "completed" de 0 a 1
         if ($progreso) {
-            $progreso->completed = 1;  // Marcamos el progreso como completado
+            $progreso->completed = 1;
             $progreso->save();
         }
 
