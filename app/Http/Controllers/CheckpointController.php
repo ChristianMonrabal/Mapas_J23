@@ -39,15 +39,14 @@ class CheckpointController extends Controller
 
     // Ver detalles de un checkpoint específico
     public function show($id)
-    {
-        $checkpoint = Checkpoint::with(['gymkhana', 'place'])->find($id);
-
-        if ($checkpoint) {
-            return response()->json($checkpoint);
-        }
-
-        return response()->json(['message' => 'Checkpoint no encontrado'], 404);
+{
+    $checkpoint = Checkpoint::with(['gymkhana', 'place'])->find($id);
+    if ($checkpoint) {
+        return response()->json($checkpoint);
     }
+    return response()->json(['message' => 'Checkpoint no encontrado'], 404);
+}
+
 
     // Actualizar un checkpoint
     public function update(Request $request, $id)

@@ -179,6 +179,7 @@ function fetchCheckpoints() {
     fetch('/checkpoints/gymkhanas')
       .then(response => response.json())
       .then(data => {
+        console.log("Gymkhanas recibidas:", data); // Verificación en consola
         // Select del formulario de creación
         var selectGymkhana = document.getElementById('gymkhanaId');
         if (selectGymkhana) {
@@ -205,11 +206,14 @@ function fetchCheckpoints() {
       .catch(error => console.error('Error al cargar gymkhanas:', error));
   }
   
+  
   // Función para cargar las opciones de Place en los selects
   function cargarOpcionesPlaces() {
     fetch('/checkpoints/places')
       .then(response => response.json())
       .then(data => {
+        console.log("Gymkhanas places:", data); // Verificación en consola
+
         // Select del formulario de creación
         var selectPlace = document.getElementById('placeId');
         if (selectPlace) {

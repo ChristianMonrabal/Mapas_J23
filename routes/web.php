@@ -82,6 +82,12 @@ Route::delete('/gymkhanas/{id}', [GymkhanaController::class, 'destroy'])->name('
 
 
 
+// Obtener todas las Gymkhanas para los Checkpoints
+Route::get('/checkpoints/gymkhanas', [CheckpointController::class, 'getGymkhanas'])->name('checkpoints.gymkhanas');
+
+// Obtener todos los lugares para los Checkpoints
+Route::get('/checkpoints/places', [CheckpointController::class, 'getPlaces'])->name('checkpoints.places');
+
 // Mostrar todos los Checkpoints
 Route::get('/checkpoints', [CheckpointController::class, 'index'])->name('checkpoints.index');
 
@@ -97,11 +103,6 @@ Route::put('/checkpoints/{id}', [CheckpointController::class, 'update'])->name('
 // Eliminar un Checkpoint
 Route::delete('/checkpoints/{id}', [CheckpointController::class, 'destroy'])->name('checkpoints.destroy');
 
-// Obtener todas las Gymkhanas para los Checkpoints
-Route::get('/checkpoints/gymkhanas', [CheckpointController::class, 'getGymkhanas'])->name('checkpoints.gymkhanas');
-
-// Obtener todos los lugares para los Checkpoints
-Route::get('/checkpoints/places', [CheckpointController::class, 'getPlaces'])->name('checkpoints.places');
 
 
 

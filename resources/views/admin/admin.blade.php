@@ -533,17 +533,17 @@
             <input type="hidden" id="editCheckpointId" name="id">
             <div class="mb-3">
               <label for="editCheckpointPista" class="form-label">Pista</label>
-              <input type="text" class="form-control" id="editCheckpointPista" name="pista" required>
+              <input type="text" class="form-control" id="editCheckpointPista" name="pista" >
             </div>
             <div class="mb-3">
               <label for="editGymkhanaId" class="form-label">Gymkhana</label>
-              <select class="form-select" id="editGymkhanaId" name="gymkhana_id" required>
+              <select class="form-select" id="editGymkhanaId" name="gymkhana_id" >
                 <!-- Opciones dinámicas -->
               </select>
             </div>
             <div class="mb-3">
               <label for="editPlaceId" class="form-label">Place</label>
-              <select class="form-select" id="editPlaceId" name="place_id" required>
+              <select class="form-select" id="editPlaceId" name="place_id" >
                 <!-- Opciones dinámicas -->
               </select>
             </div>
