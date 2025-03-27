@@ -129,4 +129,21 @@ class PlaceController extends Controller
             'place' => $place
         ]);
     }
+
+    public function favorites()
+    {
+        $favorites = Place::where('is_favorite', true)->get();
+        return response()->json(['favorites' => $favorites]);
+    }
+
+    public function list()
+    {
+        $userId = auth()->id();
+        $places = Place::with('tags')
+            ->select('places.*')
+            ->selectRaw('EXISTS(SELECT 1 FROM favorites WHERE favorites.place_id = places.id AND favorites.user_id = ?) as is_favorite', [$userId])
+            ->get();
+
+        return response()->json(['places' => $places]);
+    }
 }

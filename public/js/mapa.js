@@ -395,7 +395,27 @@ function loadTags() {
             // Crear botón "Todos"
             const allButton = document.createElement('button');
             allButton.className = 'filter-tag active';
-            allButton.textContent = 'Todos';
+
+            // Contenedor flex para icono y texto de "Todos"
+            const allButtonContent = document.createElement('div');
+            allButtonContent.style.display = 'flex';
+            allButtonContent.style.alignItems = 'center';
+            allButtonContent.style.gap = '8px';
+
+            // Añadir imagen de mundo
+            const worldImg = document.createElement('img');
+            worldImg.src = '/img/tags/mundo.png';
+            worldImg.alt = 'Todos';
+            worldImg.className = 'tag-filter-img';
+            allButtonContent.appendChild(worldImg);
+
+            // Añadir texto
+            const text = document.createElement('span');
+            text.textContent = 'Todos';
+            allButtonContent.appendChild(text);
+
+            allButton.appendChild(allButtonContent);
+
             allButton.onclick = () => {
                 activeTags.clear();
                 document.querySelectorAll('.filter-tag').forEach(tag => {
@@ -405,6 +425,40 @@ function loadTags() {
                 searchPlaces();
             };
             tagsContainer.appendChild(allButton);
+
+            // Crear botón "Favoritos"
+            const favButton = document.createElement('button');
+            favButton.className = 'filter-tag';
+
+            // Contenedor flex para icono y texto de "Favoritos"
+            const favButtonContent = document.createElement('div');
+            favButtonContent.style.display = 'flex';
+            favButtonContent.style.alignItems = 'center';
+            favButtonContent.style.gap = '8px';
+
+            // Añadir imagen de estrella
+            const starImg = document.createElement('img');
+            starImg.src = '/img/tags/estrella.png';
+            starImg.alt = 'Favoritos';
+            starImg.className = 'tag-filter-img';
+            favButtonContent.appendChild(starImg);
+
+            // Añadir texto
+            const favText = document.createElement('span');
+            favText.textContent = 'Favoritos';
+            favButtonContent.appendChild(favText);
+
+            favButton.appendChild(favButtonContent);
+
+            favButton.onclick = () => {
+                activeTags.clear();
+                document.querySelectorAll('.filter-tag').forEach(tag => {
+                    tag.classList.remove('active');
+                });
+                favButton.classList.add('active');
+                searchPlaces();
+            };
+            tagsContainer.appendChild(favButton);
 
             // Crear botones para cada tag
             data.tags.forEach(tag => {
@@ -420,29 +474,31 @@ function loadTags() {
                 // Añadir imagen si existe
                 if (tag.img) {
                     const img = document.createElement('img');
-                    // Corregir la ruta de la imagen si es necesario
                     const imgPath = tag.img.startsWith('/') ? tag.img : `/img/tags/${tag.img}`;
                     img.src = imgPath;
                     img.alt = tag.name;
                     img.className = 'tag-filter-img';
-                    img.onerror = function() {
-                        this.src = '/img/no_img.png';
-                    };
                     buttonContent.appendChild(img);
                 }
 
                 // Añadir texto
-                const text = document.createElement('span');
-                text.textContent = tag.name;
-                buttonContent.appendChild(text);
+                const tagName = document.createElement('span');
+                tagName.textContent = tag.name;
+                buttonContent.appendChild(tagName);
 
                 button.appendChild(buttonContent);
 
                 button.onclick = () => {
+                    const allButton = document.querySelector('.filter-tag:nth-child(1)');
+                    const favButton = document.querySelector('.filter-tag:nth-child(2)');
+
+                    // Desactivar botones "Todos" y "Favoritos"
+                    allButton.classList.remove('active');
+                    favButton.classList.remove('active');
+
                     button.classList.toggle('active');
                     if (button.classList.contains('active')) {
                         activeTags.add(tag.id);
-                        allButton.classList.remove('active');
                     } else {
                         activeTags.delete(tag.id);
                         if (activeTags.size === 0) {
@@ -461,6 +517,7 @@ function loadTags() {
 function searchPlaces() {
     clearMarkers();
     const query = document.getElementById('searchInput').value.trim();
+    const isFavoritesSelected = document.querySelector('.filter-tag:nth-child(2)').classList.contains('active');
 
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
@@ -474,9 +531,10 @@ function searchPlaces() {
             }
         })
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
             let filteredPlaces = data.places;
 
+            // Aplicar filtro de búsqueda por texto primero
             if (query) {
                 const searchLower = query.toLowerCase();
                 filteredPlaces = filteredPlaces.filter(place =>
@@ -487,12 +545,29 @@ function searchPlaces() {
                 );
             }
 
+            // Aplicar filtro de tags si hay tags activos
             if (activeTags.size > 0) {
                 filteredPlaces = filteredPlaces.filter(place =>
                     place.tags.some(tag => activeTags.has(tag.id))
                 );
             }
 
+            // Si el filtro de favoritos está activo, verificar favoritos
+            if (isFavoritesSelected) {
+                const favoritesChecks = await Promise.all(
+                    filteredPlaces.map(place =>
+                        fetch(`/favorites/${place.id}/check`)
+                        .then(response => response.json())
+                        .then(data => ({
+                            ...place,
+                            isFavorite: data.isFavorite
+                        }))
+                    )
+                );
+                filteredPlaces = favoritesChecks.filter(place => place.isFavorite);
+            }
+
+            // Limpiar y añadir los marcadores filtrados
             clearMarkers();
             filteredPlaces.forEach(place => addMarker(place));
         })
