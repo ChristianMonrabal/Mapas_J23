@@ -1,5 +1,5 @@
 
-var grupoActivo = { id: 1, gymkhana_id: 1 };
+var grupoActivo = { id: 1, gymkhana_id: 1, gymkhana_id2: 1 };
 
 iniciarJuego();
 
@@ -54,7 +54,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
         return;
     }
 
-    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
+    fetch("/buscarGymkhana/" + grupoActivo.id + "/" + grupoActivo.id)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -84,29 +84,32 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
 
 function verificarProgreso(miUbicacion) {
 
-    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
+    // Verifica si hay un grupo activo antes de continuar
+    if (!grupoActivo) {
+        console.error("Error: No hay grupo activo.");
+        return;
+    }
+
+    // Hace una petición al backend para obtener los datos de la gymkhana y los usuarios del grupo
+    fetch("/buscarGymkhana/" + grupoActivo.id + "/" + grupoActivo.id)
         .then(response => {
-            console.log(response);  // Verifica lo que está llegando
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
             }
             return response.json();
         })
         .then(data => {
-            var sitios = data.sitios;
-            var progreso = data.progreso;  // Recogemos el progreso actual del grupo
+            var sitios = data.sitios;  // Lista de sitios de la gymkhana
+            var usuariosDelGrupo = data.usuariosDelGrupo; // Lista de usuarios del grupo
+            var gymkhanaId = data.gymkhanaId; // ID de la gymkhana actual
 
+            // Recorre cada sitio de la gymkhana
             sitios.forEach((sitio) => {
-                // Verificar si el sitio está en la gymkhana y si aún no está desbloqueado
                 if (sitio.is_gymkhana && sitio.completed === 0) {
+                    var usuariosEnRango = [];
 
-                    // Comprobamos si todos los usuarios están dentro del rango de 85 metros
-                    var todosEnRango = true;
-
-                    // Iteramos sobre todos los usuarios del grupo
+                    // Recorre cada usuario del grupo
                     usuariosDelGrupo.forEach(usuario => {
-
-                        // Aquí debes calcular la distancia entre la ubicación del usuario y el sitio
                         var distancia = calcularDistancia(
                             miUbicacion.getLatLng().lat, 
                             miUbicacion.getLatLng().lng, 
@@ -114,38 +117,63 @@ function verificarProgreso(miUbicacion) {
                             sitio.longitude
                         );
 
-                        // Si algún usuario está fuera del rango, marcamos como falso
-                        if (distancia >= 85) {
-                            todosEnRango = false;  // Si un usuario está fuera del rango, paramos el ciclo
+                        if (distancia < 85) {
+                            usuariosEnRango.push(usuario.id);
                         }
                     });
 
-                    // Si todos los usuarios están en el rango adecuado, desbloqueamos la pista
-                    if (todosEnRango) {
-
-                        alert(sitio.pista);
-
-                        // Marcar el sitio como completado en el servidor (para no volver a desbloquearlo)
-                        fetch("/actualizarCheckpoint/" + sitio.id, {
+                    // Marcar el progreso de los usuarios en la base de datos
+                    usuariosEnRango.forEach(usuarioId => {
+                        fetch("/actualizarProgresoUsuario/" + usuarioId + "/" + sitio.id, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ completed: 1 })
                         });
+                    });
 
-                        // Actualizar el progreso en el backend
-                        fetch("/actualizarProgreso/" + grupoActivo.id, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ sitioId: sitio.id })
+                    // Verifica en el backend si TODOS los usuarios del grupo han completado este checkpoint
+                    fetch("/verificarUsuariosCompletados/" + grupoActivo.id)
+                        .then(response => response.json())
+                        .then(resultado => {
+                            if (resultado.todosCompletados) {
+                                alert(sitio.pista);
+
+                                // Marcar el sitio como completado en checkpoints
+                                fetch("/actualizarCheckpointCompletado/" + sitio.id, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ completed: 1 })
+                                })
+                                .then(() => {
+                                    // 🔹 Verificar si la gymkhana está completa
+                                    fetch("/verificarGymkhanaCompletada/" + gymkhanaId)
+                                        .then(response => response.json())
+                                        .then(resultado => {
+                                            if (resultado.gymkhanaCompletada) {
+                                                // Si la gymkhana está completa, marcarla como terminada
+                                                fetch("/actualizarProgresoGimcana/" + grupoActivo.id, {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ completed: 1 })
+                                                })
+                                                .then(() => {
+                                                    // 🔹 Reiniciar el progreso de todos los usuarios a 0 en `group_users`
+                                                    fetch("/reiniciarProgresoUsuarios/" + grupoActivo.id, {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/json" }
+                                                    });
+                                                });
+                                            }
+                                        });
+                                });
+                            }
                         });
-                        
-                        // Salir del ciclo una vez que se desbloquea el sitio
-                        return;
-                    }
                 }
             });
-        });
+        })
+        .catch(error => console.error("Error en verificarProgreso:", error));
 }
+
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     var rad = Math.PI / 180;

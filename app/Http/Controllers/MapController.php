@@ -90,21 +90,73 @@ class MapController extends Controller
             'sitios' => $sitios,
             'grupo' => $grupo,
             'progreso' => $progreso,
+            'usuariosDelGrupo' => $usuariosDelGrupo,
         ]);
     }
 
-    // Función para actualizar el campo completed de un checkpoint
+    // Verifica que usuarios han completado un sitio
+    // (Comprueba si la columna "completed" de la tabla group_users (de los usuarios del grupo en el que estemos) es 1 (completado) )
+    public function verificarUsuariosCompletados($grupoId)
+    {
+        // Contar el total de usuarios en el grupo
+        $totalUsuarios = GroupUser::where('group_id', $grupoId)->count();
+
+        // Contar los usuarios que ya completaron el checkpoint
+        $usuariosCompletados = GroupUser::where('group_id', $grupoId)
+            ->where('completed', 1)
+            ->count();
+
+        return response()->json(['todosCompletados' => $usuariosCompletados === $totalUsuarios]);
+    }
+
+    // Actualiza el progreso del usuario que ha completado el sitio
+    // (Actualiza la columna "completed" de la tabla group_users (del del grupo en el que estemos) a 1 (completado) )
+    public function actualizarProgresoUsuario($usuarioId, $sitioId)
+    {
+        // Buscar si el usuario pertenece a un grupo que tiene este checkpoint
+        $usuarioGrupo = GroupUser::where('user_id', $usuarioId)
+            ->whereHas('group.gymkhana.checkpoints', function ($query) use ($sitioId) {
+                $query->where('place_id', $sitioId);
+            })
+            ->first();
+
+        // Si el usuario pertenece al grupo, actualizar su progreso
+        if ($usuarioGrupo) {
+            $usuarioGrupo->completed = 1;
+            $usuarioGrupo->save();
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    // Cuando han completado el sitio todos los del grupo
+    // (cuando todos los usuarios del grupo que estén relacionados con la gymkhana (se relacionan en la tabla "gymkhana_progress") tengan la columna "completed" de la tabla "group_users" a 1),
+    // se actualiza el progreso del sitio (cambia el valor de la columna "completed" de la tabla "checkpoints" a 1 )
     public function actualizarCheckpointCompletado(Request $request, $checkpointId)
     {
         $checkpoint = Checkpoint::findOrFail($checkpointId);
-        $checkpoint->completed = $request->completed;  // Marcamos el checkpoint como completado
+        $checkpoint->completed = $request->completed;
         $checkpoint->save();
 
         return response()->json(['success' => true, 'checkpoint' => $checkpoint]);
     }
 
-    // Función para actualizar el progreso de un grupo en los checkpoints
-    public function actualizarProgreso(Request $request, $grupoId)
+    // Verifica que sitios han sido completados
+    public function verificarGymkhanaCompletada($gymkhanaId)
+    {
+        // Contar los checkpoints incompletos de la gymkhana
+        $checkpointsIncompletos = Checkpoint::where('gymkhana_id', $gymkhanaId)
+            ->where('completed', 0)
+            ->count();
+
+        // Retornar el estado de la gymkhana
+        return response()->json(['gymkhanaCompletada' => $checkpointsIncompletos === 0]);
+    }
+
+    // Cuando nuestro grupo ha completado todos los sitios de nuestra gymkhana (que teníamos relacionada en la tabla "gymkhana_progress")
+    // (cuando todos los sitios de la gymkhana (se relacionan en la tabla "checkpoints") tengan la columna "completed" de la tabla "checkpoints" a 1),
+    // se actualiza el progreso de la gymhana, a acabada (cambia el valor de la columna "completed" de la tabla "gymkhana_progress" a 1 )
+    public function actualizarProgresoGimcana(Request $request, $grupoId)
     {
         // Obtener el grupo correspondiente
         $grupo = Group::findOrFail($grupoId);
@@ -127,5 +179,21 @@ class MapController extends Controller
 
         // Devolver la respuesta indicando que el progreso se ha actualizado
         return response()->json(['success' => true, 'progreso' => $progreso]);
+    }
+
+    // Función para reiniciar el progreso de los usuarios
+    public function reiniciarProgresoUsuarios($grupoId)
+    {
+        // Obtener todos los usuarios del grupo usando el modelo GroupUser
+        $usuariosDelGrupo = GroupUser::where('group_id', $grupoId)->get();
+
+        // Reiniciar la columna `completed` de todos los usuarios a 0
+        foreach ($usuariosDelGrupo as $usuario) {
+            $usuario->completed = 0;
+            $usuario->save();
+        }
+
+        // Retornar una respuesta exitosa
+        return response()->json(['success' => true]);
     }
 }

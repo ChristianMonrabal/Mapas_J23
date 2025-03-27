@@ -29,5 +29,16 @@ class GroupUserSeeder extends Seeder
         $group1->users()->attach([$user1->id, $user2->id]);
         $group2->users()->attach([$user3->id, $user4->id]);
         
+        // Asignar usuarios a grupos con el campo 'completed'
+        $group1->users()->attach([
+            $user1->id => ['completed' => true],
+            $user2->id => ['completed' => true]
+        ]);
+
+        $group2->users()->attach([
+            $user3->id => ['completed' => true],
+            $user4->id => ['completed' => true]
+        ]);
+        
     }
 }
