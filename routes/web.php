@@ -91,7 +91,6 @@ Route::get('/dashboard/gimcana', function () {
     return redirect()->route('index');
 })->name('dashboard.gimcana');
 
-// Route::get('/api/unirse-grupo/{codigoGrupo}', [MapController::class, 'unirseAGrupo']);
 Route::get('/buscarGymkhana/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
 Route::get('/verificarUsuariosCompletados/{grupoId}', [MapController::class, 'verificarUsuariosCompletados']);
 Route::post('/actualizarProgresoUsuario/{usuarioId}', [MapController::class, 'actualizarProgresoUsuario']);
@@ -99,3 +98,6 @@ Route::post('/actualizarCheckpointCompletado/{checkpointId}', [MapController::cl
 Route::get('/verificarGymkhanaCompletada/{gymkhanaId}', [MapController::class, 'verificarGymkhanaCompletada']);
 Route::post('/actualizarProgresoGimcana/{grupoId}', [MapController::class, 'actualizarProgresoGimcana']);
 Route::post('/reiniciarProgresoUsuarios/{grupoId}', [MapController::class, 'reiniciarProgresoUsuarios']);
+Route::get('/gimcanaAcabada', function () {
+    return view('dashboard.fin');
+});

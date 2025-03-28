@@ -1,7 +1,18 @@
+// Obtener parámetros de la URL
+var params = new URLSearchParams(window.location.search);
+var grupoActivo = {
+    id: parseInt(params.get('group_id')) || null,
+    gymkhana_id: parseInt(params.get('gymkhana_id')) || null
+};
 
-var grupoActivo = { id: 1, gymkhana_id: 1};
-
-iniciarJuego();
+// Verificar si los parámetros están presentes
+if (!grupoActivo.id || !grupoActivo.gymkhana_id) {
+    // Redirigir a la página de grupos si no están los parámetros
+    window.location.href = "/groups";
+} else {
+    console.log('Grupo activo:', grupoActivo);
+    iniciarJuego();
+}
 
 // Obtener el token CSRF desde el meta tag
 var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -120,7 +131,6 @@ function verificarProgreso(miUbicacion) {
                         );
 
                         if (distancia < 85) {
-                            console.log(`Usuario ${idUsuarioActual} está cerca del sitio ${sitio.id} con distancia ${distancia}m`);
 
                             // Marcar el progreso del usuario en la base de datos
                             fetch("/actualizarProgresoUsuario/" + usuarioSesion, {
@@ -169,6 +179,10 @@ function verificarProgreso(miUbicacion) {
                                                     "X-CSRF-TOKEN": csrfToken
                                                 },
                                                 body: JSON.stringify({ sitioId: sitio.id, completed: 1 })
+                                            })
+                                            .then(() => {
+                                                // Redirigir a la página de "Gimkhana Acabada" después de marcar el progreso
+                                                window.location.href = "/gimcanaAcabada";
                                             });
                                         }
                                     })
