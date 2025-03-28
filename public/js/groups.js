@@ -432,34 +432,38 @@ function expulsarMiembro(groupId, userId) {
 }
 
 function iniciarJuego(groupId) {
-    fetchJSON('/groups/' + groupId + '/start', {
+  fetchJSON('/groups/' + groupId + '/start', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       }
-    })
-    .then(function(data) {
+  })
+  .then(function(data) {
       Swal.fire({
-        title: 'Juego Iniciado',
-        text: data.message || 'El juego ha comenzado',
-        icon: 'success',
-        confirmButtonText: 'OK'
+          title: 'Juego Iniciado',
+          text: data.message || 'El juego ha comenzado',
+          icon: 'success',
+          confirmButtonText: 'OK'
       }).then(function() {
-        // Redirige al usuario a dashboard/gimcana
-        window.location.href = '/dashboard/gimcana';
+          // Extraer la gymkhana_id del grupo desde la respuesta de la API
+          var gymkhanaId = data.gymkhana_id; // Asegúrate de que el backend devuelve este dato
+
+          // Redirige al usuario a dashboard/gimcana pasando los parámetros
+          window.location.href = `/dashboard/gimcana?group_id=${groupId}&gymkhana_id=${gymkhanaId}`;
       });
-    })
-    .catch(function(error) {
+  })
+  .catch(function(error) {
       Swal.fire({
-        title: 'Error',
-        text: error.message,
-        icon: 'error',
-        confirmButtonText: 'OK'
+          title: 'Error',
+          text: error.message,
+          icon: 'error',
+          confirmButtonText: 'OK'
       });
       console.error(error);
-    });
-  }
+  });
+}
+
   
 
 function eliminarGrupo(groupId) {

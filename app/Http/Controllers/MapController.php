@@ -10,6 +10,7 @@ use App\Models\GymkhanaProgress;
 use App\Models\Place;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MapController extends Controller
 {
@@ -20,6 +21,8 @@ class MapController extends Controller
     
         // 2️⃣ Obtener los IDs de los usuarios relacionados con ese grupo (usando la relación many-to-many)
         $usuariosDelGrupo = GroupUser::where('group_id', $grupoId)->pluck('id');
+
+        $todosLosUsuariosDeUnGrupo = GroupUser::where('group_id', $grupoId)->pluck('user_id');
     
         // 3️⃣ Obtener la gymkhana
         $gymkhana = Gymkhana::findOrFail($gymkhanaId);
@@ -51,6 +54,7 @@ class MapController extends Controller
     
                 // Construir la información del sitio
                 $sitios[] = [
+                    'id' => $lugar->id,
                     'name' => $lugar->name,
                     'description' => $lugar->description,
                     'latitude' => $lugar->latitude,
@@ -94,6 +98,8 @@ class MapController extends Controller
             'grupo' => $grupo,
             'progreso' => $progreso,
             'usuariosDelGrupo' => $usuariosDelGrupo,
+            'todosLosUsuariosDeUnGrupo' => $todosLosUsuariosDeUnGrupo,
+            'idUsuarioActual' => $idUsuarioActual,
         ]);
     }
 
@@ -114,16 +120,9 @@ class MapController extends Controller
 
     // Actualiza el progreso del usuario que ha completado el sitio
     // (Actualiza la columna "completed" de la tabla group_users (del grupo en el que estemos) a 1 (completado) )
-    public function actualizarProgresoUsuario($usuarioId, $sitioId)
-    {
+    public function actualizarProgresoUsuario($usuarioId) {
         // Buscar el usuario en la tabla pivot group_users
-        $usuarioGrupo = GroupUser::where('user_id', $usuarioId)
-            ->whereHas('group', function ($query) use ($sitioId) {
-                $query->whereHas('gymkhana.checkpoints', function ($query) use ($sitioId) {
-                    $query->where('place_id', $sitioId);
-                });
-            })
-            ->first();
+        $usuarioGrupo = GroupUser::where('user_id', $usuarioId)->first();
     
         // Si el usuario pertenece al grupo y el checkpoint pertenece a su gymkhana
         if ($usuarioGrupo) {
@@ -133,7 +132,7 @@ class MapController extends Controller
             return response()->json(['success' => true, 'message' => 'Progreso actualizado']);
         }
     
-        return response()->json(['success' => false, 'message' => 'Usuario o checkpoint no válidos'], 400);
+        return response()->json(['success' => false, 'message' => 'Usuario no válido'], 400);
     }
     
 
@@ -154,8 +153,10 @@ class MapController extends Controller
     {
         // Contar los checkpoints incompletos de la gymkhana
         $checkpointsIncompletos = Checkpoint::where('gymkhana_id', $gymkhanaId)
-            ->where('completed', 0)
-            ->count();
+        ->where('completed', 0)
+        ->count();
+
+        Log::info("Checkpoints incompletos para gymkhana {$gymkhanaId}: {$checkpointsIncompletos}");
 
         // Retornar el estado de la gymkhana
         return response()->json(['gymkhanaCompletada' => $checkpointsIncompletos === 0]);
@@ -181,7 +182,7 @@ class MapController extends Controller
 
         // Si se encuentra el progreso, actualizamos la columna "completed" de 0 a 1
         if ($progreso) {
-            $progreso->completed = 1;  // Marcamos el progreso como completado
+            $progreso->completed = 1;
             $progreso->save();
         }
 

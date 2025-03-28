@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Checkpoint;
 use App\Models\Group;
+use App\Models\GroupUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -245,17 +247,31 @@ public function available(Request $request)
                 'message' => 'No eres el creador; no puedes iniciar el juego.'
             ], 403);
         }
-
+    
         if ($group->users()->count() < $group->max_miembros) {
             return response()->json([
                 'message' => 'El grupo no está completo aún.'
             ], 400);
         }
-
+    
+        // Obtener los IDs de los usuarios en el grupo
+        $usuariosDelGrupo = GroupUser::where('group_id', $group->id)->pluck('id');
+    
+        // Buscar registros en gymkhana_progress que coincidan con estos usuarios
+        $progreso = GymkhanaProgress::whereIn('group_users_id', $usuariosDelGrupo)
+            ->pluck('checkpoint_id');
+    
+        // Obtener la gymkhana a la que pertenece el primer checkpoint encontrado
+        $gymkhanaId = Checkpoint::whereIn('id', $progreso)
+            ->value('gymkhana_id'); // Tomamos la primera coincidencia
+    
         return response()->json([
-            'message' => 'El juego ha comenzado.'
+            'message' => 'El juego ha comenzado.',
+            'gymkhana_id' => $gymkhanaId
         ]);
     }
+    
+    
 
     /**
      * Expulsar a un miembro (solo creador).
