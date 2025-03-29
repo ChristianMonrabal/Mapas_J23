@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\GymkhanaController;
 use App\Http\Controllers\CheckpointController;
 
 use App\Models\Tag;
+use App\Http\Controllers\FavoriteController;
 
 
 Route::get('signin', [AuthController::class, 'showSigninForm'])->name('auth.signin');
@@ -30,7 +32,7 @@ Route::post('/places', [PlaceController::class, 'store'])->name('places.store');
 Route::put('/places/{id}', [PlaceController::class, 'update']);
 Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
 Route::get('/places/{id}', [PlaceController::class, 'show']);
-
+Route::get('/places/favorites', [PlaceController::class, 'favorites']);
 Route::get('/users/list', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::put('/users/{id}', [UserController::class, 'update']);
@@ -127,3 +129,25 @@ Route::get('/dashboard/mapa', function () {
     }
     return redirect()->route('signin');
 })->name('dashboard.mapa');
+
+Route::post('/favorites/{placeId}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+Route::get('/favorites/{placeId}/check', [FavoriteController::class, 'check'])->name('favorites.check');
+
+Route::get('/dashboard/gimcana', function () {
+    if (Auth::check() && Auth::user()->role_id == 1) {
+        return view('dashboard.gimcana');
+    }
+    return redirect()->route('index');
+})->name('dashboard.gimcana');
+
+Route::get('/buscarGymkhana/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);
+Route::get('/verificarUsuariosCompletados/{grupoId}', [MapController::class, 'verificarUsuariosCompletados']);
+Route::post('/actualizarProgresoUsuario/{usuarioId}', [MapController::class, 'actualizarProgresoUsuario']);
+Route::post('/actualizarCheckpointCompletado/{checkpointId}', [MapController::class, 'actualizarCheckpointCompletado']);
+Route::get('/verificarGymkhanaCompletada/{gymkhanaId}', [MapController::class, 'verificarGymkhanaCompletada']);
+Route::post('/actualizarProgresoGimcana/{grupoId}', [MapController::class, 'actualizarProgresoGimcana']);
+Route::post('/reiniciarProgresoUsuarios/{grupoId}', [MapController::class, 'reiniciarProgresoUsuarios']);
+Route::get('/verificarGymkhanaFinalizada/{gymkhanaId}', [MapController::class, 'verificarGymkhanaFinalizada']);
+Route::get('/gimcanaAcabada', function () {
+    return view('dashboard.fin');
+});

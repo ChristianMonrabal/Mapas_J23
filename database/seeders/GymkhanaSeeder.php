@@ -24,7 +24,7 @@ class GymkhanaSeeder extends Seeder
             'updated_at' => $now,
         ]);
         Gymkhana::create([
-            'name' => 'Travesía ',
+            'name' => 'Travesía',
             'description' => 'Ruta turística para descubrir nuevos caminos por Bellvitge',
             'created_at' => $now,
             'updated_at' => $now,

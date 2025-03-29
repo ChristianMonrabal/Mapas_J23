@@ -32,6 +32,11 @@
     <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
 </div>
 
+<!-- Agregar indicador de carga -->
+<div id="loading" class="loading-indicator" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Cargando lugares...
+</div>
+
 <div class="sidebar" id="sidebar">
     <div class="sidebar-content">
         <div>
@@ -39,8 +44,12 @@
             <img src="{{ asset('img/icon.png') }}" alt="OnlyMaps">
         </div>
         <div>
-            <a href="/logout" class="btn btn-danger btn-sidebar">
-                <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i></a>
+            <form action="/logout" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-danger btn-sidebar">
+                    <i class="fa-solid fa-right-from-bracket"> Cerrar sesion</i>
+                </button>
+            </form>
         </div>
         <div>
             <a href="/groups" class="btn btn-primary btn-sidebar">
@@ -62,6 +71,12 @@
         <div class="place-image-container">
             <img id="place-image" src="" alt="">
         </div>
+        <button id="favorite-btn" class="btn btn-outline-danger w-100 mb-3">
+            <i class="fas fa-heart"></i> <span>Añadir a favoritos</span>
+        </button>
+        <button id="route-btn" class="btn btn-outline-primary w-100 mb-3">
+            <i class="fa-solid fa-route"></i> <span>Cómo llegar</span>
+        </button>
         <p id="place-address"></p>
         <p id="place-description"></p>
         <div id="place-tags" class="tags-container"></div>

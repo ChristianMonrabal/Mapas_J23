@@ -17,6 +17,8 @@ class GroupUserSeeder extends Seeder
     public function run(): void
     {
 
+        $now = Carbon::now();
+
         // Asignación de usuarios a grupos
         $group1 = Group::where('name', 'Group 1')->first();
         $group2 = Group::where('name', 'Group 2')->first();
@@ -28,6 +30,17 @@ class GroupUserSeeder extends Seeder
 
         $group1->users()->attach([$user1->id, $user2->id]);
         $group2->users()->attach([$user3->id, $user4->id]);
+        
+        // Asignar usuarios a grupos con el campo 'completed' y las fechas 'created_at' y 'updated_at'
+        $group1->users()->attach([
+            $user1->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
+            $user2->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
+        ]);
+
+        $group2->users()->attach([
+            $user3->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
+            $user4->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
+        ]);
         
     }
 }

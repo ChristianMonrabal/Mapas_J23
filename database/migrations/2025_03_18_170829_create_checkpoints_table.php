@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('place_id');
             $table->foreign('place_id')->references('id')->on('places');
             $table->text('pista');
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }

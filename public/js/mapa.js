@@ -14,6 +14,9 @@ let markers = [];
 // Variable global para almacenar los tags activos
 let activeTags = new Set();
 
+// Variable global para la ruta
+let routingControl = null;
+
 // Agregar capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -97,8 +100,7 @@ function initializeMapAndLoadPlaces() {
                 loadPlaces();
                 loading.style.display = 'none';
             },
-            function(error) {
-                console.error("Error obteniendo ubicación:", error);
+            function() {
                 loading.innerHTML = 'Error al obtener tu ubicación';
                 map.setView([40.416775, -3.703790], 16);
                 loadPlaces();
@@ -224,6 +226,11 @@ function addMarker(place) {
 function clearMarkers() {
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
+
+    if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+    }
 }
 
 function showPlaceDetails(placeId) {
@@ -231,13 +238,7 @@ function showPlaceDetails(placeId) {
     loading.style.display = 'block';
     loading.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando detalles del lugar...';
 
-    fetch(`/places/${placeId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
+    fetch(`/places/${placeId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -291,6 +292,25 @@ function showPlaceDetails(placeId) {
                     });
                 }
 
+                // Verificar si el lugar está en favoritos
+                checkFavoriteStatus(placeId);
+
+                // Configurar el botón de favoritos
+                const favoriteBtn = document.getElementById('favorite-btn');
+                favoriteBtn.onclick = () => toggleFavorite(placeId);
+
+                // Configurar el botón de ruta
+                const routeBtn = document.getElementById('route-btn');
+                routeBtn.onclick = () => {
+                    if (userMarker) {
+                        calculateRoute(
+                            userMarker.getLatLng(), [data.place.latitude, data.place.longitude]
+                        );
+                    } else {
+                        alert('No se puede obtener tu ubicación actual');
+                    }
+                };
+
                 document.getElementById('place-details').classList.add('active');
             }
         })
@@ -298,6 +318,49 @@ function showPlaceDetails(placeId) {
         .finally(() => {
             loading.style.display = 'none';
         });
+}
+
+// Función para verificar el estado de favorito
+function checkFavoriteStatus(placeId) {
+    fetch(`/favorites/${placeId}/check`)
+        .then(response => response.json())
+        .then(data => {
+            updateFavoriteButton(data.isFavorite);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Función para actualizar el aspecto del botón
+function updateFavoriteButton(isFavorite) {
+    const btn = document.getElementById('favorite-btn');
+    if (isFavorite) {
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-danger');
+        btn.querySelector('span').textContent = 'Eliminar de favoritos';
+    } else {
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-danger');
+        btn.querySelector('span').textContent = 'Añadir a favoritos';
+    }
+}
+
+// Función para alternar el estado de favorito
+function toggleFavorite(placeId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch(`/favorites/${placeId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateFavoriteButton(data.isFavorite);
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 // Agregar manejador para cerrar el panel
@@ -332,7 +395,27 @@ function loadTags() {
             // Crear botón "Todos"
             const allButton = document.createElement('button');
             allButton.className = 'filter-tag active';
-            allButton.textContent = 'Todos';
+
+            // Contenedor flex para icono y texto de "Todos"
+            const allButtonContent = document.createElement('div');
+            allButtonContent.style.display = 'flex';
+            allButtonContent.style.alignItems = 'center';
+            allButtonContent.style.gap = '8px';
+
+            // Añadir imagen de mundo
+            const worldImg = document.createElement('img');
+            worldImg.src = '/img/tags/mundo.png';
+            worldImg.alt = 'Todos';
+            worldImg.className = 'tag-filter-img';
+            allButtonContent.appendChild(worldImg);
+
+            // Añadir texto
+            const text = document.createElement('span');
+            text.textContent = 'Todos';
+            allButtonContent.appendChild(text);
+
+            allButton.appendChild(allButtonContent);
+
             allButton.onclick = () => {
                 activeTags.clear();
                 document.querySelectorAll('.filter-tag').forEach(tag => {
@@ -342,6 +425,40 @@ function loadTags() {
                 searchPlaces();
             };
             tagsContainer.appendChild(allButton);
+
+            // Crear botón "Favoritos"
+            const favButton = document.createElement('button');
+            favButton.className = 'filter-tag';
+
+            // Contenedor flex para icono y texto de "Favoritos"
+            const favButtonContent = document.createElement('div');
+            favButtonContent.style.display = 'flex';
+            favButtonContent.style.alignItems = 'center';
+            favButtonContent.style.gap = '8px';
+
+            // Añadir imagen de estrella
+            const starImg = document.createElement('img');
+            starImg.src = '/img/tags/estrella.png';
+            starImg.alt = 'Favoritos';
+            starImg.className = 'tag-filter-img';
+            favButtonContent.appendChild(starImg);
+
+            // Añadir texto
+            const favText = document.createElement('span');
+            favText.textContent = 'Favoritos';
+            favButtonContent.appendChild(favText);
+
+            favButton.appendChild(favButtonContent);
+
+            favButton.onclick = () => {
+                activeTags.clear();
+                document.querySelectorAll('.filter-tag').forEach(tag => {
+                    tag.classList.remove('active');
+                });
+                favButton.classList.add('active');
+                searchPlaces();
+            };
+            tagsContainer.appendChild(favButton);
 
             // Crear botones para cada tag
             data.tags.forEach(tag => {
@@ -357,29 +474,31 @@ function loadTags() {
                 // Añadir imagen si existe
                 if (tag.img) {
                     const img = document.createElement('img');
-                    // Corregir la ruta de la imagen si es necesario
                     const imgPath = tag.img.startsWith('/') ? tag.img : `/img/tags/${tag.img}`;
                     img.src = imgPath;
                     img.alt = tag.name;
                     img.className = 'tag-filter-img';
-                    img.onerror = function() {
-                        this.src = '/img/no_img.png';
-                    };
                     buttonContent.appendChild(img);
                 }
 
                 // Añadir texto
-                const text = document.createElement('span');
-                text.textContent = tag.name;
-                buttonContent.appendChild(text);
+                const tagName = document.createElement('span');
+                tagName.textContent = tag.name;
+                buttonContent.appendChild(tagName);
 
                 button.appendChild(buttonContent);
 
                 button.onclick = () => {
+                    const allButton = document.querySelector('.filter-tag:nth-child(1)');
+                    const favButton = document.querySelector('.filter-tag:nth-child(2)');
+
+                    // Desactivar botones "Todos" y "Favoritos"
+                    allButton.classList.remove('active');
+                    favButton.classList.remove('active');
+
                     button.classList.toggle('active');
                     if (button.classList.contains('active')) {
                         activeTags.add(tag.id);
-                        allButton.classList.remove('active');
                     } else {
                         activeTags.delete(tag.id);
                         if (activeTags.size === 0) {
@@ -398,6 +517,7 @@ function loadTags() {
 function searchPlaces() {
     clearMarkers();
     const query = document.getElementById('searchInput').value.trim();
+    const isFavoritesSelected = document.querySelector('.filter-tag:nth-child(2)').classList.contains('active');
 
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
@@ -411,9 +531,10 @@ function searchPlaces() {
             }
         })
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
             let filteredPlaces = data.places;
 
+            // Aplicar filtro de búsqueda por texto primero
             if (query) {
                 const searchLower = query.toLowerCase();
                 filteredPlaces = filteredPlaces.filter(place =>
@@ -424,12 +545,29 @@ function searchPlaces() {
                 );
             }
 
+            // Aplicar filtro de tags si hay tags activos
             if (activeTags.size > 0) {
                 filteredPlaces = filteredPlaces.filter(place =>
                     place.tags.some(tag => activeTags.has(tag.id))
                 );
             }
 
+            // Si el filtro de favoritos está activo, verificar favoritos
+            if (isFavoritesSelected) {
+                const favoritesChecks = await Promise.all(
+                    filteredPlaces.map(place =>
+                        fetch(`/favorites/${place.id}/check`)
+                        .then(response => response.json())
+                        .then(data => ({
+                            ...place,
+                            isFavorite: data.isFavorite
+                        }))
+                    )
+                );
+                filteredPlaces = favoritesChecks.filter(place => place.isFavorite);
+            }
+
+            // Limpiar y añadir los marcadores filtrados
             clearMarkers();
             filteredPlaces.forEach(place => addMarker(place));
         })
@@ -452,3 +590,39 @@ document.getElementById('searchInput').addEventListener('keypress', function(e) 
         searchPlaces();
     }
 });
+
+// Función para calcular y mostrar la ruta
+function calculateRoute(start, end) {
+    // Si ya existe una ruta, la eliminamos
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+
+    // Crear nuevo control de ruta para caminar
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(start.lat, start.lng),
+            L.latLng(end[0], end[1])
+        ],
+        routeWhileDragging: false,
+        lineOptions: {
+            styles: [{ color: '#2196F3', weight: 6 }]
+        },
+        createMarker: function() { return null; }, // No crear marcadores adicionales
+        language: 'es', // Establecer idioma a español
+        show: false, // No mostrar el panel de instrucciones
+        router: L.Routing.osrmv1({
+            serviceUrl: 'https://routing.openstreetmap.de/routed-foot/route/v1', // Servidor OSRM con soporte para peatones
+            profile: 'foot'
+        })
+    }).addTo(map);
+
+    // Cerrar el panel de detalles
+    document.getElementById('place-details').classList.remove('active');
+
+    // Ajustar la vista para mostrar toda la ruta
+    routingControl.on('routesfound', function(e) {
+        const bounds = L.latLngBounds(start, end);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    });
+}
