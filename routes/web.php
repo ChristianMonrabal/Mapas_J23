@@ -98,6 +98,7 @@ Route::post('/actualizarCheckpointCompletado/{checkpointId}', [MapController::cl
 Route::get('/verificarGymkhanaCompletada/{gymkhanaId}', [MapController::class, 'verificarGymkhanaCompletada']);
 Route::post('/actualizarProgresoGimcana/{grupoId}', [MapController::class, 'actualizarProgresoGimcana']);
 Route::post('/reiniciarProgresoUsuarios/{grupoId}', [MapController::class, 'reiniciarProgresoUsuarios']);
+Route::get('/verificarGymkhanaFinalizada/{gymkhanaId}', [MapController::class, 'verificarGymkhanaFinalizada']);
 Route::get('/gimcanaAcabada', function () {
     return view('dashboard.fin');
 });

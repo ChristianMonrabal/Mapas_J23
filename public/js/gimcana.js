@@ -180,10 +180,17 @@ function verificarProgreso(miUbicacion) {
                                                 },
                                                 body: JSON.stringify({ sitioId: sitio.id, completed: 1 })
                                             })
-                                            .then(() => {
-                                                // Redirigir a la página de "Gimkhana Acabada" después de marcar el progreso
-                                                window.location.href = "/gimcanaAcabada";
-                                            });
+                                        }
+                                    })
+                                    .then(() => {
+                                        // 🔹 Verificar si la gymkhana ha finalizado aquí mismo
+                                        return fetch(`/verificarGymkhanaCompletada/${grupoActivo.gymkhana_id}`)
+                                    })
+                                    .then(response => response.json())
+                                    .then(resultado => {
+                                        if (resultado.gymkhanaCompletada) {
+                                            // Si la gymkhana está completa, redirigir a la página de "Gimkhana Acabada"
+                                            window.location.href = "/gimcanaAcabada";
                                         }
                                     })
                                     .then(() => {

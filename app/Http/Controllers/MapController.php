@@ -190,6 +190,25 @@ class MapController extends Controller
         return response()->json(['success' => true, 'progreso' => $progreso]);
     }
 
+    public function verificarGymkhanaFinalizada($gymkhanaId) {
+
+        // Obtener el checkpoint correspondiente al sitio que se está desbloqueando
+        $checkpoint = Checkpoint::where('gymkhana_id', $gymkhanaId)->pluck('id');
+
+        $progress = GymkhanaProgress::where('checkpoint_id', $checkpoint)->first();
+
+        // Verifica si el progreso de la gymkhana está completado (completed = 1)
+        if ($progress && $progress->completed === 1) {
+            return response()->json(['gymkhanaCompletada' => true]);
+            // $checkpoint->completed = 0;
+            // $checkpoint->save();
+        }
+
+        return response()->json(['gymkhanaCompletada' => false,
+        // 'checkpoint' => $checkpoint
+        ]);
+    }
+
     // Función para reiniciar el progreso de los usuarios
     public function reiniciarProgresoUsuarios($grupoId)
     {
