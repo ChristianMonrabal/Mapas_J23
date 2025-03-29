@@ -20,7 +20,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 1,
             'pista' => 'Donde se toma café el 33?',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -29,7 +29,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 2,
             'pista' => 'Donde se reza?',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -38,7 +38,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 3,
             'pista' => 'Donde se hacen los conciertos de la BMF?',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -47,7 +47,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 4,
             'pista' => 'Un sitio con mucha cultura en el centro...',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -56,7 +56,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 6,
             'pista' => 'La primera palabra de este sitio es un chiste que viene a hacernos un señor mayor de Bellvitge',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -65,7 +65,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 7,
             'pista' => 'Que pone aquí?: PE_A__A',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -74,7 +74,7 @@ class CheckpointSeeder extends Seeder
             'gymkhana_id' => 1,
             'place_id' => 8,
             'pista' => 'Unos xurros por la mañana te dan confianza',
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -84,7 +84,7 @@ class CheckpointSeeder extends Seeder
             'place_id' => 9,
             'pista' => 'Como se va a la playa?',
             'created_at' => $now,
-            'completed' => true,
+            'completed' => false,
             'updated_at' => $now,
         ]);
     }

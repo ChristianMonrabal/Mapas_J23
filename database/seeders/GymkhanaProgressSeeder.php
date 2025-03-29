@@ -19,7 +19,7 @@ class GymkhanaProgressSeeder extends Seeder
         GymkhanaProgress::create([
             'group_users_id' => 1,
             'checkpoint_id' => 1,
-            'completed' => true,
+            'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
         ]);

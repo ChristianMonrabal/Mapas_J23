@@ -28,19 +28,14 @@ class GroupUserSeeder extends Seeder
         $user3 = User::where('email', 'christian@gmail.com')->first();
         $user4 = User::where('email', 'daniel@gmail.com')->first();
 
-        $group1->users()->attach([$user1->id, $user2->id]);
-        $group2->users()->attach([$user3->id, $user4->id]);
-        
-        // Asignar usuarios a grupos con el campo 'completed' y las fechas 'created_at' y 'updated_at'
         $group1->users()->attach([
-            $user1->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
-            $user2->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
-        ]);
-
-        $group2->users()->attach([
-            $user3->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
-            $user4->id => ['completed' => true, 'created_at' => $now, 'updated_at' => $now],
+            $user1->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
+            $user2->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
         ]);
         
+        $group2->users()->attach([
+            $user3->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
+            $user4->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
+        ]);
     }
 }

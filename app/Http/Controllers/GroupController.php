@@ -240,20 +240,20 @@ public function available(Request $request)
     /**
      * Iniciar el juego (solo si eres creador y el grupo está lleno).
      */
-    public function iniciarJuego(Group $group)
-{
-    if ($group->creador !== Auth::id()) {
-        return response()->json([
-            'message' => 'No eres el creador; no puedes iniciar el juego.'
-        ], 403);
-    }
+    public function iniciarJuego(Group $group) {
+        if ($group->creador !== Auth::id()) {
+            return response()->json([
+                'message' => 'No eres el creador; no puedes iniciar el juego.'
+            ], 403);
+        }
 
-    if ($group->users()->count() < $group->max_miembros) {
-        return response()->json([
-            'message' => 'El grupo no está completo aún.'
-        ], 400);
-    }
-    $usuariosDelGrupo = GroupUser::where('group_id', $group->id)->pluck('id');
+        if ($group->users()->count() < $group->max_miembros) {
+            return response()->json([
+                'message' => 'El grupo no está completo aún.'
+            ], 400);
+        }
+
+        $usuariosDelGrupo = GroupUser::where('group_id', $group->id)->pluck('id');
 
         // Buscar registros en gymkhana_progress que coincidan con estos usuarios
         $progreso = GymkhanaProgress::whereIn('group_users_id', $usuariosDelGrupo)
@@ -263,16 +263,15 @@ public function available(Request $request)
         $gymkhanaId = Checkpoint::whereIn('id', $progreso)
             ->value('gymkhana_id'); // Tomamos la primera coincidencia
 
-    // Actualizamos el campo 'game_started' a true para indicar que el juego ha comenzado.
-    $group->update(['game_started' => true]);
+        // Actualizamos el campo 'game_started' a true para indicar que el juego ha comenzado.
+        $group->update(['game_started' => true]);
 
-    return response()->json([
-        'message' => 'El juego ha comenzado.',
-        'group'   => $group,
-        'gymkhana_id' => $gymkhanaId
-        
-    ]);
-}
+        return response()->json([
+            'message' => 'El juego ha comenzado.',
+            'group'   => $group,
+            'gymkhana_id' => $gymkhanaId
+        ]);
+    }
 
 public function estadoJuego()
 {
