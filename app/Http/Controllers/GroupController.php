@@ -253,13 +253,24 @@ public function available(Request $request)
             'message' => 'El grupo no está completo aún.'
         ], 400);
     }
+    $usuariosDelGrupo = GroupUser::where('group_id', $group->id)->pluck('id');
+
+        // Buscar registros en gymkhana_progress que coincidan con estos usuarios
+        $progreso = GymkhanaProgress::whereIn('group_users_id', $usuariosDelGrupo)
+            ->pluck('checkpoint_id');
+
+        // Obtener la gymkhana a la que pertenece el primer checkpoint encontrado
+        $gymkhanaId = Checkpoint::whereIn('id', $progreso)
+            ->value('gymkhana_id'); // Tomamos la primera coincidencia
 
     // Actualizamos el campo 'game_started' a true para indicar que el juego ha comenzado.
     $group->update(['game_started' => true]);
 
     return response()->json([
         'message' => 'El juego ha comenzado.',
-        'group'   => $group
+        'group'   => $group,
+        'gymkhana_id' => $gymkhanaId
+        
     ]);
 }
 
@@ -282,7 +293,7 @@ public function estadoJuego()
     if ($group) {
         return response()->json([
             'game_started' => $group->game_started,
-            'group'        => $group
+            'group'        => $group,
         ]);
     }
 
