@@ -573,5 +573,6 @@
     <script src="{{ asset('js/admin/validation_forms.js') }}"></script>
     <script src="{{ asset('js/admin/gymkhana.js') }}"></script>
     <script src="{{ asset('js/admin/checkpoints.js') }}"></script>
+    <script src="{{ asset('js/admin/admin-sections.js') }}"></script>
 </body>
 </html>
