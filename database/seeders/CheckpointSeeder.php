@@ -116,16 +116,16 @@ class CheckpointSeeder extends Seeder
 
         // Obtener los lugares por nombre
         $estacionRambla = Place::where('name', 'Estación Rambla Just Oliveras')->first();
-        $ayuntamiento = Place::where('name', 'Plaça Ajuntament de l\'Hospitalet')->first();
+        $ayuntamiento = Place::where('name', "Plaça Ajuntament de l'Hospitalet")->first();
         $cafeLaParada = Place::where('name', 'Café Bar La Parada')->first();
-        $parqueRemonta = Place::where('name', 'Parque de la Remonta')->first();
+        $parqueRemunta = Place::where('name', 'Parque de la Remunta')->first();
         $centroLaFarga = Place::where('name', 'Centro Comercial La Farga')->first();
 
         // Checkpoint 1: Comenzar en la estación
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $estacionRambla->id,
-            'pista' => '¡Búscala en la línea roja del metro! Es la estación RAMBLA JUST OLIVERAS. Verás las letras rojas de "METRO" en la entrada principal. Está donde se cruzan Rambla Just Oliveras y Av. del Carrilet.',
+            'pista' => 'Donde está en ayuntamiento del municipio donde estamos?',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
@@ -135,7 +135,7 @@ class CheckpointSeeder extends Seeder
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $ayuntamiento->id,
-            'pista' => 'Desde la estación, camina 100m por la Rambla hasta encontrar una plaza grande con banderas en la fachada del edificio principal. Es el AYUNTAMIENTO DE L\'HOSPITALET. Verás la fachada color crema con el escudo de la ciudad.',
+            'pista' => 'Aquí cerca hay una "parada" para tomarse un café',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
@@ -145,7 +145,7 @@ class CheckpointSeeder extends Seeder
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $cafeLaParada->id,
-            'pista' => 'Desde el Ayuntamiento, sube por CARRER MAJOR. A unos 80m encontrarás el CAFÉ BAR LA PARADA. Tiene una terraza con sombrillas y una entrada con toldo rojo. ¡Es el bar más antiguo de la zona!',
+            'pista' => 'Un parque para los niños, lleno de arena. Se entra por un portal enorme, de acero negro y está entre dos farolas',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
@@ -154,8 +154,8 @@ class CheckpointSeeder extends Seeder
         // Checkpoint 4: Visitar el Parque de la Remonta
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
-            'place_id' => $parqueRemonta->id,
-            'pista' => 'Sigue caminando hacia arriba por Sant Rafael. A menos de 150m del café encontrarás el PARQUE DE LA REMONTA. Reconocerás la entrada por sus grandes árboles y el área de juegos infantiles con columpios rojos y amarillos.',
+            'place_id' => $parqueRemunta->id,
+            'pista' => 'Y si queremos ir a comprar ropa, comida o ver una película, a donde vamos?',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
@@ -165,7 +165,7 @@ class CheckpointSeeder extends Seeder
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $centroLaFarga->id,
-            'pista' => 'Para terminar, dirígete al CENTRO COMERCIAL LA FARGA en Av. Isabel la Católica. Es un edificio grande con un letrero gigante de "LA FARGA" en la entrada. Tiene un Mercadona y muchas tiendas. ¡No tiene pérdida!',
+            'pista' => 'Felicidades, has encontrado la última pista!!',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
