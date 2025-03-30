@@ -171,5 +171,61 @@ class PlaceSeeder extends Seeder
             'updated_at' => $now,
         ]);
         
+        // Añadir la estación de Rambla Just Oliveras y puntos cercanos
+        Place::create([
+            'name' => 'Estación Rambla Just Oliveras',
+            'address' => 'Av. del Carrilet, 3, 08901 L\'Hospitalet de Llobregat, Barcelona',
+            'latitude' => 41.36150233353522,
+            'longitude' => 2.1010559731144213,
+            'description' => 'Estación de metro L1 en el centro de L\'Hospitalet',
+            'img' => 'estacion_just_oliveras.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Plaça Ajuntament de l\'Hospitalet',
+            'address' => 'Plaça de l\'Ajuntament, 08901 L\'Hospitalet de Llobregat, Barcelona',
+            'latitude' => 41.36115485984596, 
+            'longitude' => 2.1002235462403616,
+            'description' => 'Plaza con el edificio del Ayuntamiento de L\'Hospitalet',
+            'img' => 'plaza_ayuntamiento.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Café Bar La Parada',
+            'address' => 'Carrer Major, 3, 08901 L\'Hospitalet de Llobregat, Barcelona',
+            'latitude' => 41.36195582742536, 
+            'longitude' => 2.1004918047663566,
+            'description' => 'Café y bar tradicional cerca de la estación',
+            'img' => 'cafe_parada.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Parque de la Remonta',
+            'address' => 'Carrer de Sant Rafael, 08901 L\'Hospitalet de Llobregat, Barcelona',
+            'latitude' => 41.36261694969782, 
+            'longitude' => 2.1009318947752747,
+            'description' => 'Pequeño parque con zona de juegos infantiles',
+            'img' => 'parque_remonta.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Centro Comercial La Farga',
+            'address' => 'Av. d\'Isabel la Catòlica, 4, 08901 L\'Hospitalet de Llobregat, Barcelona',
+            'latitude' => 41.360453835602086, 
+            'longitude' => 2.100219986077201,
+            'description' => 'Centro comercial y de eventos emblemático de L\'Hospitalet',
+            'img' => 'la_farga.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
     }
 }

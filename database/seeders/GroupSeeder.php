@@ -16,8 +16,8 @@ class GroupSeeder extends Seeder
         $now = Carbon::now();
 
         Group::create([
-            'name'         => 'Group 1',
-            'codigo'       => 'GRP1',
+            'name'         => 'Exploradores de L\'Hospitalet',
+            'codigo'       => 'HOSP1',
             'creador'      => 1, // ID de un usuario existente
             'max_miembros' => 4, // Capacidad máxima del grupo (entre 2 y 4)
             'game_started' => false, // El juego no ha iniciado
@@ -26,8 +26,8 @@ class GroupSeeder extends Seeder
         ]);
 
         Group::create([
-            'name'         => 'Group 2',
-            'codigo'       => 'GRP2',
+            'name'         => 'Caminantes de La Farga',
+            'codigo'       => 'FARG2',
             'creador'      => 1,
             'max_miembros' => 4,
             'game_started' => false,
@@ -36,8 +36,8 @@ class GroupSeeder extends Seeder
         ]);
 
         Group::create([
-            'name'         => 'Group 3',
-            'codigo'       => 'GRP3',
+            'name'         => 'Aventureros del Metro',
+            'codigo'       => 'METR3',
             'creador'      => 2, // Otro usuario
             'max_miembros' => 4,
             'game_started' => false,
@@ -46,8 +46,8 @@ class GroupSeeder extends Seeder
         ]);
 
         Group::create([
-            'name'         => 'Group 4',
-            'codigo'       => 'GRP4',
+            'name'         => 'Rambla Team',
+            'codigo'       => 'RAMB4',
             'creador'      => 2,
             'max_miembros' => 4,
             'game_started' => false,
