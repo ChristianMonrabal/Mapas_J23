@@ -34,7 +34,7 @@ class AuthController extends Controller
                 return redirect()->route('dashboard.mapa');
             }
             
-            return redirect()->route('index');
+            return redirect()->route('auth.signin');
         }
 
         return back()->withErrors(['error' => 'Credenciales incorrectas.'])->withInput();
@@ -96,7 +96,11 @@ class AuthController extends Controller
     
         Auth::login($user);
     
-        return redirect()->route('index');
+        if ($user->role_id == 2) {
+            return redirect()->route('admin');
+        } else {
+            return redirect()->route('dashboard.mapa');
+        }
     }
     
     
