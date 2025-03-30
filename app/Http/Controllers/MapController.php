@@ -48,6 +48,7 @@ class MapController extends Controller
             if ($lugar) {
                 // Obtener etiquetas del lugar
                 $etiquetas = $lugar->tags()->get(['name', 'img']);
+                Log::info("Lugar encontrado: " . $lugar->name);
     
                 // Determinar el icono basado en la primera etiqueta (si existe)
                 $icono = $etiquetas->isNotEmpty() ? $etiquetas->first()->img : null;
@@ -65,10 +66,12 @@ class MapController extends Controller
                     'completed' => $checkpoint->completed,
                     'is_gymkhana' => true,
                 ];
+            } else {
+                Log::info("No se encontró lugar para el checkpoint: " . $checkpoint->id);
             }
         }
 
-        // También puedes incluir otros lugares no relacionados con la gymkhana si lo deseas
+        // // También puedes incluir otros lugares no relacionados con la gymkhana si lo deseas
         $otrosSitios = Place::all()->where('gymkhana_id', null);
 
         foreach ($otrosSitios as $lugar) {
@@ -141,10 +144,26 @@ class MapController extends Controller
     // se actualiza el progreso del sitio (cambia el valor de la columna "completed" de la tabla "checkpoints" a 1 )
     public function actualizarCheckpointCompletado(Request $request, $checkpointId)
     {
-        $checkpoint = Checkpoint::findOrFail($checkpointId);
+        Log::info('🔹 Entrando en actualizarCheckpointCompletado');
+        Log::info('📌 Checkpoint ID recibido: ' . $checkpointId);
+        Log::info('📩 Datos recibidos en la request:', $request->all());
+    
+        // Buscar el checkpoint
+        $checkpoint = Checkpoint::find($checkpointId);
+    
+        if (!$checkpoint) {
+            Log::error('❌ Checkpoint no encontrado: ' . $checkpointId);
+            return response()->json(['error' => 'Checkpoint no encontrado'], 404);
+        }
+    
+        Log::info('✅ Checkpoint encontrado:', ['checkpoint' => $checkpoint]);
+    
+        // Actualizar el estado de "completed"
         $checkpoint->completed = $request->completed;
         $checkpoint->save();
-
+    
+        Log::info('✅ Checkpoint actualizado correctamente', ['checkpoint' => $checkpoint]);
+    
         return response()->json(['success' => true, 'checkpoint' => $checkpoint]);
     }
 
@@ -200,13 +219,9 @@ class MapController extends Controller
         // Verifica si el progreso de la gymkhana está completado (completed = 1)
         if ($progress && $progress->completed === 1) {
             return response()->json(['gymkhanaCompletada' => true]);
-            // $checkpoint->completed = 0;
-            // $checkpoint->save();
         }
 
-        return response()->json(['gymkhanaCompletada' => false,
-        // 'checkpoint' => $checkpoint
-        ]);
+        return response()->json(['gymkhanaCompletada' => false]);
     }
 
     // Función para reiniciar el progreso de los usuarios

@@ -20,113 +20,113 @@ class CheckpointSeeder extends Seeder
         $now =  Carbon::now();
 
         // Checkpoints para las gymkhanas existentes
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 1,
-            'pista' => 'Donde se toma café el 33?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 1,
+        //     'pista' => 'Donde se toma café el 33?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 2,
-            'pista' => 'Donde se reza?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 2,
+        //     'pista' => 'Donde se reza?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 3,
-            'pista' => 'Donde se hacen los conciertos de la BMF?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 3,
+        //     'pista' => 'Donde se hacen los conciertos de la BMF?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 4,
-            'pista' => 'Un sitio con mucha cultura en el centro...',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 4,
+        //     'pista' => 'Un sitio con mucha cultura en el centro...',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 6,
-            'pista' => 'La primera palabra de este sitio es un chiste que viene a hacernos un señor mayor de Bellvitge',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 6,
+        //     'pista' => 'La primera palabra de este sitio es un chiste que viene a hacernos un señor mayor de Bellvitge',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 7,
-            'pista' => 'Que pone aquí?: PE_A__A',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 7,
+        //     'pista' => 'Que pone aquí?: PE_A__A',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 8,
-            'pista' => 'Unos xurros por la mañana te dan confianza',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 8,
+        //     'pista' => 'Unos xurros por la mañana te dan confianza',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
-        Checkpoint::create([
-            'gymkhana_id' => 1,
-            'place_id' => 9,
-            'pista' => 'Como se va a la playa?',
-            'created_at' => $now,
-            'completed' => false,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 1,
+        //     'place_id' => 9,
+        //     'pista' => 'Como se va a la playa?',
+        //     'created_at' => $now,
+        //     'completed' => false,
+        //     'updated_at' => $now,
+        // ]);
         
-        Checkpoint::create([
-            'gymkhana_id' => 2,
-            'place_id' => 2,
-            'pista' => 'Donde se puede rezar en el centro?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 2,
+        //     'place_id' => 2,
+        //     'pista' => 'Donde se puede rezar en el centro?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
         
-        Checkpoint::create([
-            'gymkhana_id' => 2,
-            'place_id' => 3,
-            'pista' => 'Donde se puede tomar la fresca en el centro?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 2,
+        //     'place_id' => 3,
+        //     'pista' => 'Donde se puede tomar la fresca en el centro?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
         
-        Checkpoint::create([
-            'gymkhana_id' => 2,
-            'place_id' => 7,
-            'pista' => 'Donde vive el alcalde?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 2,
+        //     'place_id' => 7,
+        //     'pista' => 'Donde vive el alcalde?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
         
-        Checkpoint::create([
-            'gymkhana_id' => 2,
-            'place_id' => 8,
-            'pista' => 'Donde hay un anfiteatro en el centro?',
-            'completed' => false,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ]);
+        // Checkpoint::create([
+        //     'gymkhana_id' => 2,
+        //     'place_id' => 8,
+        //     'pista' => 'Donde hay un anfiteatro en el centro?',
+        //     'completed' => false,
+        //     'created_at' => $now,
+        //     'updated_at' => $now,
+        // ]);
 
         // Obtener la gymkhana "Ruta L'Hospitalet"
         $rutaHospitalet = Gymkhana::where('name', "Ruta L'Hospitalet")->first();

@@ -68,7 +68,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
         return;
     }
 
-    fetch("/buscarGymkhana/" + grupoActivo.gymkhana_id + "/" + grupoActivo.id)
+    fetch(`/buscarGymkhana/${grupoActivo.gymkhana_id}/${grupoActivo.id}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -84,7 +84,7 @@ function cargarSitios(map, miUbicacion, radioSeguridad) {
             sitios.forEach(sitio => {
                 console.log(sitio);
                 var icono = L.icon({
-                    iconUrl: "https://cdn-icons-png.flaticon.com/128/2830/2830191.png", 
+                    iconUrl: "/img/icon.png", 
                     iconSize: [40, 40]
                 });
 
@@ -104,7 +104,7 @@ function verificarProgreso(miUbicacion) {
     }
 
     // Hace una petición al backend para obtener los datos de la gymkhana y los usuarios del grupo
-    fetch("/buscarGymkhana/" + grupoActivo.id + "/" + grupoActivo.id)
+    fetch(`/buscarGymkhana/${parseInt(params.get('gymkhana_id'))}/${grupoActivo.id}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -129,9 +129,7 @@ function verificarProgreso(miUbicacion) {
                             sitio.latitude,
                             sitio.longitude
                         );
-
                         if (distancia < 85) {
-
                             // Marcar el progreso del usuario en la base de datos
                             fetch("/actualizarProgresoUsuario/" + usuarioSesion, {
                                 method: "POST",
@@ -155,7 +153,7 @@ function verificarProgreso(miUbicacion) {
                                         confirmButtonText: 'Aceptar'
                                     }).then(() => {
                                         // Marcar el sitio como completado en checkpoints
-                                        return fetch(`/actualizarCheckpointCompletado/${sitio.id}`, {
+                                        return fetch("/actualizarCheckpointCompletado/" + sitio.id, {
                                             method: "POST",
                                             headers: {
                                                 "Content-Type": "application/json",
@@ -166,7 +164,7 @@ function verificarProgreso(miUbicacion) {
                                     })
                                     .then(() => {
                                         // 🔹 Verificar si la gymkhana está completa
-                                        return fetch(`/verificarGymkhanaCompletada/${grupoActivo.gymkhana_id}`);
+                                        return fetch(`/verificarGymkhanaCompletada/${parseInt(params.get('gymkhana_id'))}`);
                                     })
                                     .then(response => response.json())
                                     .then(resultado => {
@@ -184,7 +182,7 @@ function verificarProgreso(miUbicacion) {
                                     })
                                     .then(() => {
                                         // 🔹 Verificar si la gymkhana ha finalizado aquí mismo
-                                        return fetch(`/verificarGymkhanaCompletada/${grupoActivo.gymkhana_id}`)
+                                        return fetch(`/verificarGymkhanaFinalizada/${parseInt(params.get('gymkhana_id'))}`)
                                     })
                                     .then(response => response.json())
                                     .then(resultado => {
@@ -212,8 +210,6 @@ function verificarProgreso(miUbicacion) {
         })
         .catch(error => console.error("Error en verificarProgreso:", error));
 }
-
-
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
     var rad = Math.PI / 180;
