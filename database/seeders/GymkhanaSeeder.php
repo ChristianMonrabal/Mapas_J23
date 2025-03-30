@@ -33,8 +33,8 @@ class GymkhanaSeeder extends Seeder
         
         // Nueva gymkhana para el centro de L'Hospitalet
         Gymkhana::create([
-            'name' => 'Ruta L\'Hospitalet',
-            'description' => 'Descubre el centro histórico de L\'Hospitalet partiendo desde la estación de Rambla Just Oliveras',
+            'name' => "Ruta L'Hospitalet",
+            'description' => "Descubre el centro histórico de L'Hospitalet partiendo desde la estación de Rambla Just Oliveras",
             'created_at' => $now,
             'updated_at' => $now,
         ]);

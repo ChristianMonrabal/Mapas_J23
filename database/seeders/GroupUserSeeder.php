@@ -20,7 +20,7 @@ class GroupUserSeeder extends Seeder
         $now = Carbon::now();
 
         // Asignación de usuarios a grupos
-        $group1 = Group::where('name', 'Exploradores de L\'Hospitalet')->first();
+        $group1 = Group::where('name', "Exploradores de L'Hospitalet")->first();
         $group2 = Group::where('name', 'Caminantes de La Farga')->first();
         $group3 = Group::where('name', 'Aventureros del Metro')->first();
         $group4 = Group::where('name', 'Rambla Team')->first();
@@ -41,17 +41,7 @@ class GroupUserSeeder extends Seeder
             $user3->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
             $user4->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
         ]);
-        
-        // Grupo 3: Aventureros del Metro
-        $group3->users()->attach([
-            $user1->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
-            $user3->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
-        ]);
-        
-        // Grupo 4: Rambla Team
-        $group4->users()->attach([
-            $user2->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
-            $user4->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
-        ]);
+
     }
+    
 }

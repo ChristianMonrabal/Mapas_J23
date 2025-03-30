@@ -16,7 +16,7 @@ class GroupSeeder extends Seeder
         $now = Carbon::now();
 
         Group::create([
-            'name'         => 'Exploradores de L\'Hospitalet',
+            'name'         => "Exploradores de L'Hospitalet",
             'codigo'       => 'HOSP1',
             'creador'      => 1, // ID de un usuario existente
             'max_miembros' => 4, // Capacidad máxima del grupo (entre 2 y 4)
