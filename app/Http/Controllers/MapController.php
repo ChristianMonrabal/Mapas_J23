@@ -48,6 +48,7 @@ class MapController extends Controller
             if ($lugar) {
                 // Obtener etiquetas del lugar
                 $etiquetas = $lugar->tags()->get(['name', 'img']);
+                Log::info("Lugar encontrado: " . $lugar->name);
     
                 // Determinar el icono basado en la primera etiqueta (si existe)
                 $icono = $etiquetas->isNotEmpty() ? $etiquetas->first()->img : null;
@@ -65,10 +66,12 @@ class MapController extends Controller
                     'completed' => $checkpoint->completed,
                     'is_gymkhana' => true,
                 ];
+            } else {
+                Log::info("No se encontró lugar para el checkpoint: " . $checkpoint->id);
             }
         }
 
-        // También puedes incluir otros lugares no relacionados con la gymkhana si lo deseas
+        // // También puedes incluir otros lugares no relacionados con la gymkhana si lo deseas
         $otrosSitios = Place::all()->where('gymkhana_id', null);
 
         foreach ($otrosSitios as $lugar) {
@@ -139,14 +142,21 @@ class MapController extends Controller
     // Cuando han completado el sitio todos los del grupo
     // (cuando todos los usuarios del grupo que estén relacionados con la gymkhana (se relacionan en la tabla "gymkhana_progress") tengan la columna "completed" de la tabla "group_users" a 1),
     // se actualiza el progreso del sitio (cambia el valor de la columna "completed" de la tabla "checkpoints" a 1 )
-    public function actualizarCheckpointCompletado(Request $request, $checkpointId)
+    public function actualizarCheckpointCompletado(Request $request, $placeId)
     {
-        $checkpoint = Checkpoint::findOrFail($checkpointId);
+        // Buscar el lugar por su ID
+        $place = Place::find($placeId);
+    
+        // Buscar el checkpoint que tiene ese place_id
+        $checkpoint = Checkpoint::where('place_id', $place->id)->first();
+    
+        // Actualizar el checkpoint
         $checkpoint->completed = $request->completed;
         $checkpoint->save();
-
+    
         return response()->json(['success' => true, 'checkpoint' => $checkpoint]);
     }
+    
 
     // Verifica que sitios han sido completados
     public function verificarGymkhanaCompletada($gymkhanaId)
@@ -167,47 +177,90 @@ class MapController extends Controller
     // se actualiza el progreso de la gymhana, a acabada (cambia el valor de la columna "completed" de la tabla "gymkhana_progress" a 1 )
     public function actualizarProgresoGimcana(Request $request, $grupoId)
     {
+        \Log::info("🔄 Iniciando actualización del progreso para el grupo {$grupoId} en el sitio {$request->sitioId}.");
+    
         // Obtener el grupo correspondiente
-        $grupo = Group::findOrFail($grupoId);
-
+        $grupo = Group::find($grupoId);
+        
+        if (!$grupo) {
+            \Log::error("❌ Grupo {$grupoId} no encontrado.");
+            return response()->json(['error' => 'Grupo no encontrado'], 404);
+        }
+    
+        \Log::info("✅ Grupo encontrado: " . json_encode($grupo));
+    
+        // Obtener los usuarios del grupo
         $usuariosDelGrupo = GroupUser::where('group_id', $grupoId)->pluck('id');
-
+    
+        if ($usuariosDelGrupo->isEmpty()) {
+            \Log::warning("⚠️ No se encontraron usuarios en el grupo {$grupoId}.");
+            return response()->json(['error' => 'No hay usuarios en el grupo'], 404);
+        }
+    
+        \Log::info("👥 Usuarios del grupo: " . json_encode($usuariosDelGrupo));
+    
         // Obtener el checkpoint correspondiente al sitio que se está desbloqueando
-        $checkpoint = Checkpoint::findOrFail($request->sitioId);
-
-        // Buscar el progreso de un usuario específico en la tabla `gymkhana_progress` para el checkpoint actual
-        $progreso = GymkhanaProgress::where('group_users_id', $usuariosDelGrupo->first()) // Asegúrate de que sea un usuario del grupo, puedes recorrer o filtrar si es necesario
+        $checkpoint = Checkpoint::where('place_id', $request->sitioId)->first();
+    
+        if (!$checkpoint) {
+            \Log::error("❌ Checkpoint con sitioId {$request->sitioId} no encontrado.");
+            return response()->json(['error' => 'Checkpoint no encontrado'], 404);
+        }
+    
+        \Log::info("📍 Checkpoint encontrado: " . json_encode($checkpoint));
+    
+        // Buscar el progreso de un usuario específico en `gymkhana_progress`
+        $progreso = GymkhanaProgress::where('group_users_id', $usuariosDelGrupo->first())
             ->where('checkpoint_id', $checkpoint->id)
             ->first();
-
-        // Si se encuentra el progreso, actualizamos la columna "completed" de 0 a 1
-        if ($progreso) {
-            $progreso->completed = 1;
-            $progreso->save();
+    
+        if (!$progreso) {
+            \Log::warning("⚠️ No se encontró progreso para el usuario {$usuariosDelGrupo->first()} en el checkpoint {$checkpoint->id}.");
+            return response()->json(['error' => 'Progreso no encontrado'], 404);
         }
-
-        // Devolver la respuesta indicando que el progreso se ha actualizado
+    
+        \Log::info("📊 Progreso encontrado antes de actualizar: " . json_encode($progreso));
+    
+        // Si se encuentra el progreso, actualizar "completed" a 1
+        $progreso->completed = 1;
+        $progreso->save();
+    
+        \Log::info("✅ Progreso actualizado: " . json_encode($progreso));
+    
+        // Devolver respuesta
         return response()->json(['success' => true, 'progreso' => $progreso]);
     }
+    
 
-    public function verificarGymkhanaFinalizada($gymkhanaId) {
-
-        // Obtener el checkpoint correspondiente al sitio que se está desbloqueando
-        $checkpoint = Checkpoint::where('gymkhana_id', $gymkhanaId)->pluck('id');
-
-        $progress = GymkhanaProgress::where('checkpoint_id', $checkpoint)->first();
-
-        // Verifica si el progreso de la gymkhana está completado (completed = 1)
-        if ($progress && $progress->completed === 1) {
-            return response()->json(['gymkhanaCompletada' => true]);
-            // $checkpoint->completed = 0;
-            // $checkpoint->save();
+    public function verificarGymkhanaFinalizada($gymkhanaId) 
+    {
+        \Log::info("🔍 Verificando si la gymkhana {$gymkhanaId} ha sido finalizada.");
+    
+        // Obtener los IDs de los checkpoints de esta gymkhana
+        $checkpoints = Checkpoint::where('gymkhana_id', $gymkhanaId)->pluck('id');
+    
+        if ($checkpoints->isEmpty()) { // Ahora sí es una colección
+            \Log::warning("⚠️ No se encontraron checkpoints para la gymkhana {$gymkhanaId}.");
+            return response()->json(['error' => 'No se encontraron checkpoints'], 404);
         }
-
-        return response()->json(['gymkhanaCompletada' => false,
-        // 'checkpoint' => $checkpoint
-        ]);
+    
+        \Log::info("✅ Checkpoints encontrados: " . json_encode($checkpoints));
+    
+        // Buscar el progreso asociado a estos checkpoints
+        $progress = GymkhanaProgress::whereIn('checkpoint_id', $checkpoints)
+            ->where('completed', 1)
+            ->exists(); // Mejor usar exists() para verificar si hay registros
+    
+        if ($progress) {
+            \Log::info("🏆 Gymkhana {$gymkhanaId} ha sido completada.");
+            return response()->json(['gymkhanaCompletada' => true]);
+        }
+    
+        \Log::info("❌ Gymkhana {$gymkhanaId} aún no ha sido completada.");
+        return response()->json(['gymkhanaCompletada' => false]);
     }
+    
+    
 
     // Función para reiniciar el progreso de los usuarios
     public function reiniciarProgresoUsuarios($grupoId)

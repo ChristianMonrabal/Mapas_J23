@@ -175,8 +175,8 @@ class PlaceSeeder extends Seeder
         Place::create([
             'name' => 'Estación Rambla Just Oliveras',
             'address' => "Av. del Carrilet, 3, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.36150233353522,
-            'longitude' => 2.1010559731144213,
+            'latitude' => 41.363807086947574,
+            'longitude' => 2.0999359656497263,
             'description' => "Estación de metro L1 en el centro de L'Hospitalet",
             'img' => 'estacion_just_oliveras.jpg',
             'created_at' => $now,
@@ -186,8 +186,8 @@ class PlaceSeeder extends Seeder
         Place::create([
             'name' => "Plaça Ajuntament de l'Hospitalet",
             'address' => "Plaça de l'Ajuntament, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.36115485984596, 
-            'longitude' => 2.1002235462403616,
+            'latitude' => 41.35975105395135, 
+            'longitude' => 2.099698661507161,
             'description' => "Plaza con el edificio del Ayuntamiento de L'Hospitalet",
             'img' => 'plaza_ayuntamiento.jpg',
             'created_at' => $now,
@@ -197,8 +197,8 @@ class PlaceSeeder extends Seeder
         Place::create([
             'name' => 'Café Bar La Parada',
             'address' => "Carrer Major, 3, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.36195582742536, 
-            'longitude' => 2.1004918047663566,
+            'latitude' => 41.35895333404509, 
+            'longitude' => 2.0994733123083207,
             'description' => 'Café y bar tradicional cerca de la estación',
             'img' => 'cafe_parada.jpg',
             'created_at' => $now,
@@ -206,10 +206,10 @@ class PlaceSeeder extends Seeder
         ]);
         
         Place::create([
-            'name' => 'Parque de la Remunta',
+            'name' => 'CeX',
             'address' => "Carrer de Sant Rafael, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.36261694969782, 
-            'longitude' => 2.1009318947752747,
+            'latitude' => 41.36055387691393, 
+            'longitude' => 2.1019315291646445,
             'description' => 'Pequeño parque con zona de juegos infantiles',
             'img' => 'parque_remonta.jpg',
             'created_at' => $now,
@@ -219,10 +219,77 @@ class PlaceSeeder extends Seeder
         Place::create([
             'name' => 'Centro Comercial La Farga',
             'address' => "Av. d'Isabel la Catòlica, 4, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.360453835602086, 
-            'longitude' => 2.100219986077201,
+            'latitude' => 41.362039614369955, 
+            'longitude' => 2.104877606872715,
             'description' => "Centro comercial y de eventos emblemático de L'Hospitalet",
             'img' => 'la_farga.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        // Nuevos lugares cerca de Centro Comercial La Farga
+        Place::create([
+            'name' => 'Motarnico',
+            'address' => "Av. de Josep Tarradellas i Joan, 44, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36236591793771,
+            'longitude' => 2.0981898555012113,
+            'description' => "Biblioteca pública y centro cultural de L'Hospitalet",
+            'img' => 'biblioteca_tecla_sala.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Museo de Hospitalet de Llobregat',
+            'address' => "Carrer Occident, 2, 08903 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36104491465662,
+            'longitude' => 2.097405642263443,
+            'description' => "Mercado tradicional con productos frescos y de proximidad",
+            'img' => 'mercat_collblanc.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Drum Class',
+            'address' => "Av. de Can Buxeres, 08906 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36052149090072,
+            'longitude' => 2.0995889604022597,
+            'description' => "Extenso parque urbano con jardines históricos y casa señorial",
+            'img' => 'parque_can_buxeres.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Estación de Metro Av. Carrilet',
+            'address' => "Carrer de Rafael Campalans, 08903 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.35808394879572,
+            'longitude' => 2.102450162580789,
+            'description' => "Estación de metro de las líneas L1 y L9 Sud",
+            'img' => 'metro_torrassa.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'El Dragon',
+            'address' => "Av. de Josep Tarradellas i Joan, 44, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36177574484012,
+            'longitude' => 2.103083413564202,
+            'description' => "Centro de arte y exposiciones situado junto a la Biblioteca Tecla Sala",
+            'img' => 'tpk_artes.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Auditori Barradas',
+            'address' => "Plaça de la Sardana, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.363064140117785,
+            'longitude' => 2.100808900329604,
+            'description' => "Plaza pública a pocos metros del centro comercial La Farga",
+            'img' => 'plaza_sardana.jpg',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
