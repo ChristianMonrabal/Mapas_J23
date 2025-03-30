@@ -137,7 +137,7 @@ Route::get('/dashboard/gimcana', function () {
     if (Auth::check() && Auth::user()->role_id == 1) {
         return view('dashboard.gimcana');
     }
-    return redirect()->route('index');
+    return redirect()->route('signin');
 })->name('dashboard.gimcana');
 
 Route::get('/buscarGymkhana/{gymkhanaId}/{grupoId}', [MapController::class, 'obtenerDatosGymkhana']);

@@ -143,7 +143,7 @@ class CheckpointSeeder extends Seeder
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $estacionRambla->id,
-            'pista' => 'Donde está en ayuntamiento del municipio donde estamos?',
+            'pista' => 'Donde está el ayuntamiento del municipio donde estamos?',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
