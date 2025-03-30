@@ -206,7 +206,7 @@ class PlaceSeeder extends Seeder
         ]);
         
         Place::create([
-            'name' => 'Parque de la Remunta',
+            'name' => 'CeX',
             'address' => "Carrer de Sant Rafael, 08901 L'Hospitalet de Llobregat, Barcelona",
             'latitude' => 41.36055387691393, 
             'longitude' => 2.1019315291646445,

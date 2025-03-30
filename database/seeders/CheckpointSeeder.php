@@ -136,7 +136,7 @@ class CheckpointSeeder extends Seeder
         $estacionRambla = Place::where('name', 'Estación Rambla Just Oliveras')->first();
         $ayuntamiento = Place::where('name', "Plaça Ajuntament de l'Hospitalet")->first();
         $cafeLaParada = Place::where('name', 'Café Bar La Parada')->first();
-        $parqueRemonta = Place::where('name', 'Parque de la Remunta')->first();
+        $parqueRemonta = Place::where('name', 'Cex')->first();
         $centroLaFarga = Place::where('name', 'Centro Comercial La Farga')->first();
 
         // Checkpoint 1: Comenzar en la estación
