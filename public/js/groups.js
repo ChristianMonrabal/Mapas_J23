@@ -70,6 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
       crearGrupo();
     });
   }
+
+  // // Iniciar verificación periódica del estado del juego (cada 3 segundos)
+  // if (window.currentUserId) {
+  //   setInterval(verificarEstadoJuego, 3000);
+  // }
 });
 
 /* 1. Cargar el grupo del usuario */
@@ -464,7 +469,27 @@ function iniciarJuego(groupId) {
   });
 }
 
-  
+/* Verificar si el juego ha iniciado para los miembros del grupo */
+function verificarEstadoJuego() {
+  fetchJSON('/grupo/estado', {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(function(data) {
+    // Si tenemos datos de grupo y el juego ha iniciado
+    if (data.group && data.game_started === true) {
+      // Verificar que no somos el creador (el creador ya fue redirigido por iniciarJuego)
+      if (data.group.creador !== window.currentUserId) {
+        // Redirigir al usuario a la página del juego
+        window.location.href = `/dashboard/gimcana?group_id=${data.group.id}&gymkhana_id=${data.group.gymkhana_id}`;
+      }
+    }
+  })
+  .catch(function(error) {
+    console.error('Error al verificar estado del juego:', error);
+  });
+}
 
 function eliminarGrupo(groupId) {
   Swal.fire({
