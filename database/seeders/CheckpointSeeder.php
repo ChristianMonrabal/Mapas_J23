@@ -136,7 +136,7 @@ class CheckpointSeeder extends Seeder
         $estacionRambla = Place::where('name', 'Estación Rambla Just Oliveras')->first();
         $ayuntamiento = Place::where('name', "Plaça Ajuntament de l'Hospitalet")->first();
         $cafeLaParada = Place::where('name', 'Café Bar La Parada')->first();
-        $parqueRemonta = Place::where('name', 'Cex')->first();
+        $cex = Place::where('name', 'Cex')->first();
         $centroLaFarga = Place::where('name', 'Centro Comercial La Farga')->first();
 
         // Checkpoint 1: Comenzar en la estación
@@ -163,7 +163,7 @@ class CheckpointSeeder extends Seeder
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
             'place_id' => $cafeLaParada->id,
-            'pista' => 'Un parque para los niños, lleno de arena. Se entra por un portal enorme, de acero negro y está entre dos farolas',
+            'pista' => 'Sitio para comprar videojuegos, móviles, películas, etc... de segunda mano',
             'completed' => false,
             'created_at' => $now,
             'updated_at' => $now,
@@ -172,7 +172,7 @@ class CheckpointSeeder extends Seeder
         // Checkpoint 4: Visitar el Parque de la Remonta
         Checkpoint::create([
             'gymkhana_id' => $gymkhanaId,
-            'place_id' => $parqueRemonta->id,
+            'place_id' => $cex->id,
             'pista' => 'Y si queremos ir a comprar ropa, comida o ver una película, a donde vamos?',
             'completed' => false,
             'created_at' => $now,
