@@ -38,6 +38,11 @@ function fetchCheckpoints() {
       })
       .catch(function(error) {
         console.error('Error fetching checkpoints:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los checkpoints'
+        });
       });
   }
   
@@ -50,62 +55,102 @@ function fetchCheckpoints() {
       var pista = document.getElementById('checkpointPista').value;
       var gymkhana_id = document.getElementById('gymkhanaId').value;
       var place_id = document.getElementById('placeId').value;
+      
+      // Validación de campos vacíos
+      if (!pista.trim() || !gymkhana_id || !place_id) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos incompletos',
+          text: 'Por favor completa todos los campos obligatorios'
+        });
+        return;
+      }
   
       fetch('/checkpoints', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content')
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({ pista: pista, gymkhana_id: gymkhana_id, place_id: place_id })
+        body: JSON.stringify({
+          pista: pista,
+          gymkhana_id: gymkhana_id,
+          place_id: place_id
+        })
       })
       .then(function(response) {
-        if (!response.ok) {
-          throw new Error('Error creating checkpoint');
-        }
         return response.json();
       })
       .then(function(data) {
-        alert(data.message || 'Checkpoint creado con éxito');
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Checkpoint creado con éxito'
+        });
+        
         fetchCheckpoints(); // Recargar la tabla
+        
+        // Limpiar el formulario
         checkpointForm.reset();
-        // Ocultar el modal de creación usando Bootstrap 5
-        var checkpointModalEl = document.getElementById('checkpointModal');
-        var checkpointModal = bootstrap.Modal.getInstance(checkpointModalEl);
-        if (checkpointModal) {
-          checkpointModal.hide();
+        
+        // Cerrar el modal
+        var modalElement = document.getElementById('checkpointModal');
+        var modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+          modal.hide();
         }
       })
       .catch(function(error) {
         console.error('Error creating checkpoint:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo crear el checkpoint'
+        });
       });
     });
   }
   
   // Eliminar Checkpoint
   function deleteCheckpoint(id) {
-    if (confirm('¿Estás seguro de eliminar este Checkpoint?')) {
-      fetch('/checkpoints/' + id, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content')
-        }
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(data) {
-        alert(data.message || 'Checkpoint eliminado con éxito');
-        fetchCheckpoints();
-      })
-      .catch(function(error) {
-        console.error('Error deleting checkpoint:', error);
-      });
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas eliminar este checkpoint? Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/checkpoints/' + id, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Eliminado',
+            text: 'Checkpoint eliminado con éxito'
+          });
+          fetchCheckpoints(); // Recargar la tabla
+        })
+        .catch(function(error) {
+          console.error('Error deleting checkpoint:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo eliminar el checkpoint'
+          });
+        });
+      }
+    });
   }
   
   // Editar Checkpoint: cargar datos en el modal de edición
@@ -115,22 +160,24 @@ function fetchCheckpoints() {
         return response.json();
       })
       .then(function(checkpoint) {
-        // Rellenar los campos del formulario de edición
+        // Llenar el formulario con los datos del checkpoint
         document.getElementById('editCheckpointId').value = checkpoint.id;
         document.getElementById('editCheckpointPista').value = checkpoint.pista;
         document.getElementById('editGymkhanaId').value = checkpoint.gymkhana_id;
         document.getElementById('editPlaceId').value = checkpoint.place_id;
-        // Mostrar el modal de edición
-        var editModalEl = document.getElementById('editCheckpointModal');
-        if (editModalEl) {
-          var editModal = new bootstrap.Modal(editModalEl);
-          editModal.show();
-        } else {
-          console.error("No se encontró el modal de edición (editCheckpointModal)");
-        }
+        
+        // Mostrar el modal
+        var modalElement = document.getElementById('editCheckpointModal');
+        var modal = new bootstrap.Modal(modalElement);
+        modal.show();
       })
       .catch(function(error) {
         console.error('Error fetching checkpoint for edit:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo cargar la información del checkpoint'
+        });
       });
   }
   
@@ -145,31 +192,53 @@ function fetchCheckpoints() {
       var gymkhana_id = document.getElementById('editGymkhanaId').value;
       var place_id = document.getElementById('editPlaceId').value;
       
+      // Validación de campos vacíos
+      if (!pista.trim() || !gymkhana_id || !place_id) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos incompletos',
+          text: 'Por favor completa todos los campos obligatorios'
+        });
+        return;
+      }
+      
       fetch('/checkpoints/' + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content')
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({ pista: pista, gymkhana_id: gymkhana_id, place_id: place_id })
+        body: JSON.stringify({
+          pista: pista,
+          gymkhana_id: gymkhana_id,
+          place_id: place_id
+        })
       })
       .then(function(response) {
         return response.json();
       })
       .then(function(data) {
-        alert(data.message || 'Checkpoint actualizado con éxito');
-        fetchCheckpoints();
-        // Ocultar el modal de edición
-        var editModalEl = document.getElementById('editCheckpointModal');
-        var editModal = bootstrap.Modal.getInstance(editModalEl);
+        Swal.fire({
+          icon: 'success',
+          title: 'Actualizado',
+          text: 'Checkpoint actualizado con éxito'
+        });
+        
+        fetchCheckpoints(); // Recargar la tabla
+        
+        // Cerrar el modal
+        var editModal = bootstrap.Modal.getInstance(document.getElementById('editCheckpointModal'));
         if (editModal) {
           editModal.hide();
         }
       })
       .catch(function(error) {
         console.error('Error updating checkpoint:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar el checkpoint'
+        });
       });
     });
   }
@@ -177,79 +246,80 @@ function fetchCheckpoints() {
   // Función para cargar las opciones de Gymkhana en los selects
   function cargarOpcionesGymkhanas() {
     fetch('/checkpoints/gymkhanas')
-      .then(response => response.json())
-      .then(data => {
-        console.log("Gymkhanas recibidas:", data); // Verificación en consola
-  
-        // Select del formulario de creación
-        var selectGymkhana = document.getElementById('gymkhanaId');
-        if (selectGymkhana) {
-          selectGymkhana.innerHTML = '<option value="">-- Seleccione Gymkhana --</option>';
-          data.forEach(function(item) {
-            var opt = document.createElement('option');
-            opt.value = item.id;
-            opt.textContent = item.name;
-            selectGymkhana.appendChild(opt);
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        // Llenar el select de creación
+        var gymkhanaSelect = document.getElementById('gymkhanaId');
+        if (gymkhanaSelect) {
+          gymkhanaSelect.innerHTML = '';
+          gymkhanaSelect.innerHTML = '<option value="">Seleccione una Gymkhana</option>';
+          data.forEach(function(gymkhana) {
+            gymkhanaSelect.innerHTML += `<option value="${gymkhana.id}">${gymkhana.name}</option>`;
           });
         }
         
-        // Select del formulario de edición
-        var selectEditGymkhana = document.getElementById('editGymkhanaId');
-        if (selectEditGymkhana) {
-          selectEditGymkhana.innerHTML = '<option value="">-- Seleccione Gymkhana --</option>';
-          data.forEach(function(item) {
-            var opt = document.createElement('option');
-            opt.value = item.id;
-            opt.textContent = item.name;
-            selectEditGymkhana.appendChild(opt);
-            console.log('Seleccione Gymkhana:', item.name);
+        // Llenar el select de edición
+        var editGymkhanaSelect = document.getElementById('editGymkhanaId');
+        if (editGymkhanaSelect) {
+          editGymkhanaSelect.innerHTML = '';
+          editGymkhanaSelect.innerHTML = '<option value="">Seleccione una Gymkhana</option>';
+          data.forEach(function(gymkhana) {
+            editGymkhanaSelect.innerHTML += `<option value="${gymkhana.id}">${gymkhana.name}</option>`;
           });
-        } else {
-          console.error("El elemento con id 'editGymkhanaId' no se encontró.");
         }
       })
-      .catch(error => console.error('Error al cargar gymkhanas:', error));
+      .catch(function(error) {
+        console.error('Error loading gymkhanas:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar las gymkhanas'
+        });
+      });
   }
-  
   
   // Función para cargar las opciones de Place en los selects
   function cargarOpcionesPlaces() {
     fetch('/checkpoints/places')
-      .then(response => response.json())
-      .then(data => {
-        console.log("Gymkhanas places:", data); // Verificación en consola
-
-        // Select del formulario de creación
-        var selectPlace = document.getElementById('placeId');
-        if (selectPlace) {
-          selectPlace.innerHTML = '<option value="">-- Seleccione Place --</option>';
-          data.forEach(function(item) {
-            var opt = document.createElement('option');
-            opt.value = item.id;
-            opt.textContent = item.name;
-            selectPlace.appendChild(opt);
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        // Llenar el select de creación
+        var placeSelect = document.getElementById('placeId');
+        if (placeSelect) {
+          placeSelect.innerHTML = '';
+          placeSelect.innerHTML = '<option value="">Seleccione un Lugar</option>';
+          data.forEach(function(place) {
+            placeSelect.innerHTML += `<option value="${place.id}">${place.name}</option>`;
           });
         }
-        // Select del formulario de edición
-        var selectEditPlace = document.getElementById('editPlaceId');
-        if (selectEditPlace) {
-          selectEditPlace.innerHTML = '<option value="">-- Seleccione Place --</option>';
-          data.forEach(function(item) {
-            var opt = document.createElement('option');
-            opt.value = item.id;
-            opt.textContent = item.name;
-            selectEditPlace.appendChild(opt);
+        
+        // Llenar el select de edición
+        var editPlaceSelect = document.getElementById('editPlaceId');
+        if (editPlaceSelect) {
+          editPlaceSelect.innerHTML = '';
+          editPlaceSelect.innerHTML = '<option value="">Seleccione un Lugar</option>';
+          data.forEach(function(place) {
+            editPlaceSelect.innerHTML += `<option value="${place.id}">${place.name}</option>`;
           });
         }
       })
-      .catch(error => console.error('Error al cargar places:', error));
+      .catch(function(error) {
+        console.error('Error loading places:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los lugares'
+        });
+      });
   }
   
   // Llamada inicial: al cargar el DOM, carga los checkpoints y también las opciones de Gymkhana y Place
   document.addEventListener('DOMContentLoaded', function() {
     fetchCheckpoints();
     cargarOpcionesGymkhanas();
-    
     cargarOpcionesPlaces();
   });
-  

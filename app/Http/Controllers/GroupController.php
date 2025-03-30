@@ -290,9 +290,24 @@ public function estadoJuego()
         ->first();
 
     if ($group) {
+        // Obtenemos el ID de la gymkhana para este grupo
+        $usuariosDelGrupo = GroupUser::where('group_id', $group->id)->pluck('id');
+        
+        // Primero obtenemos el checkpoint_id y luego usamos eso para obtener el gymkhana_id
+        $checkpointId = GymkhanaProgress::whereIn('group_users_id', $usuariosDelGrupo)
+            ->pluck('checkpoint_id')
+            ->first();
+            
+        // Obtenemos el gymkhana_id usando el checkpoint_id
+        $gymkhanaId = null;
+        if ($checkpointId) {
+            $gymkhanaId = Checkpoint::where('id', $checkpointId)->value('gymkhana_id');
+        }
+
         return response()->json([
             'game_started' => $group->game_started,
-            'group'        => $group,
+            'group' => $group,
+            'gymkhana_id' => $gymkhanaId
         ]);
     }
 
