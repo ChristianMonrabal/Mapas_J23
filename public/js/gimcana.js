@@ -104,7 +104,7 @@ function verificarProgreso(miUbicacion) {
     }
 
     // Hace una petición al backend para obtener los datos de la gymkhana y los usuarios del grupo
-    fetch("/buscarGymkhana/" + grupoActivo.id + "/" + grupoActivo.id)
+    fetch("/buscarGymkhana/" + parseInt(params.get('gymkhana_id')) + "/" + grupoActivo.id)
         .then(response => {
             if (!response.ok) {
                 throw new Error("Error al obtener los datos. Código de estado: " + response.status);
@@ -166,7 +166,7 @@ function verificarProgreso(miUbicacion) {
                                     })
                                     .then(() => {
                                         // 🔹 Verificar si la gymkhana está completa
-                                        return fetch(`/verificarGymkhanaCompletada/${grupoActivo.gymkhana_id}`);
+                                        return fetch(`/verificarGymkhanaCompletada/${parseInt(params.get('gymkhana_id'))}`);
                                     })
                                     .then(response => response.json())
                                     .then(resultado => {
