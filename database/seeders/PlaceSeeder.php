@@ -227,5 +227,72 @@ class PlaceSeeder extends Seeder
             'updated_at' => $now,
         ]);
         
+        // Nuevos lugares cerca de Centro Comercial La Farga
+        Place::create([
+            'name' => 'Motarnico',
+            'address' => "Av. de Josep Tarradellas i Joan, 44, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36236591793771,
+            'longitude' => 2.0981898555012113,
+            'description' => "Biblioteca pública y centro cultural de L'Hospitalet",
+            'img' => 'biblioteca_tecla_sala.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Museo de Hospitalet de Llobregat',
+            'address' => "Carrer Occident, 2, 08903 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36104491465662,
+            'longitude' => 2.097405642263443,
+            'description' => "Mercado tradicional con productos frescos y de proximidad",
+            'img' => 'mercat_collblanc.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Drum Class',
+            'address' => "Av. de Can Buxeres, 08906 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36052149090072,
+            'longitude' => 2.0995889604022597,
+            'description' => "Extenso parque urbano con jardines históricos y casa señorial",
+            'img' => 'parque_can_buxeres.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Estación de Metro Av. Carrilet',
+            'address' => "Carrer de Rafael Campalans, 08903 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.35808394879572,
+            'longitude' => 2.102450162580789,
+            'description' => "Estación de metro de las líneas L1 y L9 Sud",
+            'img' => 'metro_torrassa.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'El Dragon',
+            'address' => "Av. de Josep Tarradellas i Joan, 44, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.36177574484012,
+            'longitude' => 2.103083413564202,
+            'description' => "Centro de arte y exposiciones situado junto a la Biblioteca Tecla Sala",
+            'img' => 'tpk_artes.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
+        Place::create([
+            'name' => 'Auditori Barradas',
+            'address' => "Plaça de la Sardana, 08901 L'Hospitalet de Llobregat, Barcelona",
+            'latitude' => 41.363064140117785,
+            'longitude' => 2.100808900329604,
+            'description' => "Plaza pública a pocos metros del centro comercial La Farga",
+            'img' => 'plaza_sardana.jpg',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        
     }
 }

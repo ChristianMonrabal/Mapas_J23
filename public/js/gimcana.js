@@ -42,7 +42,7 @@ function iniciarJuego() {
         }).addTo(map);
 
         var radioSeguridad = L.circle([lat, lng], {
-            color: "blue", fillColor: "blue", fillOpacity: 0.3, radius: 85
+            color: "blue", fillColor: "blue", fillOpacity: 0.3, radius: 20
         }).addTo(map);
 
         cargarSitios(map, miUbicacion, radioSeguridad);
@@ -129,7 +129,7 @@ function verificarProgreso(miUbicacion) {
                             sitio.latitude,
                             sitio.longitude
                         );
-                        if (distancia < 85) {
+                        if (distancia < 20) {
                             // Marcar el progreso del usuario en la base de datos
                             fetch("/actualizarProgresoUsuario/" + usuarioSesion, {
                                 method: "POST",
