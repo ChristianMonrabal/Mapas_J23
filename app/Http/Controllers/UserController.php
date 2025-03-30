@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\GymkhanaProgress;
+use App\Models\GroupUser;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -62,10 +65,41 @@ class UserController extends Controller
         return response()->json(['message' => 'Usuario actualizado con éxito', 'user' => $user]);
     }
 
-    public function destroy($id)
-    {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return response()->json(['message' => 'Usuario eliminado con éxito']);
+    public function destroy($id) {
+
+        // Iniciar una transacción
+        DB::beginTransaction();
+    
+        try {
+
+            $user = User::findOrFail($id);
+    
+            // Obtener los IDs de las relaciones en group_users
+            $group_users_ids = GroupUser::where('user_id', $user->id)->pluck('id');
+        
+            $gymkhana_progress = GymkhanaProgress::whereIn('group_users_id', $group_users_ids);
+    
+            $gymkhana_progress->delete();
+    
+            $group_users = GroupUser::where('user_id', $user->id);
+    
+            $group_users->delete();
+        
+            $user->delete();
+    
+            // Confirmar la transacción
+            DB::commit();
+    
+            return response()->json(['message' => 'Usuario eliminado con éxito']);
+    
+        } catch (\Exception $e) {
+
+            // Si hay error, deshacer cambios
+            DB::rollBack();
+            return response()->json(['error' => 'Error al eliminar el usuario', 'details' => $e->getMessage()], 500);
+
+        }
     }
+    
+    
 }
