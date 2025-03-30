@@ -239,7 +239,7 @@ class MapController extends Controller
         // Obtener los IDs de los checkpoints de esta gymkhana
         $checkpoints = Checkpoint::where('gymkhana_id', $gymkhanaId)->pluck('id');
     
-        if ($checkpoints->isEmpty()) {
+        if ($checkpoints->isEmpty()) { // Ahora sí es una colección
             \Log::warning("⚠️ No se encontraron checkpoints para la gymkhana {$gymkhanaId}.");
             return response()->json(['error' => 'No se encontraron checkpoints'], 404);
         }
@@ -247,11 +247,19 @@ class MapController extends Controller
         \Log::info("✅ Checkpoints encontrados: " . json_encode($checkpoints));
     
         // Buscar el progreso asociado a estos checkpoints
-        $progress = GymkhanaProgress::whereIn('checkpoint_id', $checkpoints)->where('completed', 1)->first();
+        $progress = GymkhanaProgress::whereIn('checkpoint_id', $checkpoints)
+            ->where('completed', 1)
+            ->exists(); // Mejor usar exists() para verificar si hay registros
+    
+        if ($progress) {
+            \Log::info("🏆 Gymkhana {$gymkhanaId} ha sido completada.");
+            return response()->json(['gymkhanaCompletada' => true]);
+        }
     
         \Log::info("❌ Gymkhana {$gymkhanaId} aún no ha sido completada.");
         return response()->json(['gymkhanaCompletada' => false]);
     }
+    
     
 
     // Función para reiniciar el progreso de los usuarios

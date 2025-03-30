@@ -33,14 +33,16 @@ class GroupUserSeeder extends Seeder
         // Grupo 1: Exploradores de L'Hospitalet
         $group1->users()->attach([
             $user1->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
-            $user2->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
-        ]);
-        
-        // Grupo 2: Caminantes de La Farga
-        $group2->users()->attach([
+            $user2->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
             $user3->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
             $user4->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
         ]);
+        
+        // Grupo 2: Caminantes de La Farga
+        // $group2->users()->attach([
+        //     $user3->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now],
+        //     $user4->id => ['completed' => false, 'created_at' => $now, 'updated_at' => $now]
+        // ]);
 
     }
     
