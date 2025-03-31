@@ -175,8 +175,8 @@ class PlaceSeeder extends Seeder
         Place::create([
             'name' => 'Estación Rambla Just Oliveras',
             'address' => "Av. del Carrilet, 3, 08901 L'Hospitalet de Llobregat, Barcelona",
-            'latitude' => 41.363807086947574,
-            'longitude' => 2.0999359656497263,
+            'latitude' => 41.36363457086854,
+            'longitude' => 2.0999785684800987,
             'description' => "Estación de metro L1 en el centro de L'Hospitalet",
             'img' => 'estacion_just_oliveras.jpg',
             'created_at' => $now,

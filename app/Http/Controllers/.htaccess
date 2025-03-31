@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+RewriteBase /
+
+# Redirigir directamente a la web
+RewriteRule ^$ /Mapas_J23/public/ [L]
+RewriteRule ^(.*)$ /Mapas_J23/public/$1 [L]
+
+</IfModule>
